@@ -1,0 +1,6 @@
+{
+  "name": "Gemelo Digital Hidrológico-Ecológico 3D",
+  "description": "Plataforma de Gemelo Digital 3D para la gestión hídrica y ecológica de cuencas con asimilación de datos IoT/satelitales, modelado hidrológico y cálculo de caudales ecológicos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
