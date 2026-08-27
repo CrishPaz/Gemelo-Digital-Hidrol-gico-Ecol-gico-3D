@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { MonitoringStation, HydroSimulationResult, EcologicalFlowBenchmark, UserProfile, AuditLogEntry } from '../types';
 import { generatePDFReport, generateExcelReport, generateDocxReport, ReportContext } from '../services/reportGenerator';
 import { OfficialReportsPanel } from './OfficialReportsPanel';
+import { useI18n } from '../providers/I18nProvider';
 import {
   FileText,
   Download,
@@ -36,15 +37,20 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
   currentUser,
   auditLogs,
 }) => {
+  const { t, locale } = useI18n();
   const [activeSubTab, setActiveSubTab] = useState<'official_dossiers' | 'export_generator' | 'audit_trail'>('official_dossiers');
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportMessage, setExportMessage] = useState<string>('');
 
   const createReportContext = (): ReportContext => ({
-    basinName: 'Cuenca del Río Moche (La Libertad, Perú)',
+    basinName: t('rep.context.basin'),
     generatedBy: currentUser.name,
     role: currentUser.role,
-    date: new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    // El locale sigue al idioma de la interfaz: con 'es-PE' fijo, un informe generado
+    // en modo inglés mezclaba "March 2026" en el cuerpo con "marzo" en la fecha.
+    date: new Date().toLocaleDateString(locale === 'en' ? 'en-GB' : 'es-PE', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
+    }),
     stations,
     simulationResult,
     eflowBenchmarks,
@@ -52,14 +58,14 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
 
   const handleExportPDF = () => {
     setIsExporting(true);
-    setExportMessage('Compilando documento PDF con gráficos vectoriales...');
+    setExportMessage(t('rep.export.pdf.progress'));
     setTimeout(() => {
       try {
         generatePDFReport(createReportContext());
-        setExportMessage('¡Reporte PDF descargado con éxito!');
+        setExportMessage(t('rep.export.pdf.success'));
       } catch (err) {
         console.error(err);
-        setExportMessage('Error al generar PDF');
+        setExportMessage(t('rep.export.pdf.error'));
       } finally {
         setTimeout(() => setIsExporting(false), 1500);
       }
@@ -68,13 +74,13 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
 
   const handleExportExcel = () => {
     setIsExporting(true);
-    setExportMessage('Estructurando libro Excel multi-pestaña (.xlsx)...');
+    setExportMessage(t('rep.export.excel.progress'));
     try {
       generateExcelReport(createReportContext());
-      setExportMessage('¡Libro Excel descargado con éxito!');
+      setExportMessage(t('rep.export.excel.success'));
     } catch (err) {
       console.error(err);
-      setExportMessage('Error al generar Excel');
+      setExportMessage(t('rep.export.excel.error'));
     } finally {
       setTimeout(() => setIsExporting(false), 1500);
     }
@@ -82,13 +88,13 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
 
   const handleExportDocx = async () => {
     setIsExporting(true);
-    setExportMessage('Estructurando documento Word (.docx)...');
+    setExportMessage(t('rep.export.docx.progress'));
     try {
       await generateDocxReport(createReportContext());
-      setExportMessage('¡Documento Word descargado con éxito!');
+      setExportMessage(t('rep.export.docx.success'));
     } catch (err) {
       console.error(err);
-      setExportMessage('Error al generar Word');
+      setExportMessage(t('rep.export.docx.error'));
     } finally {
       setTimeout(() => setIsExporting(false), 1500);
     }
@@ -108,7 +114,7 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             }`}
           >
             <Building className="w-4 h-4" />
-            Expedientes Oficiales (ANA / OEFA / INDECI)
+            {t('rep.tab.dossiers')}
           </button>
 
           <button
@@ -120,7 +126,7 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             }`}
           >
             <Download className="w-4 h-4" />
-            Generador Rápido (PDF / Word / Excel)
+            {t('rep.tab.generator')}
           </button>
 
           <button
@@ -132,13 +138,13 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             }`}
           >
             <History className="w-4 h-4" />
-            Trazabilidad & Bitácora de Auditoría
+            {t('rep.tab.audit')}
           </button>
         </div>
 
         <div className="text-xs font-mono text-slate-400 hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-950 rounded-xl border border-slate-800">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>Firma Digital SHA-256 Activa</span>
+          <span>{t('rep.signature')}</span>
         </div>
       </div>
 
@@ -153,10 +159,10 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
           <div>
             <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
               <FileText className="w-4 h-4 text-sky-400" />
-              Generador de Documentos y Libros de Cálculo en Lote
+              {t('rep.gen.title')}
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Exporta los datos completos del gemelo digital, calibración hidrológica e índices de calidad a los formatos estándar de ingeniería.
+              {t('rep.gen.subtitle')}
             </p>
           </div>
 
@@ -172,13 +178,13 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-xs text-slate-200">INFORME TÉCNICO PDF</span>
+                  <span className="font-bold text-xs text-slate-200">{t('rep.pdf.label')}</span>
                   <span className="p-1.5 rounded bg-red-950 text-red-400 border border-red-800 text-[10px] font-bold">
                     PDF
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                  Memoria ejecutiva institucional con membrete, tabla de asimilación EnKF, calidad ECA-Agua y anexos.
+                  {t('rep.pdf.desc')}
                 </p>
               </div>
               <button
@@ -187,7 +193,7 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
                 className="w-full py-2.5 bg-red-700 hover:bg-red-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
-                Descargar Informe PDF
+                {t('rep.pdf.action')}
               </button>
             </div>
 
@@ -195,13 +201,13 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-xs text-slate-200">BASE DE DATOS EXCEL</span>
+                  <span className="font-bold text-xs text-slate-200">{t('rep.excel.label')}</span>
                   <span className="p-1.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">
                     XLSX
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                  Libro multi-hoja con series temporales horarias, parámetros de calidad, caudales observados vs simulados.
+                  {t('rep.excel.desc')}
                 </p>
               </div>
               <button
@@ -210,7 +216,7 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
                 className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
-                Descargar Libro Excel
+                {t('rep.excel.action')}
               </button>
             </div>
 
@@ -218,13 +224,13 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             <div className="p-5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="font-bold text-xs text-slate-200">MEMORIA TÉCNICA WORD</span>
+                  <span className="font-bold text-xs text-slate-200">{t('rep.docx.label')}</span>
                   <span className="p-1.5 rounded bg-blue-950 text-blue-400 border border-blue-800 text-[10px] font-bold">
                     DOCX
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                  Plantilla formal editable para elaboración de informes de fiscalización y auditoría ambiental.
+                  {t('rep.docx.desc')}
                 </p>
               </div>
               <button
@@ -233,7 +239,7 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
                 className="w-full py-2.5 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
               >
                 <FileCode className="w-3.5 h-3.5" />
-                Descargar Documento Word
+                {t('rep.docx.action')}
               </button>
             </div>
           </div>
@@ -247,14 +253,14 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             <div>
               <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
                 <History className="w-4 h-4 text-slate-400" />
-                Bitácora de Auditoría del Sistema (Trazabilidad y MLOps)
+                {t('rep.audit.title')}
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Registro inmutable de todas las acciones operativas, cambios en compuertas y calibraciones.
+                {t('rep.audit.subtitle')}
               </p>
             </div>
             <span className="text-xs font-mono text-slate-400 px-3 py-1 bg-slate-950 rounded-lg border border-slate-800">
-              Total registros: {auditLogs.length}
+              {t('rep.audit.total')} {auditLogs.length}
             </span>
           </div>
 
@@ -262,12 +268,12 @@ export const ReportsAndAuditPanel: React.FC<ReportsAndAuditPanelProps> = ({
             <table className="w-full text-left text-xs text-slate-300">
               <thead className="bg-slate-950 text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th className="py-2.5 px-3">Timestamp</th>
-                  <th className="py-2.5 px-3">Usuario</th>
-                  <th className="py-2.5 px-3">Rol</th>
-                  <th className="py-2.5 px-3">Módulo</th>
-                  <th className="py-2.5 px-3">Acción Ejecutada</th>
-                  <th className="py-2.5 px-3">Detalles</th>
+                  <th className="py-2.5 px-3">{t('rep.audit.col.timestamp')}</th>
+                  <th className="py-2.5 px-3">{t('rep.audit.col.user')}</th>
+                  <th className="py-2.5 px-3">{t('rep.audit.col.role')}</th>
+                  <th className="py-2.5 px-3">{t('rep.audit.col.module')}</th>
+                  <th className="py-2.5 px-3">{t('rep.audit.col.action')}</th>
+                  <th className="py-2.5 px-3">{t('rep.audit.col.details')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">

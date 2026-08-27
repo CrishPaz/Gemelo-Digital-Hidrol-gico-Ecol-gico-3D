@@ -38,12 +38,33 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts';
+import { useI18n } from '../providers/I18nProvider';
 
 interface HydrogeologySalinityPanelProps {
   currentUser?: UserProfile;
 }
 
+/**
+ * Los valores de `salinityRisk` e `irrigationSuitability` llegan en español desde
+ * `hydrogeologyData`. Aquí sólo se traduce su presentación: la lógica de umbrales
+ * sigue comparando contra el valor original del dato.
+ */
+const SALINITY_RISK_KEYS: Record<string, string> = {
+  Normal: 'hgeo.risk.normal',
+  Leve: 'hgeo.risk.mild',
+  Moderada: 'hgeo.risk.moderate',
+  'Severa (Intrusión)': 'hgeo.risk.severe',
+};
+
+const IRRIGATION_SUITABILITY_KEYS: Record<string, string> = {
+  'Apto Sin Restricción': 'hgeo.suitability.unrestricted',
+  'Apto con Drenaje': 'hgeo.suitability.drainage',
+  'Restringido (Palto/Espárrago)': 'hgeo.suitability.restricted',
+  'No Apto (Salinizado)': 'hgeo.suitability.unsuitable',
+};
+
 export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps> = ({ currentUser }) => {
+  const { t } = useI18n();
   const [wells, setWells] = useState<GroundwaterWell[]>(INITIAL_GROUNDWATER_WELLS);
   const [selectedWellId, setSelectedWellId] = useState<string>('well-01');
 
@@ -80,33 +101,33 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
               <Anchor className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Hidrogeología & Modelo de Intrusión Marina (Cuña Salina)
+              {t('hgeo.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Vigilancia del acuífero costero del Valle Santa Catalina, red piezométrica en tiempo real y ley de Ghyben-Herzberg para salinidad en pozos agrícolas.
+            {t('hgeo.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Balance Anual</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('hgeo.kpi.annualBalance')}</div>
             <div
               className={`text-sm font-extrabold font-mono ${
                 isDeficit ? 'text-red-400' : 'text-emerald-400'
               }`}
             >
-              {netBalance > 0 ? `+${netBalance}` : netBalance} Hm³/año
+              {netBalance > 0 ? `+${netBalance}` : netBalance} {t('hgeo.unit.hm3PerYear')}
             </div>
           </div>
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Estado Acuífero</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('hgeo.kpi.aquiferStatus')}</div>
             <div
               className={`text-xs font-extrabold uppercase ${
                 isDeficit ? 'text-red-400 animate-pulse' : 'text-emerald-400'
               }`}
             >
-              {isDeficit ? 'Sobreexplotado' : 'Equilibrio'}
+              {isDeficit ? t('hgeo.status.overexploited') : t('hgeo.status.equilibrium')}
             </div>
           </div>
         </div>
@@ -131,7 +152,7 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
             >
               <div>
                 <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
-                  <span>{w.code} • A {w.distanceToCoastKm} km del Mar</span>
+                  <span>{w.code} • {t('hgeo.well.distancePrefix')} {w.distanceToCoastKm} km {t('hgeo.well.distanceSuffix')}</span>
                   <span
                     className={`px-1.5 py-0.2 rounded font-bold text-[9px] uppercase ${
                       isSevere
@@ -141,7 +162,7 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
                         : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                     }`}
                   >
-                    {w.salinityRisk}
+                    {t(SALINITY_RISK_KEYS[w.salinityRisk] ?? w.salinityRisk)}
                   </span>
                 </div>
 
@@ -151,7 +172,7 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
 
               <div className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1.5 text-xs font-mono">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Conductividad ($CE$):</span>
+                  <span className="text-slate-400">{t('hgeo.well.conductivity')}</span>
                   <strong
                     className={
                       w.electricalConductivityUsCm > 3000
@@ -165,12 +186,14 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
                   </strong>
                 </div>
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-slate-400">Nivel Freático:</span>
+                  <span className="text-slate-400">{t('hgeo.well.waterTable')}</span>
                   <span className="text-slate-200">-{w.waterTableDepthM} m</span>
                 </div>
                 <div className="flex justify-between text-[10px]">
-                  <span className="text-slate-500">Aptitud Agrícola:</span>
-                  <span className="text-slate-300 font-sans font-medium">{w.irrigationSuitability}</span>
+                  <span className="text-slate-500">{t('hgeo.well.suitability')}</span>
+                  <span className="text-slate-300 font-sans font-medium">
+                    {t(IRRIGATION_SUITABILITY_KEYS[w.irrigationSuitability] ?? w.irrigationSuitability)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -184,10 +207,10 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
           <div>
             <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
               <Sliders className="w-4 h-4 text-teal-400" />
-              Simulador de Interacción Río-Acuífero & Bombeo Agroindustrial
+              {t('hgeo.sim.title')}
             </h3>
             <p className="text-xs text-slate-400">
-              Modela la variación de la recarga fluvial y el régimen de bombeo sobre la posición de la cuña salina marina.
+              {t('hgeo.sim.subtitle')}
             </p>
           </div>
         </div>
@@ -195,8 +218,10 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
             <div className="flex justify-between text-xs font-semibold text-slate-300">
-              <span>Intensidad de Bombeo Agrícola e Industrial:</span>
-              <span className="font-mono text-amber-400 font-bold">{(pumpingFactor * 100).toFixed(0)}% (Base = 100%)</span>
+              <span>{t('hgeo.sim.pumping.label')}</span>
+              <span className="font-mono text-amber-400 font-bold">
+                {(pumpingFactor * 100).toFixed(0)}% {t('hgeo.sim.pumping.baseline')}
+              </span>
             </div>
             <input
               type="range"
@@ -208,15 +233,15 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
             />
             <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-              <span>Racionamiento (50%)</span>
-              <span>Actual (135%)</span>
-              <span>Sobreexplotación Crítica (220%)</span>
+              <span>{t('hgeo.sim.pumping.min')}</span>
+              <span>{t('hgeo.sim.pumping.mid')}</span>
+              <span>{t('hgeo.sim.pumping.max')}</span>
             </div>
           </div>
 
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
             <div className="flex justify-between text-xs font-semibold text-slate-300">
-              <span>Recarga e Infiltración del Lecho Fluvial:</span>
+              <span>{t('hgeo.sim.recharge.label')}</span>
               <span className="font-mono text-teal-400 font-bold">{(rechargeFactor * 100).toFixed(0)}%</span>
             </div>
             <input
@@ -229,9 +254,9 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
             />
             <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-              <span>Sequía Extrema (30%)</span>
-              <span>Régimen Normal (100%)</span>
-              <span>Avenida FEN (200%)</span>
+              <span>{t('hgeo.sim.recharge.min')}</span>
+              <span>{t('hgeo.sim.recharge.mid')}</span>
+              <span>{t('hgeo.sim.recharge.max')}</span>
             </div>
           </div>
         </div>
@@ -243,19 +268,19 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
           <div>
             <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
               <Layers className="w-4 h-4 text-sky-400" />
-              Perfil Hidrogeológico de la Cuña Salina (Ley de Ghyben-Herzberg: z = -40 · h_f)
+              {t('hgeo.wedge.title')}
             </h3>
             <p className="text-xs text-slate-400">
-              Corte transversal desde el litoral costero hacia el interior del Valle de Santa Catalina (0 a 10 km).
+              {t('hgeo.wedge.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-mono">
             <span className="flex items-center gap-1 text-teal-400">
-              <span className="w-3 h-0.5 bg-teal-400 inline-block"></span> Nivel Freático Dulce (msnm)
+              <span className="w-3 h-0.5 bg-teal-400 inline-block"></span> {t('hgeo.wedge.legend.fresh')}
             </span>
             <span className="flex items-center gap-1 text-blue-500">
-              <span className="w-3 h-0.5 bg-blue-500 inline-block"></span> Interfase Salina (m bnm)
+              <span className="w-3 h-0.5 bg-blue-500 inline-block"></span> {t('hgeo.wedge.legend.salt')}
             </span>
           </div>
         </div>
@@ -269,7 +294,7 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
                 stroke="#64748b"
                 tick={{ fontSize: 11 }}
                 unit=" km"
-                label={{ value: 'Distancia tierra adentro desde la Costa (km)', position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
+                label={{ value: t('hgeo.wedge.axis.distance'), position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
               />
               <YAxis
                 yAxisId="head"
@@ -289,13 +314,15 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
               <Tooltip
                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                 formatter={(value: any, name: string) => [
-                  name === 'Interfase Salina Marina' ? `${value} m bnm` : `${value} msnm`,
+                  name === t('hgeo.wedge.series.interface')
+                    ? `${value} ${t('hgeo.wedge.unit.mbsl')}`
+                    : `${value} ${t('hgeo.wedge.unit.masl')}`,
                   name,
                 ]}
               />
-              <ReferenceLine yAxisId="depth" y={0} stroke="#94a3b8" strokeDasharray="4 4" label={{ value: 'Nivel del Mar (0.0 m)', fill: '#94a3b8', fontSize: 10 }} />
-              <Line yAxisId="head" type="monotone" dataKey="waterTableHeadM" stroke="#2dd4bf" strokeWidth={2.5} dot={{ r: 4, fill: '#2dd4bf' }} name="Carga Hidráulica Dulce" />
-              <Area yAxisId="depth" type="monotone" dataKey="saltInterfaceDepthM" fill="#1e3a8a40" stroke="#3b82f6" strokeWidth={2} name="Interfase Salina Marina" />
+              <ReferenceLine yAxisId="depth" y={0} stroke="#94a3b8" strokeDasharray="4 4" label={{ value: t('hgeo.wedge.seaLevel'), fill: '#94a3b8', fontSize: 10 }} />
+              <Line yAxisId="head" type="monotone" dataKey="waterTableHeadM" stroke="#2dd4bf" strokeWidth={2.5} dot={{ r: 4, fill: '#2dd4bf' }} name={t('hgeo.wedge.series.head')} />
+              <Area yAxisId="depth" type="monotone" dataKey="saltInterfaceDepthM" fill="#1e3a8a40" stroke="#3b82f6" strokeWidth={2} name={t('hgeo.wedge.series.interface')} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -305,44 +332,44 @@ export const HydrogeologySalinityPanel: React.FC<HydrogeologySalinityPanelProps>
       <div className="bg-slate-900/90 p-5 rounded-2xl border border-slate-800">
         <h3 className="text-sm font-bold text-slate-100 mb-3 flex items-center gap-2">
           <Activity className="w-4 h-4 text-emerald-400" />
-          Balance Hidrológico Subterráneo Anual (Hm³/año)
+          {t('hgeo.balance.title')}
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs font-mono">
             <div className="text-emerald-400 font-bold uppercase text-[11px] mb-2 flex items-center justify-between">
-              <span>Entradas y Recarga (+):</span>
-              <span>+{totalInflow} Hm³/año</span>
+              <span>{t('hgeo.balance.inflows')}</span>
+              <span>+{totalInflow} {t('hgeo.unit.hm3PerYear')}</span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>• Recarga Natural por Lluvias en Sierra:</span>
+              <span>• {t('hgeo.balance.naturalRecharge')}</span>
               <span className="font-bold">+{naturalRecharge} Hm³</span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>• Infiltración del Lecho del Río Moche:</span>
+              <span>• {t('hgeo.balance.riverInfiltration')}</span>
               <span className="font-bold">+{riverBedInfiltration} Hm³</span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>• Retorno de Riego Agrícola:</span>
+              <span>• {t('hgeo.balance.irrigationReturn')}</span>
               <span className="font-bold">+{irrigationReturn} Hm³</span>
             </div>
           </div>
 
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs font-mono">
             <div className="text-red-400 font-bold uppercase text-[11px] mb-2 flex items-center justify-between">
-              <span>Salidas y Extracción Bombeo (-):</span>
-              <span>-{totalOutflow} Hm³/año</span>
+              <span>{t('hgeo.balance.outflows')}</span>
+              <span>-{totalOutflow} {t('hgeo.unit.hm3PerYear')}</span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>• Extracción Riego Agrícola (Caña/Espárragos):</span>
+              <span>• {t('hgeo.balance.agriPumping')}</span>
               <span className="font-bold text-amber-400">-{agriculturalPumping} Hm³</span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>• Extracción Industrial y Minera:</span>
+              <span>• {t('hgeo.balance.industrialPumping')}</span>
               <span className="font-bold text-amber-400">-{industrialPumping} Hm³</span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>• Bombeo Agua Poblacional (Sedalib):</span>
+              <span>• {t('hgeo.balance.domesticPumping')}</span>
               <span className="font-bold text-sky-400">-{domesticPumping} Hm³</span>
             </div>
           </div>

@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { SatelliteLayerData } from '../types';
 import { calculateSatelliteWaterIndices } from '../services/waterQualityEngine';
+import { useI18n } from '../providers/I18nProvider';
 import {
   Layers,
   Sparkles,
@@ -29,6 +30,7 @@ import {
 } from 'recharts';
 
 export const SatelliteRemoteSensingPanel: React.FC = () => {
+  const { t } = useI18n();
   const [selectedSensor, setSelectedSensor] = useState<'Sentinel-2' | 'GPM_IMERG'>('Sentinel-2');
 
   // Muestra de reflectancias espectrales en un tramo fluvial (Río Moche - Simbal)
@@ -50,13 +52,13 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
 
   // Comparativa GPM IMERG vs Pluviómetros in-situ
   const gpmComparisonData = [
-    { day: 'Día 1', GPM_Satelital: 2.1, Pluviometro_InSitu: 1.8 },
-    { day: 'Día 2', GPM_Satelital: 0.0, Pluviometro_InSitu: 0.0 },
-    { day: 'Día 3', GPM_Satelital: 8.4, Pluviometro_InSitu: 9.2 },
-    { day: 'Día 4', GPM_Satelital: 14.2, Pluviometro_InSitu: 15.6 },
-    { day: 'Día 5', GPM_Satelital: 4.8, Pluviometro_InSitu: 4.2 },
-    { day: 'Día 6', GPM_Satelital: 0.5, Pluviometro_InSitu: 0.0 },
-    { day: 'Día 7', GPM_Satelital: 0.0, Pluviometro_InSitu: 0.0 },
+    { day: `${t('sat.chart.day')} 1`, GPM_Satelital: 2.1, Pluviometro_InSitu: 1.8 },
+    { day: `${t('sat.chart.day')} 2`, GPM_Satelital: 0.0, Pluviometro_InSitu: 0.0 },
+    { day: `${t('sat.chart.day')} 3`, GPM_Satelital: 8.4, Pluviometro_InSitu: 9.2 },
+    { day: `${t('sat.chart.day')} 4`, GPM_Satelital: 14.2, Pluviometro_InSitu: 15.6 },
+    { day: `${t('sat.chart.day')} 5`, GPM_Satelital: 4.8, Pluviometro_InSitu: 4.2 },
+    { day: `${t('sat.chart.day')} 6`, GPM_Satelital: 0.5, Pluviometro_InSitu: 0.0 },
+    { day: `${t('sat.chart.day')} 7`, GPM_Satelital: 0.0, Pluviometro_InSitu: 0.0 },
   ];
 
   return (
@@ -66,10 +68,10 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
         <div>
           <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
             <Satellite className="w-4 h-4 text-sky-400" />
-            Integración de Teledetección y Productos Satelitales (Copernicus & NASA)
+            {t('sat.title')}
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Observación de la Tierra mediante APIs STAC (Copernicus Data Space / Planetary Computer)
+            {t('sat.subtitle')}
           </p>
         </div>
 
@@ -80,7 +82,7 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
               selectedSensor === 'Sentinel-2' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
-            Sentinel-2 L2A (Óptico/Bio-óptico)
+            {t('sat.sensor.s2')}
           </button>
           <button
             onClick={() => setSelectedSensor('GPM_IMERG')}
@@ -88,7 +90,7 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
               selectedSensor === 'GPM_IMERG' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-white'
             }`}
           >
-            GPM IMERG (Lluvia Satelital)
+            {t('sat.sensor.gpm')}
           </button>
         </div>
       </div>
@@ -100,48 +102,48 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
             <div className="p-4 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800">
               <span className="text-xs font-semibold text-slate-400">NDWI (McFeeters)</span>
               <div className="text-2xl font-bold text-sky-400 my-1">{bioIndices.ndwi}</div>
-              <p className="text-[11px] text-slate-400">Delimitación de cuerpos de agua superficiales</p>
+              <p className="text-[11px] text-slate-400">{t('sat.index.ndwi.desc')}</p>
             </div>
 
             <div className="p-4 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800">
-              <span className="text-xs font-semibold text-slate-400">MNDWI (Xu Modificado)</span>
+              <span className="text-xs font-semibold text-slate-400">{t('sat.index.mndwi.label')}</span>
               <div className="text-2xl font-bold text-blue-400 my-1">{bioIndices.mndwi}</div>
-              <p className="text-[11px] text-slate-400">Supresión de ruido urbano y vegetación</p>
+              <p className="text-[11px] text-slate-400">{t('sat.index.mndwi.desc')}</p>
             </div>
 
             <div className="p-4 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800">
-              <span className="text-xs font-semibold text-slate-400">Clorofila-a (2-Band Ratio)</span>
+              <span className="text-xs font-semibold text-slate-400">{t('sat.index.chla.label')}</span>
               <div className="text-2xl font-bold text-emerald-400 my-1">{bioIndices.chlorophyllAUgL} <span className="text-xs text-slate-400 font-normal">µg/L</span></div>
-              <p className="text-[11px] text-slate-400">Algoritmo bio-óptico Moses/Gurlin (B5/B4)</p>
+              <p className="text-[11px] text-slate-400">{t('sat.index.chla.desc')}</p>
             </div>
 
             <div className="p-4 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800">
-              <span className="text-xs font-semibold text-slate-400">Turbidez Semi-Analítica</span>
+              <span className="text-xs font-semibold text-slate-400">{t('sat.index.turbidity.label')}</span>
               <div className="text-2xl font-bold text-amber-400 my-1">{bioIndices.turbidityNTU} <span className="text-xs text-slate-400 font-normal">NTU</span></div>
-              <p className="text-[11px] text-slate-400">Modelo Nechad et al. (Banda 4 665nm)</p>
+              <p className="text-[11px] text-slate-400">{t('sat.index.turbidity.desc')}</p>
             </div>
           </div>
 
           {/* Ficha de Metadatos STAC del Mosaico */}
           <div className="p-5 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800 space-y-3">
             <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-              Metadatos de Ingesta Satelital STAC
+              {t('sat.metadata.title')}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-300">
               <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800">
-                <span className="text-slate-500">Misión:</span>
+                <span className="text-slate-500">{t('sat.metadata.mission')}</span>
                 <p className="font-semibold text-slate-200 mt-0.5">Sentinel-2B MSI</p>
               </div>
               <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800">
-                <span className="text-slate-500">Nivel de Proceso:</span>
+                <span className="text-slate-500">{t('sat.metadata.level')}</span>
                 <p className="font-semibold text-slate-200 mt-0.5">Level-2A (BOA Reflectance)</p>
               </div>
               <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800">
-                <span className="text-slate-500">Cobertura Nubosa:</span>
-                <p className="font-semibold text-emerald-400 mt-0.5">4.2% (Válido)</p>
+                <span className="text-slate-500">{t('sat.metadata.cloud')}</span>
+                <p className="font-semibold text-emerald-400 mt-0.5">4.2% ({t('sat.metadata.valid')})</p>
               </div>
               <div className="p-2.5 bg-slate-950/70 rounded-lg border border-slate-800">
-                <span className="text-slate-500">Resolución Espacial:</span>
+                <span className="text-slate-500">{t('sat.metadata.resolution')}</span>
                 <p className="font-semibold text-sky-400 mt-0.5">10 m / 20 m</p>
               </div>
             </div>
@@ -151,10 +153,10 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
         <div className="p-5 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800 space-y-4">
           <div>
             <h3 className="text-sm font-bold text-slate-100">
-              Precipitación Satelital GPM IMERG vs. Red Pluviométrica in-situ
+              {t('sat.gpm.title')}
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Calibración y corrección de sesgo (Bias Correction) para asimilación hidrológica
+              {t('sat.gpm.subtitle')}
             </p>
           </div>
 
@@ -179,14 +181,14 @@ export const SatelliteRemoteSensingPanel: React.FC = () => {
                   dataKey="GPM_Satelital"
                   stroke="#38bdf8"
                   strokeWidth={2.2}
-                  name="GPM IMERG Satelital (mm/día)"
+                  name={t('sat.gpm.series.satellite')}
                 />
                 <Line
                   type="monotone"
                   dataKey="Pluviometro_InSitu"
                   stroke="#10b981"
                   strokeWidth={2.2}
-                  name="Pluviómetro Terrestre (mm/día)"
+                  name={t('sat.gpm.series.gauge')}
                 />
               </LineChart>
             </ResponsiveContainer>

@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { HydroSimulationResult } from '../types';
 import { GR4JParameters, DEFAULT_MOCHE_GR4J_PARAMS } from '../services/hydroEngine';
 import { EnKFConfig, DEFAULT_ENKF_CONFIG, runEnKFAssimilation } from '../services/enkfEngine';
+import { useI18n } from '../providers/I18nProvider';
 import {
   Waves,
   Sliders,
@@ -41,6 +42,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
   simulationResult,
   onUpdateSimulation,
 }) => {
+  const { t } = useI18n();
   const [params, setParams] = useState<GR4JParameters>(DEFAULT_MOCHE_GR4J_PARAMS);
   const [enkfConfig, setEnkfConfig] = useState<EnKFConfig>(DEFAULT_ENKF_CONFIG);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
@@ -91,10 +93,10 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Sliders className="w-4 h-4 text-sky-400" />
-              Configuración del Modelo Hidrológico GR4J y Asimilador EnKF
+              {t('enkf.config.title')}
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Ajuste dinámico de parámetros físicos de suelo, ruteo y ensambles estocásticos
+              {t('enkf.config.subtitle')}
             </p>
           </div>
 
@@ -103,7 +105,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
               onClick={handleResetDefaults}
               className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors border border-slate-700"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> Calibración Moche
+              <RotateCcw className="w-3.5 h-3.5" /> {t('enkf.action.resetDefaults')}
             </button>
             <button
               onClick={handleRunEnKF}
@@ -111,7 +113,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
               className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-blue-900/40 transition-all disabled:opacity-50"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              {isSimulating ? 'Asimilando...' : 'Ejecutar Ciclo EnKF'}
+              {isSimulating ? t('enkf.action.assimilating') : t('enkf.action.run')}
             </button>
           </div>
         </div>
@@ -121,7 +123,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
           {/* X1: Capacidad Producción */}
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300 font-medium">X1 (Capacidad Suelo S)</span>
+              <span className="text-slate-300 font-medium">{t('enkf.param.x1.label')}</span>
               <span className="font-mono text-sky-400">{params.x1.toFixed(1)} mm</span>
             </div>
             <input
@@ -133,13 +135,13 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
               onChange={e => setParams({ ...params, x1: Number(e.target.value) })}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
             />
-            <span className="text-[10px] text-slate-500">Rango: 100 - 1200 mm</span>
+            <span className="text-[10px] text-slate-500">{t('enkf.param.x1.range')}</span>
           </div>
 
           {/* X2: Intercambio Subterráneo */}
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300 font-medium">X2 (Intercambio F)</span>
+              <span className="text-slate-300 font-medium">{t('enkf.param.x2.label')}</span>
               <span className="font-mono text-sky-400">{params.x2.toFixed(2)} mm/d</span>
             </div>
             <input
@@ -151,13 +153,13 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
               onChange={e => setParams({ ...params, x2: Number(e.target.value) })}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
             />
-            <span className="text-[10px] text-slate-500">Rango: -4.0 a +4.0 mm/d</span>
+            <span className="text-[10px] text-slate-500">{t('enkf.param.x2.range')}</span>
           </div>
 
           {/* X3: Reservorio Ruteo */}
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300 font-medium">X3 (Ruteo R)</span>
+              <span className="text-slate-300 font-medium">{t('enkf.param.x3.label')}</span>
               <span className="font-mono text-sky-400">{params.x3.toFixed(1)} mm</span>
             </div>
             <input
@@ -169,14 +171,16 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
               onChange={e => setParams({ ...params, x3: Number(e.target.value) })}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
             />
-            <span className="text-[10px] text-slate-500">Rango: 20 - 350 mm</span>
+            <span className="text-[10px] text-slate-500">{t('enkf.param.x3.range')}</span>
           </div>
 
           {/* X4: Tiempo Base UH1 */}
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300 font-medium">X4 (Tiempo Base UH)</span>
-              <span className="font-mono text-sky-400">{params.x4.toFixed(2)} días</span>
+              <span className="text-slate-300 font-medium">{t('enkf.param.x4.label')}</span>
+              <span className="font-mono text-sky-400">
+                {params.x4.toFixed(2)} {t('enkf.unit.days')}
+              </span>
             </div>
             <input
               type="range"
@@ -187,23 +191,27 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
               onChange={e => setParams({ ...params, x4: Number(e.target.value) })}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
             />
-            <span className="text-[10px] text-slate-500">Rango: 0.5 - 4.0 días</span>
+            <span className="text-[10px] text-slate-500">{t('enkf.param.x4.range')}</span>
           </div>
         </div>
 
         {/* Configuración EnKF */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-800/80">
           <div className="flex items-center justify-between p-2.5 bg-slate-950/50 rounded-lg border border-slate-800 text-xs">
-            <span className="text-slate-400">Tamaño del Ensamble:</span>
-            <span className="font-bold text-slate-200">N = {enkfConfig.ensembleSize} miembros</span>
+            <span className="text-slate-400">{t('enkf.cfg.ensembleSize')}</span>
+            <span className="font-bold text-slate-200">
+              N = {enkfConfig.ensembleSize} {t('enkf.cfg.members')}
+            </span>
           </div>
           <div className="flex items-center justify-between p-2.5 bg-slate-950/50 rounded-lg border border-slate-800 text-xs">
-            <span className="text-slate-400">Ruido Precipitación (σ_P):</span>
+            <span className="text-slate-400">{t('enkf.cfg.precipNoise')}</span>
             <span className="font-bold text-slate-200">{(enkfConfig.precipErrorCoeffVar * 100).toFixed(0)}% Log-Normal</span>
           </div>
           <div className="flex items-center justify-between p-2.5 bg-slate-950/50 rounded-lg border border-slate-800 text-xs">
-            <span className="text-slate-400">Error Observación (σ_obs):</span>
-            <span className="font-bold text-slate-200">{(enkfConfig.obsErrorCoeffVar * 100).toFixed(0)}% Gaussiano</span>
+            <span className="text-slate-400">{t('enkf.cfg.obsError')}</span>
+            <span className="font-bold text-slate-200">
+              {(enkfConfig.obsErrorCoeffVar * 100).toFixed(0)}% {t('enkf.cfg.gaussian')}
+            </span>
           </div>
         </div>
       </div>
@@ -214,10 +222,10 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Waves className="w-4 h-4 text-emerald-400" />
-              Hidrograma de Asimilación EnKF: Observado vs. A Priori vs. A Posteriori
+              {t('enkf.chart.title')}
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Evaluación hidrológica continua con cuantificación de incertidumbre (P10 - P90)
+              {t('enkf.chart.subtitle')}
             </p>
           </div>
 
@@ -229,7 +237,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
                 : 'bg-slate-800 text-slate-400 border-slate-700'
             }`}
           >
-            {showUncertaintyBands ? 'Ocultar Banda P10-P90' : 'Mostrar Banda P10-P90'}
+            {showUncertaintyBands ? t('enkf.chart.hideBand') : t('enkf.chart.showBand')}
           </button>
         </div>
 
@@ -259,14 +267,14 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
                     stroke="transparent"
                     fill="#94a3b8"
                     fillOpacity={0.25}
-                    name="Percentil P90"
+                    name={t('enkf.series.p90')}
                   />
                   <Area
                     type="monotone"
                     dataKey="P10"
                     stroke="transparent"
                     fill="#0f172a"
-                    name="Percentil P10"
+                    name={t('enkf.series.p10')}
                   />
                 </>
               )}
@@ -279,7 +287,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
                 strokeWidth={1.8}
                 strokeDasharray="4 4"
                 dot={false}
-                name="Modelo A Priori (Sin Asimilación)"
+                name={t('enkf.series.prior')}
               />
 
               {/* Simulación A Posteriori (EnKF) */}
@@ -289,7 +297,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
                 stroke="#0ea5e9"
                 strokeWidth={2.4}
                 dot={false}
-                name="Asimilado EnKF (A Posteriori)"
+                name={t('enkf.series.posterior')}
               />
 
               {/* Caudal Observado / Aforado */}
@@ -299,7 +307,7 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
                 stroke="#10b981"
                 strokeWidth={2.2}
                 dot={{ r: 2 }}
-                name="Caudal Observado (IoT / Aforos)"
+                name={t('enkf.series.observed')}
               />
             </ComposedChart>
           </ResponsiveContainer>
@@ -308,39 +316,39 @@ export const HydroEnKFPanel: React.FC<HydroEnKFPanelProps> = ({
         {/* Tabla Comparativa de Rendimiento Estadístico (Metrics Scorecard) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-800">
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">NSE (Nash-Sutcliffe)</span>
+            <span className="text-[11px] text-slate-400">{t('enkf.metric.nse.label')}</span>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-lg font-bold text-emerald-400">{mPost.nse}</span>
-              <span className="text-xs text-slate-400 font-mono">previo: {mPrior.nse}</span>
+              <span className="text-xs text-slate-400 font-mono">{t('enkf.metric.prior')} {mPrior.nse}</span>
             </div>
-            <span className="text-[10px] text-emerald-400">Mejora: +{((mPost.nse - mPrior.nse) * 100).toFixed(1)}%</span>
+            <span className="text-[10px] text-emerald-400">{t('enkf.metric.improvement')} +{((mPost.nse - mPrior.nse) * 100).toFixed(1)}%</span>
           </div>
 
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">KGE (Kling-Gupta)</span>
+            <span className="text-[11px] text-slate-400">{t('enkf.metric.kge.label')}</span>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-lg font-bold text-sky-400">{mPost.kge}</span>
-              <span className="text-xs text-slate-400 font-mono">previo: {mPrior.kge}</span>
+              <span className="text-xs text-slate-400 font-mono">{t('enkf.metric.prior')} {mPrior.kge}</span>
             </div>
-            <span className="text-[10px] text-sky-400">Mejora: +{((mPost.kge - mPrior.kge) * 100).toFixed(1)}%</span>
+            <span className="text-[10px] text-sky-400">{t('enkf.metric.improvement')} +{((mPost.kge - mPrior.kge) * 100).toFixed(1)}%</span>
           </div>
 
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">RMSE (Error Cuadrático)</span>
+            <span className="text-[11px] text-slate-400">{t('enkf.metric.rmse.label')}</span>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-lg font-bold text-slate-200">{mPost.rmse}</span>
               <span className="text-xs text-slate-400 font-mono">m³/s</span>
             </div>
-            <span className="text-[10px] text-emerald-400">Reducción: -{(((mPrior.rmse - mPost.rmse) / mPrior.rmse) * 100).toFixed(1)}%</span>
+            <span className="text-[10px] text-emerald-400">{t('enkf.metric.reduction')} -{(((mPrior.rmse - mPost.rmse) / mPrior.rmse) * 100).toFixed(1)}%</span>
           </div>
 
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">PBIAS (Sesgo Porcentual)</span>
+            <span className="text-[11px] text-slate-400">{t('enkf.metric.pbias.label')}</span>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-lg font-bold text-slate-200">{mPost.pbias}%</span>
-              <span className="text-xs text-slate-400 font-mono">previo: {mPrior.pbias}%</span>
+              <span className="text-xs text-slate-400 font-mono">{t('enkf.metric.prior')} {mPrior.pbias}%</span>
             </div>
-            <span className="text-[10px] text-emerald-400">Sesgo casi nulo</span>
+            <span className="text-[10px] text-emerald-400">{t('enkf.metric.pbias.note')}</span>
           </div>
         </div>
       </div>

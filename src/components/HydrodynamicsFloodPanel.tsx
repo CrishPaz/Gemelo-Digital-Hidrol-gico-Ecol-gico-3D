@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { RiverCrossSection, FloodReturnPeriodSimulation } from '../types';
 import { MOCHE_RIVER_CROSS_SECTIONS, MOCHE_FLOOD_SCENARIOS } from '../data/mocheHydroData';
 import { computeHydraulicProfile } from '../services/hydrodynamicsEngine';
+import { useI18n } from '../providers/I18nProvider';
 import {
   Waves,
   AlertTriangle,
@@ -33,6 +34,7 @@ import {
 } from 'recharts';
 
 export const HydrodynamicsFloodPanel: React.FC = () => {
+  const { t } = useI18n();
   const [inflowQ, setInflowQ] = useState<number>(6.5);
   const [manningMultiplier, setManningMultiplier] = useState<number>(1.0);
   const [selectedScenarioTr, setSelectedScenarioTr] = useState<number>(25);
@@ -69,21 +71,21 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
               <Waves className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Hidráulica Fluvial 1D & Tránsito de Inundaciones
+              {t('hydrod.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Perfil longitudinal gradualmente variado (Saint-Venant / Manning), número de Froude y zonificación de riesgo de desborde (Km 0 a 102).
+            {t('hydrod.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Caudal Cabecera</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('hydrod.stat.inflow')}</div>
             <div className="text-sm font-extrabold text-sky-400 font-mono">{inflowQ.toFixed(1)} m³/s</div>
           </div>
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Tramos Desbordados</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('hydrod.stat.floodedReaches')}</div>
             <div className={`text-sm font-extrabold font-mono ${floodedSectionsCount > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
               {floodedSectionsCount} / {sections.length}
             </div>
@@ -98,7 +100,7 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
           <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
             <span className="flex items-center gap-1.5">
               <Droplet className="w-4 h-4 text-sky-400" />
-              Caudal de Entrada (Q_in):
+              {t('hydrod.control.inflow')}
             </span>
             <span className="font-mono text-sky-400 font-bold">{inflowQ.toFixed(1)} m³/s</span>
           </div>
@@ -112,9 +114,9 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
             className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500"
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-2">
-            <span>Estiaje (0.8 m³/s)</span>
-            <span>Medio (6.5 m³/s)</span>
-            <span>Avenida (180 m³/s)</span>
+            <span>{t('hydrod.control.inflow.low')}</span>
+            <span>{t('hydrod.control.inflow.mid')}</span>
+            <span>{t('hydrod.control.inflow.high')}</span>
           </div>
         </div>
 
@@ -123,7 +125,7 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
           <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
             <span className="flex items-center gap-1.5">
               <Gauge className="w-4 h-4 text-amber-400" />
-              Factor Rugosidad ($n$ Manning):
+              {t('hydrod.control.roughness')}
             </span>
             <span className="font-mono text-amber-400 font-bold">{(manningMultiplier * 100).toFixed(0)}%</span>
           </div>
@@ -137,9 +139,9 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
             className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-2">
-            <span>Cauce Limpio (70%)</span>
-            <span>Base (100%)</span>
-            <span>Azolvado/Malezas (180%)</span>
+            <span>{t('hydrod.control.roughness.clean')}</span>
+            <span>{t('hydrod.control.roughness.base')}</span>
+            <span>{t('hydrod.control.roughness.silted')}</span>
           </div>
         </div>
 
@@ -147,7 +149,7 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
         <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
           <div className="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
             <ShieldAlert className="w-4 h-4 text-red-400" />
-            Escenario de Inundación ($Tr$):
+            {t('hydrod.control.scenario')}
           </div>
           <div className="grid grid-cols-5 gap-1">
             {[10, 25, 50, 100, 500].map(tr => (
@@ -169,7 +171,9 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
             ))}
           </div>
           <div className="text-[10px] text-slate-400 mt-1 truncate">
-            {selectedScenarioTr === 500 ? 'FEN 1997-98 / 2017 Extremo' : `Avenida ordinaria Tr = ${selectedScenarioTr} años`}
+            {selectedScenarioTr === 500
+              ? t('hydrod.scenario.extreme')
+              : `${t('hydrod.scenario.ordinary')} ${selectedScenarioTr} ${t('hydrod.unit.years')}`}
           </div>
         </div>
       </div>
@@ -180,22 +184,22 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Compass className="w-4 h-4 text-sky-400" />
-              Perfil Longitudinal del Río Moche (Cotas s.n.m. vs Kilometraje)
+              {t('hydrod.profile.title')}
             </h3>
             <p className="text-[11px] text-slate-400">
-              Desnivel total de 3,980 m a lo largo de 102 km desde Quiruvilca hasta el Océano Pacífico.
+              {t('hydrod.profile.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
             <span className="flex items-center gap-1.5 text-sky-400">
-              <span className="w-3 h-0.5 bg-sky-400 inline-block"></span> Lámina de Agua
+              <span className="w-3 h-0.5 bg-sky-400 inline-block"></span> {t('hydrod.legend.waterSurface')}
             </span>
             <span className="flex items-center gap-1.5 text-amber-400">
-              <span className="w-3 h-0.5 bg-amber-400 inline-block"></span> Corona de Ribera
+              <span className="w-3 h-0.5 bg-amber-400 inline-block"></span> {t('hydrod.legend.bankCrest')}
             </span>
             <span className="flex items-center gap-1.5 text-slate-500">
-              <span className="w-3 h-0.5 bg-slate-500 inline-block"></span> Fondo de Cauce
+              <span className="w-3 h-0.5 bg-slate-500 inline-block"></span> {t('hydrod.legend.channelBed')}
             </span>
           </div>
         </div>
@@ -209,7 +213,7 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
                 stroke="#64748b"
                 tick={{ fontSize: 11 }}
                 unit=" km"
-                label={{ value: 'Progresiva Fluvial (km)', position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
+                label={{ value: t('hydrod.chart.axis.chainage'), position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
               />
               <YAxis
                 stroke="#64748b"
@@ -221,9 +225,9 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                 formatter={(value: any, name: string) => [`${value} m s.n.m.`, name]}
               />
-              <Area type="monotone" dataKey="fondo" fill="#1e293b" stroke="#475569" name="Fondo de Cauce" fillOpacity={0.4} />
-              <Line type="monotone" dataKey="ribera" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 3 }} name="Corona de Ribera" />
-              <Line type="monotone" dataKey="agua" stroke="#38bdf8" strokeWidth={2.5} dot={{ r: 4, fill: '#38bdf8' }} name="Lámina de Agua" />
+              <Area type="monotone" dataKey="fondo" fill="#1e293b" stroke="#475569" name={t('hydrod.legend.channelBed')} fillOpacity={0.4} />
+              <Line type="monotone" dataKey="ribera" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 3 }} name={t('hydrod.legend.bankCrest')} />
+              <Line type="monotone" dataKey="agua" stroke="#38bdf8" strokeWidth={2.5} dot={{ r: 4, fill: '#38bdf8' }} name={t('hydrod.legend.waterSurface')} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -236,7 +240,7 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Layers className="w-4 h-4 text-blue-400" />
-              Sección Transversal de Control
+              {t('hydrod.section.title')}
             </h3>
             <span className="text-xs text-slate-400 font-mono">Km {selectedSection.km}</span>
           </div>
@@ -262,32 +266,32 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
           {/* Matriz de Parámetros Hidráulicos de la Sección */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/80 p-4 rounded-xl border border-slate-800/80">
             <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-[10px] text-slate-400 uppercase font-medium">Tirante Hidráulico ($y$)</div>
+              <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.param.depth')}</div>
               <div className="text-base font-extrabold text-sky-400 font-mono mt-0.5">{selectedSection.waterDepthM} m</div>
-              <div className="text-[10px] text-slate-500">Cota {selectedSection.waterLevelM} m</div>
+              <div className="text-[10px] text-slate-500">{t('hydrod.param.depth.stage')} {selectedSection.waterLevelM} m</div>
             </div>
 
             <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-[10px] text-slate-400 uppercase font-medium">Velocidad Media ($v$)</div>
+              <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.param.velocity')}</div>
               <div className="text-base font-extrabold text-emerald-400 font-mono mt-0.5">{selectedSection.flowVelocityMs} m/s</div>
-              <div className="text-[10px] text-slate-500">Espejo {selectedSection.topWidthM} m</div>
+              <div className="text-[10px] text-slate-500">{t('hydrod.param.velocity.topWidth')} {selectedSection.topWidthM} m</div>
             </div>
 
             <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-[10px] text-slate-400 uppercase font-medium">Número de Froude ($Fr$)</div>
+              <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.param.froude')}</div>
               <div className="text-base font-extrabold text-amber-400 font-mono mt-0.5">{selectedSection.froudeNumber}</div>
               <div className="text-[10px] text-slate-500">
-                {selectedSection.froudeNumber < 1 ? 'Flujo Subcrítico' : 'Flujo Supercrítico'}
+                {selectedSection.froudeNumber < 1 ? t('hydrod.flow.subcritical') : t('hydrod.flow.supercritical')}
               </div>
             </div>
 
             <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-              <div className="text-[10px] text-slate-400 uppercase font-medium">Bordo Libre ($FB$)</div>
+              <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.param.freeboard')}</div>
               <div className={`text-base font-extrabold font-mono mt-0.5 ${selectedSection.freeboardM <= 0 ? 'text-red-400' : 'text-slate-200'}`}>
                 {selectedSection.freeboardM} m
               </div>
               <div className={`text-[10px] font-bold ${selectedSection.isOverbankFlooded ? 'text-red-400' : 'text-emerald-400'}`}>
-                {selectedSection.isOverbankFlooded ? '¡Desbordamiento!' : 'Margen Seguro'}
+                {selectedSection.isOverbankFlooded ? t('hydrod.status.overbank') : t('hydrod.status.safe')}
               </div>
             </div>
           </div>
@@ -297,13 +301,13 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 font-mono">
                 <tr>
-                  <th className="p-2.5">Progresiva</th>
-                  <th className="p-2.5">Sector / Localidad</th>
-                  <th className="p-2.5">Caudal ($m^3/s$)</th>
-                  <th className="p-2.5">Tirante ($m$)</th>
-                  <th className="p-2.5">Velocidad ($m/s$)</th>
-                  <th className="p-2.5">Bordo Libre</th>
-                  <th className="p-2.5">Riesgo</th>
+                  <th className="p-2.5">{t('hydrod.table.chainage')}</th>
+                  <th className="p-2.5">{t('hydrod.table.reach')}</th>
+                  <th className="p-2.5">{t('hydrod.table.discharge')}</th>
+                  <th className="p-2.5">{t('hydrod.table.depth')}</th>
+                  <th className="p-2.5">{t('hydrod.table.velocity')}</th>
+                  <th className="p-2.5">{t('hydrod.table.freeboard')}</th>
+                  <th className="p-2.5">{t('hydrod.table.risk')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -335,7 +339,7 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
                             : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         }`}
                       >
-                        {s.floodRiskLevel}
+                        {t(`hydrod.risk.${s.floodRiskLevel.toLowerCase()}`)}
                       </span>
                     </td>
                   </tr>
@@ -353,13 +357,13 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
                 <AlertTriangle className="w-4 h-4" />
               </span>
               <h3 className="text-sm font-bold text-slate-100">
-                Impacto Avenida Tr = {activeScenario.returnPeriodYears} años
+                {t('hydrod.impact.title')} {activeScenario.returnPeriodYears} {t('hydrod.unit.years')}
               </h3>
             </div>
 
             <div className="space-y-3">
               <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <div className="text-[10px] text-slate-400 uppercase font-medium">Caudal Pico Estimado</div>
+                <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.impact.peakDischarge')}</div>
                 <div className="text-xl font-extrabold text-red-400 font-mono mt-0.5">
                   {activeScenario.peakDischargeM3s} m³/s
                 </div>
@@ -367,21 +371,21 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-medium">Área Inundable Total</div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.impact.floodedArea')}</div>
                   <div className="text-sm font-bold text-slate-200 font-mono mt-0.5">
                     {activeScenario.totalFloodedAreaHa} ha
                   </div>
                 </div>
                 <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-medium">Población en Riesgo</div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">{t('hydrod.impact.population')}</div>
                   <div className="text-sm font-bold text-orange-400 font-mono mt-0.5">
-                    {activeScenario.vulnerableInhabitants.toLocaleString()} hab.
+                    {activeScenario.vulnerableInhabitants.toLocaleString()} {t('hydrod.unit.inhabitants')}
                   </div>
                 </div>
               </div>
 
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <div className="text-[10px] text-slate-400 uppercase font-medium mb-1.5">Puntos Críticos de Desborde:</div>
+                <div className="text-[10px] text-slate-400 uppercase font-medium mb-1.5">{t('hydrod.impact.criticalPoints')}</div>
                 <div className="space-y-1">
                   {activeScenario.criticalPoints.map((pt, i) => (
                     <div key={i} className="text-xs text-slate-300 flex items-center gap-1.5">
@@ -396,9 +400,9 @@ export const HydrodynamicsFloodPanel: React.FC = () => {
 
           <div className="mt-4 pt-3 border-t border-slate-800/80">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Rutas de Evacuación COER:</span>
+              <span className="text-slate-400">{t('hydrod.evac.label')}</span>
               <span className={`font-bold ${activeScenario.evacuationRoutesActive ? 'text-red-400' : 'text-slate-500'}`}>
-                {activeScenario.evacuationRoutesActive ? 'ACTIVAS' : 'En Espera'}
+                {activeScenario.evacuationRoutesActive ? t('hydrod.evac.active') : t('hydrod.evac.standby')}
               </span>
             </div>
           </div>

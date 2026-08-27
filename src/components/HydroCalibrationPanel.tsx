@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { CalibrationParameter, UserProfile } from '../types';
 import { INITIAL_CALIBRATION_PARAMS, generateCalibrationTimeSeries } from '../data/calibrationData';
+import { useI18n } from '../providers/I18nProvider';
 import {
   Sliders,
   Play,
@@ -43,6 +44,7 @@ interface HydroCalibrationPanelProps {
 }
 
 export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ currentUser }) => {
+  const { t } = useI18n();
   const [params, setParams] = useState<CalibrationParameter[]>(INITIAL_CALIBRATION_PARAMS);
   const [isCalibrating, setIsCalibrating] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(100); // 100% convergido
@@ -112,11 +114,11 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
               <Zap className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Auto-Calibración SCE-UA & Sensibilidad Global (Sobol)
+              {t('calib.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Optimización evolutiva del modelo hidrológico GR4J y rugosidad de Manning frente a registros históricos de SENAMHI / ANA en la estación Laredo.
+            {t('calib.subtitle')}
           </p>
         </div>
 
@@ -135,7 +137,7 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
             className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-1.5 disabled:opacity-50"
           >
             <Play className="w-3.5 h-3.5" />
-            {isCalibrating ? 'Calibrando...' : 'Optimizar SCE-UA'}
+            {isCalibrating ? t('calib.action.running') : t('calib.action.optimize')}
           </button>
         </div>
       </div>
@@ -143,30 +145,30 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
       {/* Tarjetas de Métricas de Eficiencia Hidrológica */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Eficiencia Nash-Sutcliffe</div>
+          <div className="text-[10px] font-mono text-slate-400 uppercase">{t('calib.metric.nse.label')}</div>
           <div className="text-xl font-extrabold text-emerald-400 font-mono mt-0.5">{nseValue.toFixed(3)}</div>
           <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
             <Award className="w-3 h-3 text-emerald-400" />
-            Ajuste Excelente (&gt;0.80)
+            {t('calib.metric.nse.note')}
           </div>
         </div>
 
         <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Kling-Gupta Efficiency (KGE)</div>
+          <div className="text-[10px] font-mono text-slate-400 uppercase">{t('calib.metric.kge.label')}</div>
           <div className="text-xl font-extrabold text-sky-400 font-mono mt-0.5">{kgeValue.toFixed(3)}</div>
-          <div className="text-[10px] text-slate-500 mt-1">Balance Caudal Pico / Base</div>
+          <div className="text-[10px] text-slate-500 mt-1">{t('calib.metric.kge.note')}</div>
         </div>
 
         <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Sesgo Porcentual (PBIAS)</div>
+          <div className="text-[10px] font-mono text-slate-400 uppercase">{t('calib.metric.pbias.label')}</div>
           <div className="text-xl font-extrabold text-indigo-400 font-mono mt-0.5">{pbiasValue > 0 ? `+${pbiasValue}%` : `${pbiasValue}%`}</div>
-          <div className="text-[10px] text-slate-500 mt-1">Error de Volumen Acumulado</div>
+          <div className="text-[10px] text-slate-500 mt-1">{t('calib.metric.pbias.note')}</div>
         </div>
 
         <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800">
-          <div className="text-[10px] font-mono text-slate-400 uppercase">Error Cuadrático (RMSE)</div>
+          <div className="text-[10px] font-mono text-slate-400 uppercase">{t('calib.metric.rmse.label')}</div>
           <div className="text-xl font-extrabold text-amber-400 font-mono mt-0.5">{rmseValue} m³/s</div>
-          <div className="text-[10px] text-slate-500 mt-1">Desviación estándar de residuos</div>
+          <div className="text-[10px] text-slate-500 mt-1">{t('calib.metric.rmse.note')}</div>
         </div>
       </div>
 
@@ -176,25 +178,25 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
           <div>
             <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              Hidrograma de Calibración: Caudal Observado (SENAMHI) vs Simulado (GR4J)
+              {t('calib.hydrograph.title')}
             </h3>
             <p className="text-xs text-slate-400">
-              Ajuste dinámico ante eventos de precipitación en la cuenca alta (periodo de calibración 30 días).
+              {t('calib.hydrograph.subtitle')}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
             <span className="flex items-center gap-1.5 text-blue-400">
-              <span className="w-2.5 h-2.5 bg-blue-500 inline-block rounded-xs"></span> Lluvia ($mm$)
+              <span className="w-2.5 h-2.5 bg-blue-500 inline-block rounded-xs"></span> {t('calib.legend.rain')}
             </span>
             <span className="flex items-center gap-1.5 text-slate-200">
-              <span className="w-3 h-0.5 bg-slate-200 inline-block"></span> Observado ($m^3/s$)
+              <span className="w-3 h-0.5 bg-slate-200 inline-block"></span> {t('calib.legend.observed')}
             </span>
             <span className="flex items-center gap-1.5 text-emerald-400">
-              <span className="w-3 h-0.5 bg-emerald-400 inline-block"></span> Calibrado SCE-UA
+              <span className="w-3 h-0.5 bg-emerald-400 inline-block"></span> {t('calib.legend.calibrated')}
             </span>
             <span className="flex items-center gap-1.5 text-slate-500">
-              <span className="w-3 h-0.5 bg-slate-500 inline-block stroke-dasharray"></span> Inicial Sin Calibrar
+              <span className="w-3 h-0.5 bg-slate-500 inline-block stroke-dasharray"></span> {t('calib.legend.uncalibrated')}
             </span>
           </div>
         </div>
@@ -208,7 +210,7 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
                 stroke="#64748b"
                 tick={{ fontSize: 11 }}
                 unit=" d"
-                label={{ value: 'Días de Registro (Serie Hidrológica)', position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
+                label={{ value: t('calib.chart.xaxis'), position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
               />
               <YAxis
                 yAxisId="discharge"
@@ -228,14 +230,14 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
               <Tooltip
                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                 formatter={(value: any, name: string) => [
-                  name === 'Lluvia Cuenca' ? `${value} mm` : `${value} m³/s`,
+                  name === t('calib.series.rain') ? `${value} mm` : `${value} m³/s`,
                   name,
                 ]}
               />
-              <Bar yAxisId="rain" dataKey="precipitationMm" fill="#3b82f640" stroke="#3b82f6" name="Lluvia Cuenca" barSize={8} />
-              <Line yAxisId="discharge" type="monotone" dataKey="observedQ" stroke="#f1f5f9" strokeWidth={2.5} dot={{ r: 3, fill: '#f1f5f9' }} name="Caudal Observado" />
-              <Line yAxisId="discharge" type="monotone" dataKey="calibratedSimulatedQ" stroke="#10b981" strokeWidth={2.5} name="Simulado (Calibrado)" />
-              <Line yAxisId="discharge" type="monotone" dataKey="initialSimulatedQ" stroke="#64748b" strokeWidth={1.5} strokeDasharray="4 4" name="Simulado (Inicial)" />
+              <Bar yAxisId="rain" dataKey="precipitationMm" fill="#3b82f640" stroke="#3b82f6" name={t('calib.series.rain')} barSize={8} />
+              <Line yAxisId="discharge" type="monotone" dataKey="observedQ" stroke="#f1f5f9" strokeWidth={2.5} dot={{ r: 3, fill: '#f1f5f9' }} name={t('calib.series.observed')} />
+              <Line yAxisId="discharge" type="monotone" dataKey="calibratedSimulatedQ" stroke="#10b981" strokeWidth={2.5} name={t('calib.series.calibrated')} />
+              <Line yAxisId="discharge" type="monotone" dataKey="initialSimulatedQ" stroke="#64748b" strokeWidth={1.5} strokeDasharray="4 4" name={t('calib.series.initial')} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -249,16 +251,16 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
             <div>
               <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-indigo-400" />
-                Espacio de Búsqueda de Parámetros (GR4J + Manning)
+                {t('calib.params.title')}
               </h3>
               <p className="text-[11px] text-slate-400">
-                Ajuste manual para análisis de incertidumbre o sobreescritura de algoritmos.
+                {t('calib.params.subtitle')}
               </p>
             </div>
             <button
               onClick={handleResetDefaults}
               className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1 border border-slate-700"
-              title="Restablecer valores iniciales"
+              title={t('calib.params.reset')}
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -303,10 +305,10 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
             <div className="border-b border-slate-800 pb-3 mb-4">
               <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                 <BarChart2 className="w-4 h-4 text-sky-400" />
-                Índices de Sensibilidad Global de Sobol (S_i & S_Ti)
+                {t('calib.sobol.title')}
               </h3>
               <p className="text-[11px] text-slate-400">
-                Descomposición de la varianza total de salida del modelo sobre el hidrograma simulado.
+                {t('calib.sobol.subtitle')}
               </p>
             </div>
 
@@ -320,12 +322,12 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                     formatter={(value: any, name: string) => [
                       `${(Number(value) * 100).toFixed(1)}%`,
-                      name === 'primerOrden' ? 'Primer Orden (S_i)' : 'Total Orden (S_Ti)',
+                      name === 'primerOrden' ? t('calib.sobol.firstOrder') : t('calib.sobol.totalOrder'),
                     ]}
                   />
                   <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                  <Bar dataKey="primerOrden" fill="#6366f1" name="Efecto Principal (S_i)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="totalOrden" fill="#38bdf8" name="Efecto Total + Interacciones (S_Ti)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="primerOrden" fill="#6366f1" name={t('calib.sobol.mainEffect')} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="totalOrden" fill="#38bdf8" name={t('calib.sobol.totalEffect')} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -334,10 +336,15 @@ export const HydroCalibrationPanel: React.FC<HydroCalibrationPanelProps> = ({ cu
           <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
             <div className="font-bold text-slate-200 flex items-center gap-1.5">
               <Info className="w-4 h-4 text-indigo-400" />
-              Conclusiones del Análisis Sobol en el Río Moche:
+              {t('calib.sobol.conclusion.title')}
             </div>
             <p className="text-slate-400 text-[11px] leading-relaxed">
-              El parámetro <strong className="text-indigo-300">X1 (Capacidad Depósito Producción)</strong> domina el <strong>58%</strong> de la varianza total del caudal, siendo el más crítico durante periodos de estiaje e inicio de lluvias. La rugosidad de Manning (<strong className="text-sky-300">n_manning</strong>) influye predominantemente en el tiempo de pico y celeridad de las avenidas extremas.
+              {t('calib.sobol.conclusion.lead')}{' '}
+              <strong className="text-indigo-300">{t('calib.sobol.conclusion.x1')}</strong>{' '}
+              {t('calib.sobol.conclusion.share')} <strong>58%</strong>{' '}
+              {t('calib.sobol.conclusion.tail')} (
+              <strong className="text-sky-300">n_manning</strong>){' '}
+              {t('calib.sobol.conclusion.end')}
             </p>
           </div>
         </div>

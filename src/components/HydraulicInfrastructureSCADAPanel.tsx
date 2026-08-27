@@ -41,12 +41,15 @@ import {
   Legend,
   ReferenceLine,
 } from 'recharts';
+import { useI18n } from '../providers/I18nProvider';
 
 interface HydraulicInfrastructureSCADAPanelProps {
   currentUser?: UserProfile;
 }
 
 export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructureSCADAPanelProps> = ({ currentUser }) => {
+  const { t } = useI18n();
+
   const [structures, setStructures] = useState<HydraulicStructureSCADA[]>(INITIAL_SCADA_STRUCTURES);
   const [selectedStructureId, setSelectedStructureId] = useState<string>('scada-bocatoma-menocucho');
 
@@ -104,21 +107,21 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               <Cpu className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Telecontrol SCADA & Simulación Dam-Break (Shorey)
+              {t('scada.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Supervisión telemétrica y accionamiento remoto de compuertas en bocatomas, desarenadores y modelado de colapso de la presa de relaves mineros de Shorey.
+            {t('scada.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Estructuras SCADA</div>
-            <div className="text-sm font-extrabold text-sky-400 font-mono">{structures.length} Nodos</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('scada.stat.structures')}</div>
+            <div className="text-sm font-extrabold text-sky-400 font-mono">{structures.length} {t('scada.stat.nodes')}</div>
           </div>
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Enlace PLC Modbus</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('scada.stat.plcLink')}</div>
             <div className="text-sm font-extrabold text-emerald-400 font-mono flex items-center gap-1 justify-center">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               98.7%
@@ -164,8 +167,8 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               </div>
 
               <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono">
-                <span className="text-slate-400">Tirante: <strong className="text-slate-200">{st.waterLevelM} m</strong></span>
-                <span className="text-slate-400">Q Salida: <strong className="text-sky-400">{st.outflowM3s} m³/s</strong></span>
+                <span className="text-slate-400">{t('scada.card.waterLevel')}: <strong className="text-slate-200">{st.waterLevelM} m</strong></span>
+                <span className="text-slate-400">{t('scada.card.outflow')}: <strong className="text-sky-400">{st.outflowM3s} m³/s</strong></span>
               </div>
             </button>
           );
@@ -178,15 +181,15 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
           <div>
             <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
               <Gauge className="w-4 h-4 text-sky-400" />
-              Panel de Maniobra Teledirigida: {selectedStructure.name}
+              {t('scada.control.title')}: {selectedStructure.name}
             </h3>
             <p className="text-xs text-slate-400">
-              Protocolo Industrial Modbus TCP/IP • Actuadores electromecánicos AUMA con freno de seguridad.
+              {t('scada.control.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-slate-400">Depósito Sedimentos:</span>
+            <span className="text-slate-400">{t('scada.control.sediment')}:</span>
             <div className="flex items-center gap-1.5">
               <div className="w-20 bg-slate-800 rounded-full h-2 overflow-hidden">
                 <div
@@ -218,13 +221,13 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
                   <div className="text-xs font-bold text-slate-200">{gate.gateName}</div>
                 </div>
                 <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-mono text-slate-300 border border-slate-700">
-                  Tipo {gate.gateType.toUpperCase()}
+                  {t('scada.gate.type')} {gate.gateType.toUpperCase()}
                 </span>
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between text-xs font-mono">
-                  <span className="text-slate-400">Apertura Compuerta:</span>
+                  <span className="text-slate-400">{t('scada.gate.opening')}:</span>
                   <span className="text-sky-400 font-bold">{gate.openingPercent}%</span>
                 </div>
                 <input
@@ -242,7 +245,7 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               </div>
 
               <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono">
-                <span className="text-slate-400">Caudal Erogado:</span>
+                <span className="text-slate-400">{t('scada.gate.dischargeReleased')}:</span>
                 <span className="text-emerald-400 font-bold">{gate.flowPassingM3s} m³/s</span>
               </div>
             </div>
@@ -259,11 +262,11 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
                 <AlertOctagon className="w-5 h-5" />
               </span>
               <h3 className="text-base font-bold text-slate-100">
-                Simulador Hidrodinámico de Rotura de Presa de Relaves (Dam-Break Shorey)
+                {t('scada.dambreak.title')}
               </h3>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Modelo de Saint-Venant no lineal para fluidos hiperconcentrados. Propagación de onda de lodo y metales pesados en los 92 km del cauce.
+              {t('scada.dambreak.subtitle')}
             </p>
           </div>
 
@@ -277,7 +280,7 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               }`}
             >
               <Play className="w-4 h-4" />
-              {isSimulatingDamBreak ? 'Simulación en Marcha' : 'Ejecutar Escenario de Falla'}
+              {isSimulatingDamBreak ? t('scada.dambreak.running') : t('scada.dambreak.run')}
             </button>
           </div>
         </div>
@@ -286,7 +289,7 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
             <div className="flex justify-between text-xs font-semibold text-slate-300">
-              <span>Ancho de Brecha (B_breach):</span>
+              <span>{t('scada.breach.width')}:</span>
               <span className="font-mono text-red-400 font-bold">{breachWidthM} m</span>
             </div>
             <input
@@ -298,12 +301,12 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               onChange={e => setBreachWidthM(parseFloat(e.target.value))}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-red-500"
             />
-            <div className="text-[10px] text-slate-500">Colapso parcial (10m) a catastrófico (80m)</div>
+            <div className="text-[10px] text-slate-500">{t('scada.breach.widthHint')}</div>
           </div>
 
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
             <div className="flex justify-between text-xs font-semibold text-slate-300">
-              <span>Profundidad de Falla (H_breach):</span>
+              <span>{t('scada.breach.depth')}:</span>
               <span className="font-mono text-amber-400 font-bold">{breachDepthM} m</span>
             </div>
             <input
@@ -315,12 +318,12 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               onChange={e => setBreachDepthM(parseFloat(e.target.value))}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
             />
-            <div className="text-[10px] text-slate-500">Altura del dique de relaves: 16.0 m</div>
+            <div className="text-[10px] text-slate-500">{t('scada.breach.depthHint')}: 16.0 m</div>
           </div>
 
           <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
             <div className="flex justify-between text-xs font-semibold text-slate-300">
-              <span>Volumen de Relaves Almacenado (V):</span>
+              <span>{t('scada.breach.volume')}:</span>
               <span className="font-mono text-sky-400 font-bold">{waterStorageHm3} Hm³</span>
             </div>
             <input
@@ -332,7 +335,7 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
               onChange={e => setWaterStorageHm3(parseFloat(e.target.value))}
               className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500"
             />
-            <div className="text-[10px] text-slate-500">Capacidad nominal total: 6.2 Hm³</div>
+            <div className="text-[10px] text-slate-500">{t('scada.breach.volumeHint')}: 6.2 Hm³</div>
           </div>
         </div>
 
@@ -342,19 +345,19 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
             <div>
               <h4 className="text-xs font-bold text-slate-200 flex items-center gap-2">
                 <Waves className="w-4 h-4 text-red-400" />
-                Hidrograma de Rotura: Caudal Pico (m³/s) y Tirante de Lodo (m) vs Distancia
+                {t('scada.chart.title')}
               </h4>
               <p className="text-[10px] text-slate-400">
-                Caudal de salida máximo estimado en brecha: <strong className="text-red-400 font-mono">{maxPeakFlow.toFixed(1)} m³/s</strong>
+                {t('scada.chart.maxOutflow')}: <strong className="text-red-400 font-mono">{maxPeakFlow.toFixed(1)} m³/s</strong>
               </p>
             </div>
 
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 text-red-400">
-                <span className="w-3 h-0.5 bg-red-400 inline-block"></span> Caudal Pico (m³/s)
+                <span className="w-3 h-0.5 bg-red-400 inline-block"></span> {t('scada.chart.legend.peakFlow')}
               </span>
               <span className="flex items-center gap-1.5 text-amber-400">
-                <span className="w-3 h-0.5 bg-amber-400 inline-block"></span> Tirante de Lodo (m)
+                <span className="w-3 h-0.5 bg-amber-400 inline-block"></span> {t('scada.chart.legend.mudDepth')}
               </span>
             </div>
           </div>
@@ -368,7 +371,7 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
                   stroke="#64748b"
                   tick={{ fontSize: 11 }}
                   unit=" km"
-                  label={{ value: 'Distancia desde Shorey (km)', position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
+                  label={{ value: t('scada.chart.xLabel'), position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
                 />
                 <YAxis
                   yAxisId="left"
@@ -386,12 +389,12 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
                 <Tooltip
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                   formatter={(value: any, name: string) => [
-                    name === 'Tirante de Lodo' ? `${value} m` : `${value} m³/s`,
+                    name === t('scada.series.mudDepth') ? `${value} m` : `${value} m³/s`,
                     name,
                   ]}
                 />
-                <Area yAxisId="left" type="monotone" dataKey="caudalPico" fill="#ef444420" stroke="#ef4444" strokeWidth={2.5} name="Caudal Pico" />
-                <Line yAxisId="right" type="monotone" dataKey="tiranteLodo" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4, fill: '#f59e0b' }} name="Tirante de Lodo" />
+                <Area yAxisId="left" type="monotone" dataKey="caudalPico" fill="#ef444420" stroke="#ef4444" strokeWidth={2.5} name={t('scada.series.peakFlow')} />
+                <Line yAxisId="right" type="monotone" dataKey="tiranteLodo" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4, fill: '#f59e0b' }} name={t('scada.series.mudDepth')} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -402,13 +405,13 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 font-mono">
               <tr>
-                <th className="p-3">Distancia</th>
-                <th className="p-3">Población / Infraestructura Afectada</th>
-                <th className="p-3">Tiempo de Llegada (T_arr)</th>
-                <th className="p-3">Caudal Pico (m³/s)</th>
-                <th className="p-3">Tirante de Lodo (m)</th>
-                <th className="p-3">Plomo en Suspensión</th>
-                <th className="p-3">Estado</th>
+                <th className="p-3">{t('scada.table.distance')}</th>
+                <th className="p-3">{t('scada.table.affected')}</th>
+                <th className="p-3">{t('scada.table.arrival')}</th>
+                <th className="p-3">{t('scada.table.peakFlow')}</th>
+                <th className="p-3">{t('scada.table.mudDepth')}</th>
+                <th className="p-3">{t('scada.table.suspendedLead')}</th>
+                <th className="p-3">{t('scada.table.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -417,7 +420,7 @@ export const HydraulicInfrastructureSCADAPanel: React.FC<HydraulicInfrastructure
                   <td className="p-3 font-bold text-sky-400">+{pt.distanceFromDamKm} km</td>
                   <td className="p-3 font-sans font-bold text-slate-200">{pt.impactZone}</td>
                   <td className="p-3 font-bold text-amber-400">
-                    {pt.arrivalTimeMinutes === 0 ? '0 min (Inmediato)' : `${pt.arrivalTimeMinutes} min (${(pt.arrivalTimeMinutes / 60).toFixed(1)} h)`}
+                    {pt.arrivalTimeMinutes === 0 ? `0 min (${t('scada.table.immediate')})` : `${pt.arrivalTimeMinutes} min (${(pt.arrivalTimeMinutes / 60).toFixed(1)} h)`}
                   </td>
                   <td className="p-3 font-bold text-red-400">{pt.peakFlowM3s.toFixed(1)}</td>
                   <td className="p-3 font-bold text-amber-300">{pt.floodWaveDepthM.toFixed(2)} m</td>

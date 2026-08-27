@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { OfficialReport, UserProfile } from '../types';
 import { INITIAL_OFFICIAL_REPORTS } from '../data/reportsData';
+import { useI18n } from '../providers/I18nProvider';
 import {
   FileText,
   Download,
@@ -32,6 +33,7 @@ interface OfficialReportsPanelProps {
 }
 
 export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ currentUser }) => {
+  const { t } = useI18n();
   const [reports, setReports] = useState<OfficialReport[]>(INITIAL_OFFICIAL_REPORTS);
   const [selectedReportId, setSelectedReportId] = useState<string>(reports[0].id);
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -43,7 +45,9 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
     setIsExporting(true);
     setTimeout(() => {
       setIsExporting(false);
-      setExportSuccessMsg(`Expediente ${report.code} generado en formato PDF Oficial con firma criptográfica.`);
+      setExportSuccessMsg(
+        `${t('official.export.successPrefix')} ${report.code} ${t('official.export.successSuffix')}`
+      );
       setTimeout(() => setExportSuccessMsg(null), 4000);
       window.print();
     }, 600);
@@ -74,11 +78,11 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
               <FileText className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Expedientes Técnicos & Informes Oficiales Multi-Institucionales
+              {t('official.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Generación automatizada de reportes vinculantes con firma digital criptográfica SHA-256 para ANA, OEFA, INDECI, SENAMHI y SEDALIB.
+            {t('official.subtitle')}
           </p>
         </div>
 
@@ -95,7 +99,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
             className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
-            {isExporting ? 'Compilando PDF...' : 'Exportar Expediente PDF'}
+            {isExporting ? t('official.export.pending') : t('official.export.action')}
           </button>
         </div>
       </div>
@@ -105,7 +109,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
         {/* Lista Lateral de Expedientes */}
         <div className="lg:col-span-4 space-y-3">
           <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
-            Repositorio de Informes Emitidos ({reports.length})
+            {t('official.repository.title')} ({reports.length})
           </div>
 
           <div className="space-y-2.5">
@@ -163,7 +167,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
                     selectedReport.entity
                   )}`}
                 >
-                  {selectedReport.entity} - República del Perú
+                  {selectedReport.entity} - {t('official.country')}
                 </span>
                 <span className="text-xs font-mono text-slate-400">|</span>
                 <span className="text-xs font-semibold text-slate-300">
@@ -174,12 +178,12 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
                 {selectedReport.title}
               </h3>
               <div className="text-xs font-mono text-blue-400 mt-1 font-semibold">
-                Código Oficial: {selectedReport.code}
+                {t('official.code')} {selectedReport.code}
               </div>
             </div>
 
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center sm:text-right shrink-0 space-y-1">
-              <div className="text-[10px] font-mono text-slate-400">ESTADO DEL DOCUMENTO</div>
+              <div className="text-[10px] font-mono text-slate-400">{t('official.document.status')}</div>
               <div className="text-xs font-bold text-emerald-400 flex items-center justify-center sm:justify-end gap-1">
                 <ShieldCheck className="w-4 h-4" />
                 {selectedReport.status}
@@ -192,7 +196,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-blue-400" />
-              1. Resumen Ejecutivo & Contexto Técnico
+              1. {t('official.section.executiveSummary')}
             </h4>
             <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800/80 text-xs text-slate-300 leading-relaxed">
               {selectedReport.executiveSummary}
@@ -203,7 +207,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              2. Parámetros Cuantitativos Validados en Tiempo Real
+              2. {t('official.section.metrics')}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {Object.entries(selectedReport.keyMetrics).map(([key, val]) => (
@@ -222,7 +226,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-              3. Conclusiones y Disposiciones Técnicas Vinculantes
+              3. {t('official.section.conclusions')}
             </h4>
             <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800/80 space-y-2 text-xs">
               {selectedReport.recommendations.map((rec, i) => (
@@ -241,20 +245,20 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
             <div className="space-y-1">
               <div className="text-slate-400 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-slate-400" />
-                <span>Responsable de Emisión:</span>
+                <span>{t('official.signature.issuedBy')}</span>
                 <strong className="text-slate-200">{selectedReport.generatedBy}</strong>
               </div>
               <div className="text-slate-500 flex items-center gap-1.5 text-[10px]">
                 <Key className="w-3.5 h-3.5 text-emerald-400" />
                 <span className="truncate max-w-[280px] sm:max-w-md">
-                  Firma Digital: {selectedReport.digitalSignatureHash}
+                  {t('official.signature.digital')} {selectedReport.digitalSignatureHash}
                 </span>
               </div>
             </div>
 
             <div className="px-3 py-1.5 bg-emerald-950/40 text-emerald-400 rounded-lg border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shrink-0">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Verificado Criptográficamente
+              {t('official.signature.verified')}
             </div>
           </div>
         </div>

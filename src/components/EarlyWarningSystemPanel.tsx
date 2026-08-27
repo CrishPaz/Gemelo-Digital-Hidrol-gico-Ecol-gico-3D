@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { EarlyWarningThreshold, CAPAlertBroadcast, AcousticSirenNode, UserProfile } from '../types';
 import { INITIAL_SAT_THRESHOLDS, INITIAL_ACOUSTIC_SIRENS, INITIAL_CAP_ALERTS } from '../data/satData';
+import { useI18n } from '../providers/I18nProvider';
 import {
   BellRing,
   ShieldAlert,
@@ -35,6 +36,7 @@ interface EarlyWarningSystemPanelProps {
 }
 
 export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = ({ currentUser }) => {
+  const { t } = useI18n();
   const [thresholds, setThresholds] = useState<EarlyWarningThreshold[]>(INITIAL_SAT_THRESHOLDS);
   const [sirens, setSirens] = useState<AcousticSirenNode[]>(INITIAL_ACOUSTIC_SIRENS);
   const [capAlerts, setCapAlerts] = useState<CAPAlertBroadcast[]>(INITIAL_CAP_ALERTS);
@@ -43,12 +45,12 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
   const [capXmlView, setCapXmlView] = useState<boolean>(false);
 
   // Formulario de Nueva Alerta CAP
-  const [newHeadline, setNewHeadline] = useState<string>('ALERTA ROJA: Desborde Inminente del Río Moche en Laredo');
-  const [newEvent, setNewEvent] = useState<string>('Desborde Fluvial / Crecida Extraordinaria');
+  const [newHeadline, setNewHeadline] = useState<string>(t('ews.form.default.headline'));
+  const [newEvent, setNewEvent] = useState<string>(t('ews.form.default.event'));
   const [newSeverity, setNewSeverity] = useState<'Extreme' | 'Severe' | 'Moderate' | 'Minor'>('Extreme');
-  const [newArea, setNewArea] = useState<string>('Sector Campiña de Moche, Laredo, Curva de Sun');
-  const [newDesc, setNewDesc] = useState<string>('Caudal en estación Laredo supera 145 m³/s. Nivel de agua sobrepasa la cota de corona de ribera.');
-  const [newInstruction, setNewInstruction] = useState<string>('Evacuar de inmediato hacia zonas altas designadas (Cerro Blanco / Mirador Laredo) y activar comités distritales INDECI.');
+  const [newArea, setNewArea] = useState<string>(t('ews.form.default.area'));
+  const [newDesc, setNewDesc] = useState<string>(t('ews.form.default.description'));
+  const [newInstruction, setNewInstruction] = useState<string>(t('ews.form.default.instruction'));
   const [targetPop, setTargetPop] = useState<number>(42000);
   const [channels, setChannels] = useState<('SMS_CellBroadcast' | 'COER_INDECI_Link' | 'Acoustic_Sirens' | 'Radio_FM_VHF')[]>([
     'SMS_CellBroadcast',
@@ -147,21 +149,21 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
               <BellRing className="w-5 h-5 animate-pulse" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Sistema de Alerta Temprana (SAT) & Protocolo CAP v1.2
+              {t('ews.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Plataforma de alerta temprana multisectorial (COER La Libertad, INDECI, ANA, SENAMHI). Difusión Cell Broadcast (SMS), sirenas acústicas 115dB y radio VHF.
+            {t('ews.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Umbrales Rojos</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('ews.kpi.redThresholds')}</div>
             <div className="text-sm font-extrabold text-red-400 font-mono">{redAlertsCount}</div>
           </div>
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Umbrales Naranjas</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('ews.kpi.orangeThresholds')}</div>
             <div className="text-sm font-extrabold text-amber-400 font-mono">{orangeAlertsCount}</div>
           </div>
           <button
@@ -169,7 +171,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
             className="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
           >
             <Send className="w-3.5 h-3.5" />
-            Emitir Alerta CAP
+            {t('ews.action.issueAlert')}
           </button>
         </div>
       </div>
@@ -180,13 +182,15 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              Matriz de Umbrales de Disparo en Tiempo Real (Trigger Matrix)
+              {t('ews.thresholds.title')}
             </h3>
             <p className="text-[11px] text-slate-400">
-              Gradientes hidrológicos y químicos para activación de alertas automáticas.
+              {t('ews.thresholds.subtitle')}
             </p>
           </div>
-          <span className="text-xs text-slate-400 font-mono">6 Puntos de Control SAT</span>
+          <span className="text-xs text-slate-400 font-mono">
+            {thresholds.length} {t('ews.thresholds.count')}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -232,16 +236,16 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                     {th.currentValue} <span className="text-xs text-slate-400">{th.unit}</span>
                   </div>
                   <div className="text-[10px] text-slate-500 font-mono">
-                    Límite Rojo: {th.redLimit} {th.unit}
+                    {t('ews.threshold.redLimit')} {th.redLimit} {th.unit}
                   </div>
                 </div>
 
                 {/* Barra de Umbral Visual */}
                 <div className="w-full bg-slate-800 h-2 rounded-full mt-2 overflow-hidden flex">
-                  <div className="bg-emerald-500 h-full" style={{ width: '35%' }} title="Verde" />
-                  <div className="bg-yellow-500 h-full" style={{ width: '25%' }} title="Amarillo" />
-                  <div className="bg-amber-500 h-full" style={{ width: '20%' }} title="Naranja" />
-                  <div className="bg-red-500 h-full" style={{ width: '20%' }} title="Rojo" />
+                  <div className="bg-emerald-500 h-full" style={{ width: '35%' }} title={t('ews.level.green')} />
+                  <div className="bg-yellow-500 h-full" style={{ width: '25%' }} title={t('ews.level.yellow')} />
+                  <div className="bg-amber-500 h-full" style={{ width: '20%' }} title={t('ews.level.orange')} />
+                  <div className="bg-red-500 h-full" style={{ width: '20%' }} title={t('ews.level.red')} />
                 </div>
               </div>
             );
@@ -255,13 +259,15 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <TowerControl className="w-4 h-4 text-sky-400" />
-              Red de Alerta Acústica de Evacuación Ribereña (Sirenas 115 dB)
+              {t('ews.sirens.title')}
             </h3>
             <p className="text-[11px] text-slate-400">
-              Nodos de activación remota por radioenlace VHF y satélite para notificación directa a poblaciones sin cobertura móvil.
+              {t('ews.sirens.subtitle')}
             </p>
           </div>
-          <span className="text-xs text-slate-400 font-mono">5 Nodos Teledirigidos</span>
+          <span className="text-xs text-slate-400 font-mono">
+            {sirens.length} {t('ews.sirens.count')}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -293,13 +299,13 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                   <div className="text-[10px] text-slate-400 mt-0.5">{s.zone}</div>
 
                   <div className="mt-2 text-[11px] font-mono text-slate-300">
-                    Pob. Cobertura: <strong className="text-sky-400">{s.populationCovered.toLocaleString()} hab</strong>
+                    {t('ews.siren.coverage')} <strong className="text-sky-400">{s.populationCovered.toLocaleString()} {t('ews.siren.inhabitants')}</strong>
                   </div>
                 </div>
 
                 <div className="mt-3 pt-2 border-t border-slate-800/80">
                   <div className="text-[10px] font-mono mb-2 flex items-center justify-between">
-                    <span className="text-slate-500">Estado:</span>
+                    <span className="text-slate-500">{t('ews.siren.state')}</span>
                     <span
                       className={`font-bold ${
                         isBlaring ? 'text-red-400 animate-pulse' : isPreAlert ? 'text-amber-400' : 'text-slate-400'
@@ -320,7 +326,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                     }`}
                   >
                     {isBlaring ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    {isBlaring ? 'Silenciar Sirena' : 'Activar Alarma Sonora'}
+                    {isBlaring ? t('ews.siren.mute') : t('ews.siren.activate')}
                   </button>
                 </div>
               </div>
@@ -336,9 +342,9 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Share2 className="w-4 h-4 text-blue-400" />
-              Boletines CAP Emitidos
+              {t('ews.cap.historyTitle')}
             </h3>
-            <span className="text-xs text-slate-400 font-mono">{capAlerts.length} Registros</span>
+            <span className="text-xs text-slate-400 font-mono">{capAlerts.length} {t('ews.cap.records')}</span>
           </div>
 
           <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
@@ -379,7 +385,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
             <div>
               <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
                 <div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase">Boletín Oficial de Emergencia</span>
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">{t('ews.cap.officialBulletin')}</span>
                   <h3 className="text-base font-bold text-slate-100">{selectedAlert.headline}</h3>
                 </div>
 
@@ -389,7 +395,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                     className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5 border border-slate-700"
                   >
                     <FileCode2 className="w-3.5 h-3.5 text-sky-400" />
-                    {capXmlView ? 'Ver Formato Humano' : 'Ver Estándar CAP-XML'}
+                    {capXmlView ? t('ews.cap.viewHuman') : t('ews.cap.viewXml')}
                   </button>
                 </div>
               </div>
@@ -402,42 +408,42 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                 <div className="space-y-3 text-xs">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 uppercase">Severidad</div>
+                      <div className="text-[10px] text-slate-400 uppercase">{t('ews.cap.severity')}</div>
                       <div className="text-xs font-bold text-red-400 mt-0.5">{selectedAlert.severity}</div>
                     </div>
                     <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 uppercase">Urgencia</div>
+                      <div className="text-[10px] text-slate-400 uppercase">{t('ews.cap.urgency')}</div>
                       <div className="text-xs font-bold text-amber-400 mt-0.5">{selectedAlert.urgency}</div>
                     </div>
                     <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 uppercase">Certeza</div>
+                      <div className="text-[10px] text-slate-400 uppercase">{t('ews.cap.certainty')}</div>
                       <div className="text-xs font-bold text-emerald-400 mt-0.5">{selectedAlert.certainty}</div>
                     </div>
                     <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                      <div className="text-[10px] text-slate-400 uppercase">Población Meta</div>
+                      <div className="text-[10px] text-slate-400 uppercase">{t('ews.cap.targetPopulation')}</div>
                       <div className="text-xs font-bold text-sky-400 mt-0.5">{selectedAlert.targetPopulation.toLocaleString()}</div>
                     </div>
                   </div>
 
                   <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
                     <div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase">Descripción de la Amenaza:</div>
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">{t('ews.cap.threatDescription')}</div>
                       <p className="text-slate-300 mt-0.5">{selectedAlert.description}</p>
                     </div>
 
                     <div className="pt-2 border-t border-slate-900">
-                      <div className="text-[10px] text-emerald-400 font-bold uppercase">Instrucciones de Protección a la Población:</div>
+                      <div className="text-[10px] text-emerald-400 font-bold uppercase">{t('ews.cap.protectiveInstructions')}</div>
                       <p className="text-emerald-300 font-medium mt-0.5">{selectedAlert.instruction}</p>
                     </div>
 
                     <div className="pt-2 border-t border-slate-900">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase">Zona de Cobertura Georreferenciada:</div>
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">{t('ews.cap.coverageArea')}</div>
                       <p className="text-slate-300 font-mono text-[11px] mt-0.5">{selectedAlert.areaDesc}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">Canales Despachados:</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold">{t('ews.cap.dispatchedChannels')}</span>
                     {selectedAlert.disseminationChannels.map((ch, i) => (
                       <span key={i} className="px-2 py-0.5 rounded bg-slate-800 text-sky-300 text-[10px] font-mono border border-slate-700">
                         {ch}
@@ -448,7 +454,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
               )}
             </div>
           ) : (
-            <div className="text-center text-slate-500 py-12">Selecciona un boletín CAP para inspeccionar.</div>
+            <div className="text-center text-slate-500 py-12">{t('ews.cap.emptyState')}</div>
           )}
         </div>
       </div>
@@ -460,19 +466,19 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Send className="w-5 h-5 text-red-400" />
-                <h3 className="text-base font-bold text-slate-100">Nueva Emisión de Alerta CAP v1.2</h3>
+                <h3 className="text-base font-bold text-slate-100">{t('ews.form.title')}</h3>
               </div>
               <button
                 onClick={() => setIsCreatingAlert(false)}
                 className="text-slate-400 hover:text-slate-200 text-sm font-mono"
               >
-                ✕ Cerrar
+                ✕ {t('ews.form.close')}
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Titular de Alerta (Headline):</label>
+                <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.headline')}</label>
                 <input
                   type="text"
                   value={newHeadline}
@@ -483,7 +489,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Evento Hidro-Ecológico:</label>
+                  <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.event')}</label>
                   <input
                     type="text"
                     value={newEvent}
@@ -492,22 +498,22 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                   />
                 </div>
                 <div>
-                  <label className="text-slate-300 font-semibold block mb-1">Nivel de Severidad:</label>
+                  <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.severity')}</label>
                   <select
                     value={newSeverity}
                     onChange={e => setNewSeverity(e.target.value as any)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100"
                   >
-                    <option value="Extreme">Extreme (Rojo - Catastrófico)</option>
-                    <option value="Severe">Severe (Naranja - Severo)</option>
-                    <option value="Moderate">Moderate (Amarillo - Moderado)</option>
-                    <option value="Minor">Minor (Menor)</option>
+                    <option value="Extreme">{t('ews.form.severity.extreme')}</option>
+                    <option value="Severe">{t('ews.form.severity.severe')}</option>
+                    <option value="Moderate">{t('ews.form.severity.moderate')}</option>
+                    <option value="Minor">{t('ews.form.severity.minor')}</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Área de Afectación / Cobertura:</label>
+                <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.area')}</label>
                 <input
                   type="text"
                   value={newArea}
@@ -517,7 +523,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Descripción Técnica del Evento:</label>
+                <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.description')}</label>
                 <textarea
                   rows={2}
                   value={newDesc}
@@ -527,7 +533,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Instrucciones a la Población & COER:</label>
+                <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.instruction')}</label>
                 <textarea
                   rows={2}
                   value={newInstruction}
@@ -537,7 +543,7 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
               </div>
 
               <div>
-                <label className="text-slate-300 font-semibold block mb-1">Población Objetivo Estimada:</label>
+                <label className="text-slate-300 font-semibold block mb-1">{t('ews.form.targetPopulation')}</label>
                 <input
                   type="number"
                   value={targetPop}
@@ -552,14 +558,14 @@ export const EarlyWarningSystemPanel: React.FC<EarlyWarningSystemPanelProps> = (
                 onClick={() => setIsCreatingAlert(false)}
                 className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold"
               >
-                Cancelar
+                {t('ews.form.cancel')}
               </button>
               <button
                 onClick={handleBroadcastAlert}
                 className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold shadow-lg flex items-center gap-1.5"
               >
                 <Send className="w-3.5 h-3.5" />
-                Difundir Alerta Multi-Canal
+                {t('ews.form.broadcast')}
               </button>
             </div>
           </div>

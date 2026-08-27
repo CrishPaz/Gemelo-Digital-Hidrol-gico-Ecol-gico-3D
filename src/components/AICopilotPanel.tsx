@@ -39,6 +39,7 @@ import {
   HelpCircle,
   X,
 } from 'lucide-react';
+import { useI18n } from '../providers/I18nProvider';
 
 interface AICopilotPanelProps {
   currentUser: UserProfile;
@@ -47,28 +48,30 @@ interface AICopilotPanelProps {
 }
 
 export const AICopilotPanel: React.FC<AICopilotPanelProps> = ({ currentUser, stations, onNavigateTab }) => {
+  const { t, locale } = useI18n();
+
   const [specialistMode, setSpecialistMode] = useState<CopilotSpecialistMode>('general');
   const [messages, setMessages] = useState<AICopilotMessage[]>([
     {
       id: 'msg-0',
       role: 'assistant',
-      content: `Hola **${currentUser.name}**. Soy el **Copiloto Inteligente de la Cuenca del Río Moche**, potenciado por **Gemini 3.7 Flash**.
+      content: `${t('copilot.welcome.greeting')} **${currentUser.name}**. ${t('copilot.welcome.intro')}
 
-Tengo asimilación en tiempo real de las **12 estaciones IoT**, los modelos de dispersión de **metales pesados (DAM Quiruvilca)**, la hidrodinámica 2D de **crecidas y rotura de presas**, y el balance del **acuífero costero**.
+${t('copilot.welcome.capabilities')}
 
-Selecciona una especialidad en la barra superior o consúltame directamente mediante texto o dictado por voz.`,
+${t('copilot.welcome.cta')}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       specialistMode: 'general',
       executableActions: [
         {
           id: 'act-start-3d',
-          label: 'Explorar Gemelo 3D',
+          label: t('copilot.action.explore3d'),
           actionType: 'navigate_tab',
           targetTab: '3d_twin',
         },
         {
           id: 'act-start-metals',
-          label: 'Monitoreo de Metales',
+          label: t('copilot.action.metals'),
           actionType: 'navigate_tab',
           targetTab: 'heavy_metals',
         },
@@ -84,7 +87,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
   const [showResolutionModal, setShowResolutionModal] = useState<boolean>(false);
   const [resolutionType, setResolutionType] = useState<string>('Resolución Directoral');
   const [resolutionEntity, setResolutionEntity] = useState<string>('Autoridad Nacional del Agua (ANA)');
-  const [resolutionCase, setResolutionCase] = useState<string>('Disposición de Veda Temporal y Sanción por Vertimiento de Metales Pesados en Cuenca Alta (Quiruvilca)');
+  const [resolutionCase, setResolutionCase] = useState<string>(t('copilot.doc.case.default'));
   const [generatedResolutionText, setGeneratedResolutionText] = useState<string>('');
   const [isGeneratingDoc, setIsGeneratingDoc] = useState<boolean>(false);
 
@@ -102,7 +105,9 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = 'es-PE';
+      // La voz sigue al idioma de la interfaz: dictar en inglés con el reconocedor
+      // fijado a es-PE producía transcripciones basura.
+      recognition.lang = locale === 'en' ? 'en-US' : 'es-PE';
 
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
@@ -124,7 +129,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
 
   const toggleVoiceInput = () => {
     if (!speechRecognitionRef.current) {
-      alert('Tu navegador no soporta reconocimiento de voz nativo.');
+      alert(t('copilot.voice.unsupported'));
       return;
     }
 
@@ -150,7 +155,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
     // Limpiar markdown básico para locución natural
     const cleanText = text.replace(/[*#_`$]/g, '').replace(/\[.*?\]\(.*?\)/g, '');
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'es-ES';
+    utterance.lang = locale === 'en' ? 'en-US' : 'es-ES';
     utterance.rate = 1.05;
 
     utterance.onend = () => setIsSpeakingId(null);
@@ -170,43 +175,43 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
   const specialistOptions = [
     {
       id: 'general' as CopilotSpecialistMode,
-      name: 'Copiloto Integral GIRH',
+      name: t('copilot.spec.general.name'),
       icon: Sparkles,
       color: 'from-blue-600 to-indigo-600',
-      tag: 'Orquestador 3D & Telemetría',
-      description: 'Supervisión holística de cuenca, asimilación EnKF y balance hídrico general.',
+      tag: t('copilot.spec.general.tag'),
+      description: t('copilot.spec.general.desc'),
     },
     {
       id: 'water_quality_dam' as CopilotSpecialistMode,
-      name: 'Geoquímica & DAM Quiruvilca',
+      name: t('copilot.spec.dam.name'),
       icon: Flame,
       color: 'from-amber-600 to-red-600',
-      tag: 'Metales Pb, As, Cd & pH',
-      description: 'Diagnóstico de drenaje ácido, dosificación de cal Ca(OH)2 y capacidad TMDL.',
+      tag: t('copilot.spec.dam.tag'),
+      description: t('copilot.spec.dam.desc'),
     },
     {
       id: 'flood_hydraulics' as CopilotSpecialistMode,
-      name: 'Hidráulica Fluvial & Crecidas',
+      name: t('copilot.spec.flood.name'),
       icon: Waves,
       color: 'from-cyan-600 to-blue-700',
-      tag: 'Saint-Venant & Dam-Break',
-      description: 'Modelado de avenidas El Niño, rotura de relaves y alertas tempranas COER.',
+      tag: t('copilot.spec.flood.tag'),
+      description: t('copilot.spec.flood.desc'),
     },
     {
       id: 'regulatory_legal' as CopilotSpecialistMode,
-      name: 'Asesor Jurídico ANA / OEFA',
+      name: t('copilot.spec.legal.name'),
       icon: Scale,
       color: 'from-emerald-600 to-teal-700',
-      tag: 'Ley 29338 & ECA Agua',
-      description: 'Dictámenes técnicos, resoluciones de veda y procedimientos sancionadores.',
+      tag: t('copilot.spec.legal.tag'),
+      description: t('copilot.spec.legal.desc'),
     },
     {
       id: 'scada_allocation' as CopilotSpecialistMode,
-      name: 'SCADA & Caudal Ecológico',
+      name: t('copilot.spec.scada.name'),
       icon: Droplets,
       color: 'from-purple-600 to-pink-600',
-      tag: 'Compuertas & Acuífero',
-      description: 'Operación de compuertas en estiaje y control de intrusión salina costera.',
+      tag: t('copilot.spec.scada.tag'),
+      description: t('copilot.spec.scada.desc'),
     },
   ];
 
@@ -214,86 +219,86 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
   const quickPromptsBySpecialist: Record<CopilotSpecialistMode, { label: string; prompt: string; icon: any }[]> = {
     general: [
       {
-        label: 'Estado Integral de la Cuenca',
-        prompt: 'Presenta un balance hídrico y ambiental consolidado del Río Moche en base a las 12 estaciones IoT y la asimilación EnKF.',
+        label: t('copilot.qp.general.status.label'),
+        prompt: t('copilot.qp.general.status.prompt'),
         icon: Activity,
       },
       {
-        label: 'Balance de Demanda en Estiaje',
-        prompt: '¿Cómo se distribuyen las dotaciones de agua para uso poblacional (SEDALIB) y agrícola garantizando el caudal ecológico de 1.65 m³/s?',
+        label: t('copilot.qp.general.demand.label'),
+        prompt: t('copilot.qp.general.demand.prompt'),
         icon: Sliders,
       },
       {
-        label: 'Verificación de Calibración SCE-UA',
-        prompt: 'Evalúa la eficiencia de calibración del modelo GR4J en el Río Moche y su índice Nash-Sutcliffe (NSE).',
+        label: t('copilot.qp.general.calib.label'),
+        prompt: t('copilot.qp.general.calib.prompt'),
         icon: FileCheck2,
       },
     ],
     water_quality_dam: [
       {
-        label: 'Superación de Plomo (Pb) en Quiruvilca',
-        prompt: 'Realiza un diagnóstico de la superación de Plomo total (0.185 mg/L) y pH ácido (3.8) en la cabecera y calcula la dosificación de cal Ca(OH)2 requerida.',
+        label: t('copilot.qp.dam.lead.label'),
+        prompt: t('copilot.qp.dam.lead.prompt'),
         icon: AlertOctagon,
       },
       {
-        label: 'Tiempo de Tránsito de Contaminantes',
-        prompt: 'Calcula el tiempo de llegada de la pluma de Drenaje Ácido de Mina (DAM) desde Shorey hasta la Bocatoma Menocucho (Km 54).',
+        label: t('copilot.qp.dam.transit.label'),
+        prompt: t('copilot.qp.dam.transit.prompt'),
         icon: Zap,
       },
       {
-        label: 'Capacidad de Carga TMDL en Laredo',
-        prompt: '¿Cuál es la capacidad máxima total admisible de DBO5 y coliformes en el tramo Laredo antes de sobrepasar el ECA Categoría 3?',
+        label: t('copilot.qp.dam.tmdl.label'),
+        prompt: t('copilot.qp.dam.tmdl.prompt'),
         icon: Layers,
       },
     ],
     flood_hydraulics: [
       {
-        label: 'Simulación Crecida El Niño (145 m³/s)',
-        prompt: 'Genera un protocolo de emergencia hidráulica para una crecida estimada de 145 m³/s (Tr=50 años) en Campiña de Moche y Puente Jesús María.',
+        label: t('copilot.qp.flood.enso.label'),
+        prompt: t('copilot.qp.flood.enso.prompt'),
         icon: ShieldAlert,
       },
       {
-        label: 'Rotura de Presa de Relaves (Dam-Break)',
-        prompt: 'Evalúa el escenario catastrófico de rotura de la presa de relaves Shorey: calcula caudales pico, tiempos de arribo a Otuzco y Trujillo, y zonas de evacuación.',
+        label: t('copilot.qp.flood.dambreak.label'),
+        prompt: t('copilot.qp.flood.dambreak.prompt'),
         icon: AlertOctagon,
       },
       {
-        label: 'Activación de Red de Sirenas Acústicas',
-        prompt: 'Indica el orden de activación de las sirenas de 115 dB en la cuenca baja ante un hidrograma de crecida con cota superior a rasante.',
+        label: t('copilot.qp.flood.sirens.label'),
+        prompt: t('copilot.qp.flood.sirens.prompt'),
         icon: Volume2,
       },
     ],
     regulatory_legal: [
       {
-        label: 'Dictamen Oficial para ANA',
-        prompt: 'Redacta la estructura de un dictamen técnico oficial para la Autoridad Nacional del Agua (ANA) sobre el estado de cumplimiento de los ECA-Agua D.S. 004-2017-MINAM.',
+        label: t('copilot.qp.legal.opinion.label'),
+        prompt: t('copilot.qp.legal.opinion.prompt'),
         icon: FileText,
       },
       {
-        label: 'Procedimiento Sancionador OEFA',
-        prompt: 'Determina las bases para un Procedimiento Administrativo Sancionador (PAS) por vertimiento clandestino de efluentes en el cauce del río conforme a la Ley 29338.',
+        label: t('copilot.qp.legal.pas.label'),
+        prompt: t('copilot.qp.legal.pas.prompt'),
         icon: Scale,
       },
       {
-        label: 'Resolución de Veda en Estiaje',
-        prompt: 'Redacta los considerandos legales de una Resolución Directoral que ordena la reducción de captaciones agrícolas al 85% para preservar el caudal ecológico.',
+        label: t('copilot.qp.legal.ban.label'),
+        prompt: t('copilot.qp.legal.ban.prompt'),
         icon: BookOpen,
       },
     ],
     scada_allocation: [
       {
-        label: 'Regulación Bocatoma Menocucho',
-        prompt: '¿Cómo debe maniobrarse la compuerta radial de Bocatoma Menocucho (Km 54) durante el estiaje para mantener 2.4 m³/s de derivación y 1.65 m³/s de paso ecológico?',
+        label: t('copilot.qp.scada.intake.label'),
+        prompt: t('copilot.qp.scada.intake.prompt'),
         icon: Sliders,
       },
       {
-        label: 'Acuífero Costero e Intrusión Marina',
-        prompt: 'Evalúa el riesgo de salinización de pozos en Víctor Larco por bombeo excesivo y calcula la posición de la cuña salina según Ghyben-Herzberg.',
+        label: t('copilot.qp.scada.aquifer.label'),
+        prompt: t('copilot.qp.scada.aquifer.prompt'),
         icon: Droplets,
       },
       {
-        label: 'Ajuste de Compuertas ante DAM',
-        prompt: 'Indica la maniobra automática recomendada en el PLC Modbus de las compuertas de La Mochica y Poroto ante una alerta de metales pesados en cabecera.',
+        label: t('copilot.qp.scada.gates.label'),
+        prompt: t('copilot.qp.scada.gates.prompt'),
         icon: Zap,
       },
     ],
@@ -361,7 +366,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
         {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: 'Ocurrió un error al procesar la consulta con el servidor. Por favor intenta nuevamente.',
+          content: t('copilot.error.request'),
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           specialistMode,
         },
@@ -384,10 +389,10 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
         }),
       });
       const data = await res.json();
-      setGeneratedResolutionText(data.documentText || 'Error al generar documento.');
+      setGeneratedResolutionText(data.documentText || t('copilot.doc.error.generate'));
     } catch (err) {
       console.error(err);
-      setGeneratedResolutionText('Error en el servidor al generar la resolución.');
+      setGeneratedResolutionText(t('copilot.doc.error.server'));
     } finally {
       setIsGeneratingDoc(false);
     }
@@ -396,7 +401,8 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
   const handleExportChatMarkdown = () => {
     const text = messages
       .map(
-        m => `### ${m.role === 'user' ? '👤 Usuario' : '🤖 Copiloto Hidro-Ecológico'} (${m.timestamp})\n\n${m.content}\n\n---\n`
+        m =>
+          `### ${m.role === 'user' ? `👤 ${t('copilot.export.user')}` : `🤖 ${t('copilot.export.assistant')}`} (${m.timestamp})\n\n${m.content}\n\n---\n`
       )
       .join('\n');
 
@@ -437,7 +443,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
               className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm"
             >
               <FileText className="w-3.5 h-3.5 text-emerald-400" />
-              Generador Legal (Resolución/Acta)
+              {t('copilot.btn.legalGenerator')}
             </button>
 
             <button
@@ -445,7 +451,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
               className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 flex items-center gap-1.5 transition-all shadow-sm"
             >
               <Download className="w-3.5 h-3.5 text-sky-400" />
-              Exportar Sesión (.md)
+              {t('copilot.btn.exportSession')}
             </button>
           </div>
         </div>
@@ -484,23 +490,23 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] font-mono text-slate-300">
         <div className="flex items-center gap-2 text-sky-400 font-bold">
           <Activity className="w-3.5 h-3.5" />
-          <span>Telemetría Asimilada en Contexto:</span>
+          <span>{t('copilot.ctx.title')}:</span>
         </div>
         <div className="flex flex-wrap items-center gap-4 text-slate-400">
           <span>
-            Q Medio: <strong className="text-slate-200">6.45 m³/s</strong>
+            {t('copilot.ctx.meanQ')}: <strong className="text-slate-200">6.45 m³/s</strong>
           </span>
           <span>
-            WQI Cuenca: <strong className="text-emerald-400">68.4/100</strong>
+            {t('copilot.ctx.wqi')}: <strong className="text-emerald-400">68.4/100</strong>
           </span>
           <span>
-            Alertas ECA: <strong className="text-amber-400">2 activas</strong>
+            {t('copilot.ctx.ecaAlerts')}: <strong className="text-amber-400">2 {t('copilot.ctx.active')}</strong>
           </span>
           <span>
-            Caudal Ecológico: <strong className="text-sky-400">1.65 m³/s (Cumple)</strong>
+            {t('copilot.ctx.eflow')}: <strong className="text-sky-400">1.65 m³/s ({t('copilot.ctx.compliant')})</strong>
           </span>
           <span>
-            Cuña Salina: <strong className="text-purple-400">Km 4.1 Litoral</strong>
+            {t('copilot.ctx.wedge')}: <strong className="text-purple-400">Km 4.1 {t('copilot.ctx.coastline')}</strong>
           </span>
         </div>
       </div>
@@ -559,12 +565,12 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
                     <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3 text-purple-400" />
-                      Gemini 3.7 Flash — Análisis Especializado
+                      Gemini 3.7 Flash — {t('copilot.msg.specialized')}
                     </span>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleSpeakText(msg.id, msg.content)}
-                        title="Escuchar respuesta"
+                        title={t('copilot.msg.listen')}
                         className={`p-1 rounded-lg text-slate-400 hover:text-slate-200 transition-colors ${
                           isSpeakingId === msg.id ? 'text-emerald-400 bg-emerald-950' : ''
                         }`}
@@ -573,7 +579,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
                       </button>
                       <button
                         onClick={() => handleCopyText(msg.id, msg.content)}
-                        title="Copiar texto"
+                        title={t('copilot.msg.copy')}
                         className="p-1 rounded-lg text-slate-400 hover:text-slate-200 transition-colors"
                       >
                         {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -602,12 +608,12 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
                             : 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
                         }`}
                       >
-                        Nivel {msg.actionProtocol.level}
+                        {t('copilot.protocol.level')} {msg.actionProtocol.level}
                       </span>
                     </div>
 
                     <div className="space-y-1">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase">Pasos Inmediatos:</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase">{t('copilot.protocol.steps')}:</div>
                       {msg.actionProtocol.steps.map((st, i) => (
                         <div key={i} className="flex items-start gap-1.5 text-slate-300 text-[11px]">
                           <CheckCircle2 className="w-3 h-3 text-emerald-400 mt-0.5 flex-shrink-0" />
@@ -618,7 +624,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
 
                     {msg.actionProtocol.recommendedGateActions && (
                       <div className="space-y-1 pt-1">
-                        <div className="text-[10px] font-bold text-slate-400 uppercase">Maniobra de Compuertas:</div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase">{t('copilot.protocol.gates')}:</div>
                         {msg.actionProtocol.recommendedGateActions.map((ga, i) => (
                           <div key={i} className="flex items-start gap-1.5 text-amber-300 text-[11px]">
                             <ChevronRight className="w-3 h-3 text-amber-400 mt-0.5 flex-shrink-0" />
@@ -635,7 +641,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
                   <div className="mt-3 pt-2.5 border-t border-slate-800">
                     <div className="text-[10px] font-bold text-slate-400 uppercase mb-2 flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-sky-400" />
-                      Acciones Directas en el Gemelo Digital:
+                      {t('copilot.actions.title')}:
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {msg.executableActions.map(act => (
@@ -655,7 +661,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
                 {/* Citas y Fuentes Normativas */}
                 {msg.citations && msg.citations.length > 0 && (
                   <div className="pt-2 text-[10px] text-slate-400 font-mono flex items-center gap-2 flex-wrap">
-                    <span className="text-slate-400">Fuentes:</span>
+                    <span className="text-slate-400">{t('copilot.citations.label')}:</span>
                     {msg.citations.map((c, i) => (
                       <span key={i} className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
                         {c}
@@ -682,7 +688,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
               </div>
               <div className="flex items-center gap-2.5 bg-slate-950 p-3 rounded-2xl border border-slate-800">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin text-sky-400" />
-                <span>Analizando telemetría, matriz de caudales y marco normativo peruano...</span>
+                <span>{t('copilot.loading')}</span>
               </div>
             </div>
           )}
@@ -694,7 +700,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
         <div className="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
           <button
             onClick={toggleVoiceInput}
-            title={isListening ? 'Detener dictado' : 'Dictar por voz'}
+            title={isListening ? t('copilot.input.voice.stop') : t('copilot.input.voice.start')}
             className={`p-2.5 rounded-xl border transition-all flex items-center justify-center ${
               isListening
                 ? 'bg-red-600 border-red-500 text-white animate-pulse shadow-lg shadow-red-500/30'
@@ -711,8 +717,8 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
             onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
             placeholder={
               isListening
-                ? 'Escuchando tu voz... (habla ahora)'
-                : `Consulta técnica sobre ${currentSpecialist.name.toLowerCase()}...`
+                ? t('copilot.input.listening')
+                : `${t('copilot.input.placeholder')} ${currentSpecialist.name.toLowerCase()}...`
             }
             className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition-colors"
           />
@@ -735,7 +741,7 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
               <div className="flex items-center gap-2">
                 <Scale className="w-5 h-5 text-emerald-400" />
                 <h3 className="text-sm font-bold text-slate-100">
-                  Generador de Resoluciones y Dictámenes Jurídico-Técnicos (IA)
+                  {t('copilot.doc.title')}
                 </h3>
               </div>
               <button
@@ -749,21 +755,21 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
             <div className="p-5 overflow-y-auto space-y-4 flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Tipo de Documento Oficial</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">{t('copilot.doc.type.label')}</label>
                   <select
                     value={resolutionType}
                     onChange={e => setResolutionType(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="Resolución Directoral">Resolución Directoral (AAA Huarmey-Chicama)</option>
-                    <option value="Dictamen Técnico Legal">Dictamen Técnico Legal de Infracción</option>
-                    <option value="Notificación de Veda Temporal">Notificación de Veda Temporal en Estiaje</option>
-                    <option value="Acta de Fiscalización Ambiental">Acta de Fiscalización de Campo (OEFA / ANA)</option>
+                    <option value="Resolución Directoral">{t('copilot.doc.type.directoral')}</option>
+                    <option value="Dictamen Técnico Legal">{t('copilot.doc.type.opinion')}</option>
+                    <option value="Notificación de Veda Temporal">{t('copilot.doc.type.ban')}</option>
+                    <option value="Acta de Fiscalización Ambiental">{t('copilot.doc.type.record')}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Entidad Emisora</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">{t('copilot.doc.entity.label')}</label>
                   <select
                     value={resolutionEntity}
                     onChange={e => setResolutionEntity(e.target.value)}
@@ -778,12 +784,12 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Detalle del Caso & Hechos Constatados</label>
+                <label className="block text-xs font-bold text-slate-300 mb-1">{t('copilot.doc.case.label')}</label>
                 <textarea
                   rows={3}
                   value={resolutionCase}
                   onChange={e => setResolutionCase(e.target.value)}
-                  placeholder="Describe la infracción o motivo de la resolución..."
+                  placeholder={t('copilot.doc.case.placeholder')}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
                 />
               </div>
@@ -797,12 +803,12 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
                   {isGeneratingDoc ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Redactando con Gemini 3.7 Flash...</span>
+                      <span>{t('copilot.doc.generating')}</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Generar Resolución Completa</span>
+                      <span>{t('copilot.doc.generate')}</span>
                     </>
                   )}
                 </button>
@@ -811,13 +817,13 @@ Selecciona una especialidad en la barra superior o consúltame directamente medi
               {generatedResolutionText && (
                 <div className="pt-3 border-t border-slate-800 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-400">Texto Oficial Generado:</span>
+                    <span className="text-xs font-bold text-emerald-400">{t('copilot.doc.result.label')}:</span>
                     <button
                       onClick={() => handleCopyText('resolution-doc', generatedResolutionText)}
                       className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1"
                     >
                       <Copy className="w-3.5 h-3.5" />
-                      <span>Copiar</span>
+                      <span>{t('copilot.doc.copy')}</span>
                     </button>
                   </div>
                   <pre className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-[11px] font-mono text-slate-300 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto">

@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { WaterDemandSector, MonthlyWaterBalance } from '../types';
 import { MOCHE_WATER_DEMAND_SECTORS, MOCHE_MONTHLY_WATER_BALANCE } from '../data/mocheHydroData';
 import { optimizeWaterAllocation } from '../services/hydrodynamicsEngine';
+import { useI18n } from '../providers/I18nProvider';
 import {
   Droplets,
   Scale,
@@ -33,7 +34,25 @@ import {
   ComposedChart,
 } from 'recharts';
 
+// El estado de compuerta y el estado del balance mensual llegan del modelo como
+// uniones literales en español. Estos mapas los llevan a claves de traducción sin
+// tocar los datos ni las comparaciones que deciden el color de cada badge.
+const GATE_STATUS_KEYS: Record<WaterDemandSector['gateStatus'], string> = {
+  '100% Abierta': 'alloc.gate.open',
+  '75% Regulada': 'alloc.gate.regulated',
+  '50% Restringida': 'alloc.gate.restricted',
+  'Cierre Preventivo': 'alloc.gate.preventive',
+};
+
+const MONTH_STATUS_KEYS: Record<MonthlyWaterBalance['status'], string> = {
+  'Superávit Hídrico': 'alloc.status.surplus',
+  'Equilibrio Sostenible': 'alloc.status.balance',
+  'Estrés Moderado': 'alloc.status.moderateStress',
+  'Déficit Crítico': 'alloc.status.criticalDeficit',
+};
+
 export const WaterAllocationPanel: React.FC = () => {
+  const { t } = useI18n();
   const [riverDischargeM3s, setRiverDischargeM3s] = useState<number>(8.5);
   const [selectedMonth, setSelectedMonth] = useState<string>('Marzo');
 
@@ -46,8 +65,8 @@ export const WaterAllocationPanel: React.FC = () => {
 
   // Datos para el gráfico mensualizado
   const monthlyChartData = MOCHE_MONTHLY_WATER_BALANCE.map(m => ({
-    mes: m.month.slice(0, 3),
-    nombreCompleto: m.month,
+    mes: t(`alloc.monthShort.${m.month.toLowerCase()}`),
+    nombreCompleto: t(`alloc.month.${m.month.toLowerCase()}`),
     oferta: m.riverInflowHm3,
     reservaEcologica: m.ecologicalReserveHm3,
     poblacional: m.poblacionalDemandHm3,
@@ -69,21 +88,21 @@ export const WaterAllocationPanel: React.FC = () => {
               <Scale className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Balance Hídrico & Asignación de Derechos de Agua
+              {t('alloc.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Distribución multisectorial según prelación de la Ley de Recursos Hídricos N° 29338 (1° Ecológico, 2° Poblacional, 3° Agrario, 4° Industrial).
+            {t('alloc.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Oferta Fluvial</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('alloc.kpi.supply')}</div>
             <div className="text-sm font-extrabold text-emerald-400 font-mono">{riverDischargeM3s.toFixed(2)} m³/s</div>
           </div>
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Cobertura Demanda</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('alloc.kpi.coverage')}</div>
             <div className={`text-sm font-extrabold font-mono ${globalSatisfaction >= 90 ? 'text-emerald-400' : 'text-amber-400'}`}>
               {globalSatisfaction}%
             </div>
@@ -98,7 +117,7 @@ export const WaterAllocationPanel: React.FC = () => {
           <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
             <span className="flex items-center gap-1.5">
               <Sliders className="w-4 h-4 text-emerald-400" />
-              Simular Caudal Natural Disponible (Q_disp):
+              {t('alloc.slider.label')}
             </span>
             <span className="font-mono text-emerald-400 font-bold">{riverDischargeM3s.toFixed(2)} m³/s</span>
           </div>
@@ -110,17 +129,18 @@ export const WaterAllocationPanel: React.FC = () => {
             value={riverDischargeM3s}
             onChange={e => setRiverDischargeM3s(parseFloat(e.target.value))}
             className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            aria-label={t('alloc.slider.aria')}
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-2">
-            <span>Estiaje Severo (1.2 m³/s)</span>
-            <span>Promedio Anual (8.5 m³/s)</span>
-            <span>Avenida Húmeda (25.0 m³/s)</span>
+            <span>{t('alloc.slider.low')}</span>
+            <span>{t('alloc.slider.mean')}</span>
+            <span>{t('alloc.slider.high')}</span>
           </div>
         </div>
 
         {/* Tarjeta de Demanda vs Asignado */}
         <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Balance Global Instantáneo</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold">{t('alloc.balance.title')}</div>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-xl font-extrabold text-slate-100 font-mono">{totalAllocated.toFixed(2)}</span>
             <span className="text-xs text-slate-400">/ {totalRequested.toFixed(2)} m³/s</span>
@@ -134,7 +154,7 @@ export const WaterAllocationPanel: React.FC = () => {
             />
           </div>
           <div className="text-[10px] text-slate-400 mt-1">
-            Déficit total: {(totalRequested - totalAllocated).toFixed(2)} m³/s
+            {t('alloc.balance.deficit')} {(totalRequested - totalAllocated).toFixed(2)} m³/s
           </div>
         </div>
 
@@ -142,13 +162,13 @@ export const WaterAllocationPanel: React.FC = () => {
         <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
           <div className="text-[10px] text-slate-400 uppercase font-bold flex items-center gap-1 text-emerald-400">
             <ShieldCheck className="w-3.5 h-3.5" />
-            Prioridad 1: Reserva Ecológica
+            {t('alloc.eflow.label')}
           </div>
           <div className="text-xl font-extrabold text-emerald-400 font-mono mt-1">
             {allocatedSectors[0].allocatedFlowM3s.toFixed(2)} m³/s
           </div>
           <div className="text-[10px] text-slate-400 mt-1">
-            100% garantizado con máxima prelación jurídica.
+            {t('alloc.eflow.note')}
           </div>
         </div>
       </div>
@@ -159,10 +179,10 @@ export const WaterAllocationPanel: React.FC = () => {
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <Droplets className="w-4 h-4 text-emerald-400" />
-              Balance de Oferta vs Demandas Mensualizadas ($Hm^3/mes$)
+              {t('alloc.chart.title')}
             </h3>
             <p className="text-[11px] text-slate-400">
-              Comparativa estacional de régimen pluvial andino frente a demandas consuntivas.
+              {t('alloc.chart.subtitle')}
             </p>
           </div>
 
@@ -171,13 +191,14 @@ export const WaterAllocationPanel: React.FC = () => {
               <button
                 key={m.month}
                 onClick={() => setSelectedMonth(m.month)}
+                title={t(`alloc.month.${m.month.toLowerCase()}`)}
                 className={`px-2 py-1 rounded text-[11px] font-semibold transition-all ${
                   selectedMonth === m.month
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'bg-slate-800 text-slate-400 hover:text-slate-200'
                 }`}
               >
-                {m.month.slice(0, 3)}
+                {t(`alloc.monthShort.${m.month.toLowerCase()}`)}
               </button>
             ))}
           </div>
@@ -194,11 +215,11 @@ export const WaterAllocationPanel: React.FC = () => {
                 formatter={(value: any, name: string) => [`${value} Hm³`, name]}
               />
               <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-              <Bar dataKey="poblacional" stackId="a" fill="#38bdf8" name="Urbano / Poblacional" />
-              <Bar dataKey="agricola" stackId="a" fill="#10b981" name="Riego Agrícola" />
-              <Bar dataKey="industrial" stackId="a" fill="#f59e0b" name="Industrial / Minero" />
-              <Bar dataKey="reservaEcologica" stackId="a" fill="#06b6d4" name="Reserva Ecológica" />
-              <Line type="monotone" dataKey="oferta" stroke="#ec4899" strokeWidth={3} dot={{ r: 4 }} name="Oferta Fluvial Total" />
+              <Bar dataKey="poblacional" stackId="a" fill="#38bdf8" name={t('alloc.series.municipal')} />
+              <Bar dataKey="agricola" stackId="a" fill="#10b981" name={t('alloc.series.irrigation')} />
+              <Bar dataKey="industrial" stackId="a" fill="#f59e0b" name={t('alloc.series.industrial')} />
+              <Bar dataKey="reservaEcologica" stackId="a" fill="#06b6d4" name={t('alloc.series.ecological')} />
+              <Line type="monotone" dataKey="oferta" stroke="#ec4899" strokeWidth={3} dot={{ r: 4 }} name={t('alloc.series.supply')} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -209,10 +230,11 @@ export const WaterAllocationPanel: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
             <Scale className="w-4 h-4 text-blue-400" />
-            Matriz de Asignación por Bloque de Riego & Concesión ANA
+            {t('alloc.table.title')}
           </h3>
           <span className="text-xs text-slate-400 font-mono">
-            Mes Seleccionado: <strong className="text-emerald-400">{selectedMonth}</strong> ({activeMonthData.status})
+            {t('alloc.table.selectedMonth')}{' '}
+            <strong className="text-emerald-400">{t(`alloc.month.${selectedMonth.toLowerCase()}`)}</strong> ({t(MONTH_STATUS_KEYS[activeMonthData.status])})
           </span>
         </div>
 
@@ -220,14 +242,14 @@ export const WaterAllocationPanel: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 font-mono">
               <tr>
-                <th className="p-3">Prioridad</th>
-                <th className="p-3">Sector / Concesionario</th>
-                <th className="p-3">Categoría</th>
-                <th className="p-3">Bocatoma / Captación</th>
-                <th className="p-3">Demanda ($m^3/s$)</th>
-                <th className="p-3">Asignado ($m^3/s$)</th>
-                <th className="p-3">Cobertura</th>
-                <th className="p-3">Compuerta</th>
+                <th className="p-3">{t('alloc.th.priority')}</th>
+                <th className="p-3">{t('alloc.th.sector')}</th>
+                <th className="p-3">{t('alloc.th.category')}</th>
+                <th className="p-3">{t('alloc.th.intake')}</th>
+                <th className="p-3">{t('alloc.th.demand')}</th>
+                <th className="p-3">{t('alloc.th.allocated')}</th>
+                <th className="p-3">{t('alloc.th.coverage')}</th>
+                <th className="p-3">{t('alloc.th.gate')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -259,7 +281,7 @@ export const WaterAllocationPanel: React.FC = () => {
                             : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         }`}
                       >
-                        {sec.category.toUpperCase()}
+                        {t(`alloc.category.${sec.category}`)}
                       </span>
                     </td>
                     <td className="p-3 font-sans text-slate-300">
@@ -297,7 +319,7 @@ export const WaterAllocationPanel: React.FC = () => {
                             : 'bg-red-500/20 text-red-400 border border-red-500/30'
                         }`}
                       >
-                        {sec.gateStatus}
+                        {t(GATE_STATUS_KEYS[sec.gateStatus])}
                       </span>
                     </td>
                   </tr>

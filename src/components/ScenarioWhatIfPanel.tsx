@@ -10,6 +10,7 @@
 import React, { useState } from 'react';
 import { HydroSimulationResult, MonitoringStation } from '../types';
 import { runGR4JSimulation } from '../services/hydroEngine';
+import { useI18n } from '../providers/I18nProvider';
 import {
   HelpCircle,
   Play,
@@ -42,6 +43,7 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
   baseSimulation,
   stations,
 }) => {
+  const { t } = useI18n();
   const [activeScenario, setActiveScenario] = useState<'drought' | 'flood' | 'spill' | 'climate'>('drought');
   const [precipDelta, setPrecipDelta] = useState<number>(-35); // -35%
   const [tempDelta, setTempDelta] = useState<number>(1.8);     // +1.8 °C
@@ -65,8 +67,8 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
   }
 
   // Datos para Recharts
-  const chartData = baseSimulation.timestamps.map((t, i) => ({
-    date: t,
+  const chartData = baseSimulation.timestamps.map((ts, i) => ({
+    date: ts,
     Q_Base: baseSimulation.simulatedPosteriorDischarge[i],
     Q_Escenario: scenarioQ[i],
     Precip_Base: baseSimulation.precipitation[i],
@@ -94,11 +96,11 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
           }`}
         >
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-xs text-amber-300">1. SEQUÍA SEVERA</span>
+            <span className="font-bold text-xs text-amber-300">{t('scen.card.drought.title')}</span>
             <Flame className="w-4 h-4 text-amber-400" />
           </div>
           <p className="text-[11px] text-slate-400">
-            Déficit pluviométrico (-35% P) y aumento de temperatura (+2.0°C).
+            {t('scen.card.drought.desc')}
           </p>
         </div>
 
@@ -115,11 +117,11 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
           }`}
         >
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-xs text-sky-300">2. AVENIDA TORRENCIAL</span>
+            <span className="font-bold text-xs text-sky-300">{t('scen.card.flood.title')}</span>
             <CloudRain className="w-4 h-4 text-sky-400" />
           </div>
           <p className="text-[11px] text-slate-400">
-            Fenómeno El Niño costero (+65% P) con crecidas extraordinarias.
+            {t('scen.card.flood.desc')}
           </p>
         </div>
 
@@ -135,11 +137,11 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
           }`}
         >
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-xs text-red-300">3. VERTIMIENTO ACCIDENTAL</span>
+            <span className="font-bold text-xs text-red-300">{t('scen.card.spill.title')}</span>
             <AlertTriangle className="w-4 h-4 text-red-400" />
           </div>
           <p className="text-[11px] text-slate-400">
-            Descarga de pasivos mineros y metales pesados en cabecera.
+            {t('scen.card.spill.desc')}
           </p>
         </div>
 
@@ -156,11 +158,11 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
           }`}
         >
           <div className="flex justify-between items-center mb-2">
-            <span className="font-bold text-xs text-purple-300">4. CAMBIO CLIMÁTICO</span>
+            <span className="font-bold text-xs text-purple-300">{t('scen.card.climate.title')}</span>
             <Thermometer className="w-4 h-4 text-purple-400" />
           </div>
           <p className="text-[11px] text-slate-400">
-            Escenario IPCC SSP5-8.5 a horizonte 2050 (+3.2°C y -15% P).
+            {t('scen.card.climate.desc')}
           </p>
         </div>
       </div>
@@ -169,15 +171,15 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
       <div className="p-5 bg-slate-900/80 backdrop-blur-sm rounded-xl border border-slate-800 shadow-md space-y-4">
         <div className="flex justify-between items-center pb-2 border-b border-slate-800">
           <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-            Controles Paramétricos del Escenario
+            {t('scen.controls.title')}
           </h3>
-          <span className="text-xs text-slate-400">Ajuste continuo y re-cálculo en tiempo real</span>
+          <span className="text-xs text-slate-400">{t('scen.controls.hint')}</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300 font-medium">Delta de Precipitación (ΔP)</span>
+              <span className="text-slate-300 font-medium">{t('scen.controls.precipDelta')}</span>
               <span className={`font-mono font-bold ${precipDelta < 0 ? 'text-amber-400' : 'text-sky-400'}`}>
                 {precipDelta > 0 ? `+${precipDelta}%` : `${precipDelta}%`}
               </span>
@@ -195,7 +197,7 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
 
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300 font-medium">Delta de Temperatura (ΔT)</span>
+              <span className="text-slate-300 font-medium">{t('scen.controls.tempDelta')}</span>
               <span className="font-mono font-bold text-amber-400">+{tempDelta.toFixed(1)} °C</span>
             </div>
             <input
@@ -212,8 +214,8 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
           {activeScenario === 'spill' ? (
             <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-slate-300 font-medium">Carga Contaminante (Pb)</span>
-                <span className="font-mono font-bold text-red-400">{miningSpillKgDay} kg/día</span>
+                <span className="text-slate-300 font-medium">{t('scen.controls.pollutantLoad')}</span>
+                <span className="font-mono font-bold text-red-400">{miningSpillKgDay} {t('scen.unit.kgPerDay')}</span>
               </div>
               <input
                 type="range"
@@ -227,9 +229,13 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
             </div>
           ) : (
             <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800 flex flex-col justify-center">
-              <span className="text-[11px] text-slate-400">Estado de Alerta Estimado</span>
+              <span className="text-[11px] text-slate-400">{t('scen.controls.alertState')}</span>
               <span className="text-sm font-bold text-amber-400 mt-1">
-                {precipDelta < -20 ? 'Riesgo Déficit Hídrico' : precipDelta > 40 ? 'Alerta Inundación' : 'Normal'}
+                {precipDelta < -20
+                  ? t('scen.alert.waterDeficit')
+                  : precipDelta > 40
+                  ? t('scen.alert.flood')
+                  : t('scen.alert.normal')}
               </span>
             </div>
           )}
@@ -241,10 +247,10 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
         <div>
           <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
             <TrendingDown className="w-4 h-4 text-sky-400" />
-            Curva de Respuesta Hidrológica: Línea Base vs. Escenario Simulado
+            {t('scen.chart.title')}
           </h3>
           <p className="text-xs text-slate-400 mt-0.5">
-            Evolución del caudal en desembocadura ante perturbaciones climáticas e hidrológicas
+            {t('scen.chart.subtitle')}
           </p>
         </div>
 
@@ -270,7 +276,7 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
                 stroke="#10b981"
                 strokeWidth={2}
                 dot={false}
-                name="Caudal Línea Base (m³/s)"
+                name={t('scen.chart.series.baseline')}
               />
               <Line
                 type="monotone"
@@ -278,7 +284,7 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
                 stroke={precipDelta < 0 ? '#f59e0b' : '#38bdf8'}
                 strokeWidth={2.5}
                 dot={false}
-                name="Caudal Simulado Escenario (m³/s)"
+                name={t('scen.chart.series.scenario')}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -287,27 +293,31 @@ export const ScenarioWhatIfPanel: React.FC<ScenarioWhatIfPanelProps> = ({
         {/* Tarjetas de Impacto */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-800">
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">Variación Caudal Pico</span>
+            <span className="text-[11px] text-slate-400">{t('scen.impact.peakChange')}</span>
             <div className="text-base font-bold text-slate-200 mt-0.5">
               {qPeakChange > 0 ? `+${qPeakChange.toFixed(1)}%` : `${qPeakChange.toFixed(1)}%`}
             </div>
-            <span className="text-[10px] text-slate-400">{qScenarioPeak.toFixed(2)} m³/s máximo</span>
+            <span className="text-[10px] text-slate-400">
+              {qScenarioPeak.toFixed(2)} m³/s {t('scen.impact.peakSuffix')}
+            </span>
           </div>
 
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">Impacto en Calidad WQI</span>
+            <span className="text-[11px] text-slate-400">{t('scen.impact.wqi')}</span>
             <div className="text-base font-bold text-amber-400 mt-0.5">
               {scenarioWQI.toFixed(1)} / 100
             </div>
-            <span className="text-[10px] text-red-400">Caída: -{(baseWQI - scenarioWQI).toFixed(1)} pts</span>
+            <span className="text-[10px] text-red-400">
+              {t('scen.impact.drop')}: -{(baseWQI - scenarioWQI).toFixed(1)} pts
+            </span>
           </div>
 
           <div className="p-3 bg-slate-950/70 rounded-lg border border-slate-800">
-            <span className="text-[11px] text-slate-400">Días con Déficit de Caudal Ecológico</span>
+            <span className="text-[11px] text-slate-400">{t('scen.impact.eflowDeficitDays')}</span>
             <div className="text-base font-bold text-red-400 mt-0.5">
-              {precipDelta < -20 ? '18 días' : '0 días'}
+              {precipDelta < -20 ? '18' : '0'} {t('scen.unit.days')}
             </div>
-            <span className="text-[10px] text-slate-400">Bajo umbral Tennant Mínimo</span>
+            <span className="text-[10px] text-slate-400">{t('scen.impact.tennantThreshold')}</span>
           </div>
         </div>
       </div>

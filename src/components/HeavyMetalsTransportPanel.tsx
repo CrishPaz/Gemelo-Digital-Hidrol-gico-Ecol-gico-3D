@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { ContaminantDispersionPoint } from '../types';
 import { simulateHeavyMetalsTransport } from '../services/hydrodynamicsEngine';
+import { useI18n } from '../providers/I18nProvider';
 import {
   Skull,
   FlaskConical,
@@ -32,7 +33,18 @@ import {
   ReferenceLine,
 } from 'recharts';
 
+/**
+ * El estado normativo llega del motor de simulación como cadena en español (es el
+ * valor del dominio y se compara como tal); aquí solo se traduce para mostrarlo.
+ */
+const STATUS_LABEL_KEYS: Record<ContaminantDispersionPoint['status'], string> = {
+  'Conforme ECA': 'metals.status.compliant',
+  'Alerta Leve': 'metals.status.warning',
+  'Superación Crítica ECA': 'metals.status.critical',
+};
+
 export const HeavyMetalsTransportPanel: React.FC = () => {
+  const { t } = useI18n();
   const [remediationEfficiency, setRemediationEfficiency] = useState<number>(0);
   const [dilutionMultiplier, setDilutionMultiplier] = useState<number>(1.0);
   const [selectedPointKm, setSelectedPointKm] = useState<number>(0);
@@ -59,6 +71,10 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
 
   const criticalPointsCount = points.filter(p => p.status === 'Superación Crítica ECA').length;
 
+  // El tooltip distingue la serie de pH por su nombre visible, así que se compara
+  // contra la misma cadena traducida que recibe la serie.
+  const phSeriesName = t('metals.label.phRiver');
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Encabezado del Módulo */}
@@ -69,23 +85,23 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
               <FlaskConical className="w-5 h-5" />
             </span>
             <h2 className="text-xl font-bold text-slate-100">
-              Transporte de Metales Pesados & Drenaje Ácido (DAM)
+              {t('metals.title')}
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Modelo advectivo-dispersivo 1D de Plomo ($Pb$), Arsénico ($As$), Cadmio ($Cd$) y pH desde los pasivos de Quiruvilca frente a los ECA-Agua D.S. N° 004-2017-MINAM.
+            {t('metals.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Puntos Críticos ECA</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('metals.kpi.criticalPoints')}</div>
             <div className={`text-sm font-extrabold font-mono ${criticalPointsCount > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
               {criticalPointsCount} / {points.length}
             </div>
           </div>
           <div className="px-3 py-1.5 bg-slate-900 rounded-lg text-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold">Eficiencia Tratamiento</div>
+            <div className="text-[10px] text-slate-400 uppercase font-bold">{t('metals.kpi.treatmentEfficiency')}</div>
             <div className="text-sm font-extrabold text-sky-400 font-mono">{remediationEfficiency}%</div>
           </div>
         </div>
@@ -98,7 +114,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
           <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
             <span className="flex items-center gap-1.5">
               <Atom className="w-4 h-4 text-sky-400" />
-              Neutralización Química en Cabecera (Lechada de Cal Ca(OH)₂):
+              {t('metals.control.neutralization')}:
             </span>
             <span className="font-mono text-sky-400 font-bold">{remediationEfficiency}%</span>
           </div>
@@ -112,8 +128,8 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
             className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500"
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-2">
-            <span>Sin Tratamiento (Línea Base DAM)</span>
-            <span>Remediación Avanzada (100%)</span>
+            <span>{t('metals.control.neutralization.min')}</span>
+            <span>{t('metals.control.neutralization.max')}</span>
           </div>
         </div>
 
@@ -122,7 +138,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
           <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
             <span className="flex items-center gap-1.5">
               <Activity className="w-4 h-4 text-emerald-400" />
-              Efecto de Dilución Hidrológica (Avenida / Afluentes):
+              {t('metals.control.dilution')}:
             </span>
             <span className="font-mono text-emerald-400 font-bold">{dilutionMultiplier.toFixed(1)}x</span>
           </div>
@@ -136,9 +152,9 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
             className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
           <div className="flex justify-between text-[10px] text-slate-400 mt-2">
-            <span>Estiaje Severo (0.5x)</span>
-            <span>Caudal Medio (1.0x)</span>
-            <span>Dilución Húmeda (3.0x)</span>
+            <span>{t('metals.control.dilution.low')}</span>
+            <span>{t('metals.control.dilution.mid')}</span>
+            <span>{t('metals.control.dilution.high')}</span>
           </div>
         </div>
       </div>
@@ -149,22 +165,22 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <FlaskConical className="w-4 h-4 text-red-400" />
-              Perfil Longitudinal de Metales Pesados (mg/L vs Progresiva Fluvial)
+              {t('metals.profile.title')}
             </h3>
             <p className="text-[11px] text-slate-400">
-              Límites normativos D.S. N° 004-2017-MINAM: ECA Cat. 3 Riego ($Pb \le 0.05$ mg/L) y ECA Cat. 4 Ecosistemas ($Pb \le 0.0025$ mg/L).
+              {t('metals.profile.subtitle')}
             </p>
           </div>
 
           <div className="flex items-center gap-3 text-xs">
             <span className="flex items-center gap-1.5 text-red-400">
-              <span className="w-3 h-0.5 bg-red-400 inline-block"></span> Plomo ($Pb$)
+              <span className="w-3 h-0.5 bg-red-400 inline-block"></span> {t('metals.label.lead')}
             </span>
             <span className="flex items-center gap-1.5 text-amber-400">
-              <span className="w-3 h-0.5 bg-amber-400 inline-block"></span> Arsénico ($As$)
+              <span className="w-3 h-0.5 bg-amber-400 inline-block"></span> {t('metals.label.arsenic')}
             </span>
             <span className="flex items-center gap-1.5 text-sky-400">
-              <span className="w-3 h-0.5 bg-sky-400 inline-block"></span> pH Fluvial
+              <span className="w-3 h-0.5 bg-sky-400 inline-block"></span> {t('metals.label.phRiver')}
             </span>
           </div>
         </div>
@@ -178,7 +194,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
                 stroke="#64748b"
                 tick={{ fontSize: 11 }}
                 unit=" km"
-                label={{ value: 'Progresiva Fluvial (km)', position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
+                label={{ value: t('metals.chart.xAxis'), position: 'insideBottom', offset: -12, fill: '#64748b', fontSize: 11 }}
               />
               <YAxis
                 yAxisId="left"
@@ -198,14 +214,14 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
               <Tooltip
                 contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '0.75rem', fontSize: '12px' }}
                 formatter={(value: any, name: string) => [
-                  name === 'pH Fluvial' ? `${value} unidades` : `${value} mg/L`,
+                  name === phSeriesName ? `${value} ${t('metals.tooltip.units')}` : `${value} mg/L`,
                   name,
                 ]}
               />
               <ReferenceLine yAxisId="left" y={0.05} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: 'ECA Cat. 3 (0.05)', fill: '#f59e0b', fontSize: 10 }} />
-              <Line yAxisId="left" type="monotone" dataKey="plomo" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 4, fill: '#ef4444' }} name="Plomo (Pb)" />
-              <Line yAxisId="left" type="monotone" dataKey="arsenico" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} name="Arsénico (As)" />
-              <Line yAxisId="right" type="monotone" dataKey="ph" stroke="#38bdf8" strokeWidth={2} dot={{ r: 3, fill: '#38bdf8' }} name="pH Fluvial" />
+              <Line yAxisId="left" type="monotone" dataKey="plomo" stroke="#ef4444" strokeWidth={2.5} dot={{ r: 4, fill: '#ef4444' }} name={t('metals.series.lead')} />
+              <Line yAxisId="left" type="monotone" dataKey="arsenico" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} name={t('metals.series.arsenic')} />
+              <Line yAxisId="right" type="monotone" dataKey="ph" stroke="#38bdf8" strokeWidth={2} dot={{ r: 3, fill: '#38bdf8' }} name={phSeriesName} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -218,7 +234,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <FlaskConical className="w-4 h-4 text-blue-400" />
-              Monitoreo Hidrogeoquímico por Tramo
+              {t('metals.table.title')}
             </h3>
             <span className="text-xs text-slate-400 font-mono">Km {selectedPoint.km}</span>
           </div>
@@ -227,13 +243,13 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 font-mono">
                 <tr>
-                  <th className="p-2.5">Progresiva</th>
-                  <th className="p-2.5">Estación / Tramo</th>
+                  <th className="p-2.5">{t('metals.table.chainage')}</th>
+                  <th className="p-2.5">{t('metals.table.station')}</th>
                   <th className="p-2.5">Pb ($mg/L$)</th>
                   <th className="p-2.5">As ($mg/L$)</th>
                   <th className="p-2.5">pH</th>
                   <th className="p-2.5">WQI</th>
-                  <th className="p-2.5">Estado ECA</th>
+                  <th className="p-2.5">{t('metals.table.ecaStatus')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -267,7 +283,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
                             : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         }`}
                       >
-                        {pt.status}
+                        {t(STATUS_LABEL_KEYS[pt.status])}
                       </span>
                     </td>
                   </tr>
@@ -285,7 +301,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
                 <Info className="w-4 h-4" />
               </span>
               <h3 className="text-sm font-bold text-slate-100">
-                Diagnóstico Tramo Km {selectedPoint.km}
+                {t('metals.detail.title')} Km {selectedPoint.km}
               </h3>
             </div>
 
@@ -297,31 +313,31 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-medium">Plomo ($Pb$)</div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">{t('metals.label.lead')}</div>
                   <div className={`text-base font-extrabold font-mono mt-0.5 ${selectedPoint.leadPb_mgL > 0.05 ? 'text-red-400' : 'text-emerald-400'}`}>
                     {selectedPoint.leadPb_mgL.toFixed(3)} mg/L
                   </div>
-                  <div className="text-[10px] text-slate-500">Límite ECA: 0.05</div>
+                  <div className="text-[10px] text-slate-500">{t('metals.detail.ecaLimit')}: 0.05</div>
                 </div>
 
                 <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 uppercase font-medium">pH del Agua</div>
+                  <div className="text-[10px] text-slate-400 uppercase font-medium">{t('metals.detail.phWater')}</div>
                   <div className={`text-base font-extrabold font-mono mt-0.5 ${selectedPoint.ph < 6.5 ? 'text-red-400' : 'text-sky-400'}`}>
                     {selectedPoint.ph.toFixed(1)}
                   </div>
-                  <div className="text-[10px] text-slate-500">Rango ECA: 6.5 - 8.5</div>
+                  <div className="text-[10px] text-slate-500">{t('metals.detail.ecaRange')}: 6.5 - 8.5</div>
                 </div>
               </div>
 
               {/* Capacidad TMDL */}
               <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                <div className="text-[10px] text-slate-400 uppercase font-medium">Carga Diaria vs Capacidad TMDL:</div>
+                <div className="text-[10px] text-slate-400 uppercase font-medium">{t('metals.detail.loadVsTmdl')}:</div>
                 <div className="flex items-baseline justify-between mt-1">
                   <span className="text-base font-extrabold font-mono text-slate-100">
-                    {selectedPoint.currentPollutantLoadKgDay.toFixed(1)} kg/día
+                    {selectedPoint.currentPollutantLoadKgDay.toFixed(1)} {t('metals.unit.kgDay')}
                   </span>
                   <span className="text-xs text-slate-400">
-                    Cap. Asimilación: {selectedPoint.tmdlCapacityKgDay.toFixed(1)} kg/día
+                    {t('metals.detail.assimilationCapacity')}: {selectedPoint.tmdlCapacityKgDay.toFixed(1)} {t('metals.unit.kgDay')}
                   </span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden">
@@ -341,7 +357,7 @@ export const HeavyMetalsTransportPanel: React.FC = () => {
           <div className="mt-4 pt-3 border-t border-slate-800/80">
             <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-              <span>Planta de neutralización Shorey reduce en un 88% la carga de relaves.</span>
+              <span>{t('metals.footer.note')}</span>
             </div>
           </div>
         </div>

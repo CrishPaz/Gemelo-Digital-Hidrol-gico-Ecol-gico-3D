@@ -35,6 +35,7 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
+import { useI18n } from '../providers/I18nProvider';
 
 interface EcologicalFlowPanelProps {
   benchmarks: EcologicalFlowBenchmark[];
@@ -47,6 +48,8 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
   stations,
   simulationResult,
 }) => {
+  const { t } = useI18n();
+
   const [selectedBenchmark, setSelectedBenchmark] = useState<EcologicalFlowBenchmark>(benchmarks[0]);
   const [isHighFlowSeason, setIsHighFlowSeason] = useState<boolean>(false);
 
@@ -74,15 +77,15 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
         <div>
           <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
             <Droplets className="w-4 h-4 text-emerald-400" />
-            Monitoreo y Cumplimiento de Caudales Ecológicos (Régimen Ambiental)
+            {t('eflow.title')}
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Garantía de hábitat acuático y sustentabilidad ecológica fluvial (Cuenca del Río Moche)
+            {t('eflow.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-xs text-slate-400 font-medium">Estación de Control:</label>
+          <label className="text-xs text-slate-400 font-medium">{t('eflow.station.label')}:</label>
           <select
             value={selectedBenchmark.stationId}
             onChange={e => {
@@ -107,10 +110,10 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                1. Curva de Duración de Caudales (FDC)
+                {t('eflow.fdc.title')}
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Probabilidad de excedencia y determinación de Q90 / Q95
+                {t('eflow.fdc.subtitle')}
               </p>
             </div>
             <span className="px-2 py-0.5 rounded bg-blue-950 text-blue-300 text-xs font-mono">
@@ -139,15 +142,15 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
                   stroke="#10b981"
                   strokeWidth={2.5}
                   dot={{ r: 3 }}
-                  name="Caudal Q (m³/s)"
+                  name={t('eflow.fdc.series')}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div className="text-xs text-slate-400 pt-2 border-t border-slate-800 flex justify-between">
-            <span>Caudal Q50 (Mediana): <strong>6.40 m³/s</strong></span>
-            <span className="text-emerald-400">Q95 Ecológico: <strong>1.85 m³/s</strong></span>
+            <span>{t('eflow.fdc.q50')}: <strong>6.40 m³/s</strong></span>
+            <span className="text-emerald-400">{t('eflow.fdc.q95eco')}: <strong>1.85 m³/s</strong></span>
           </div>
         </div>
 
@@ -156,14 +159,14 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                2. Método Hidráulico del Perímetro Mojado
+                {t('eflow.wetted.title')}
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Punto de inflexión de pérdida crítica de hábitat bentónico
+                {t('eflow.wetted.subtitle')}
               </p>
             </div>
             <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 text-xs font-mono">
-              Inflexión Q: {inflectionQ.toFixed(2)} m³/s
+              {t('eflow.wetted.inflection')}: {inflectionQ.toFixed(2)} m³/s
             </span>
           </div>
 
@@ -188,15 +191,15 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
                   stroke="#38bdf8"
                   strokeWidth={2.5}
                   dot={false}
-                  name="Perímetro Mojado Pw (m)"
+                  name={t('eflow.wetted.series')}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div className="text-xs text-slate-400 pt-2 border-t border-slate-800 flex justify-between">
-            <span>Ancho de solera B: <strong>8.0 m</strong></span>
-            <span className="text-sky-400">Umbral Mínimo Hábitat: <strong>{inflectionQ.toFixed(2)} m³/s</strong></span>
+            <span>{t('eflow.wetted.bedWidth')}: <strong>8.0 m</strong></span>
+            <span className="text-sky-400">{t('eflow.wetted.habitatThreshold')}: <strong>{inflectionQ.toFixed(2)} m³/s</strong></span>
           </div>
         </div>
       </div>
@@ -207,10 +210,10 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
           <div>
             <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Requerimientos Mensuales de Caudal Ecológico ({selectedBenchmark.stationName})
+              {t('eflow.monthly.title')} ({selectedBenchmark.stationName})
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Comparativa entre Métodos Tennant Óptimo/Mínimo y Excedencia Q95
+              {t('eflow.monthly.subtitle')}
             </p>
           </div>
 
@@ -221,7 +224,7 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
                 !isHighFlowSeason ? 'bg-slate-700 text-white font-medium' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Estiaje (May-Dic)
+              {t('eflow.season.low')}
             </button>
             <button
               onClick={() => setIsHighFlowSeason(true)}
@@ -229,7 +232,7 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
                 isHighFlowSeason ? 'bg-slate-700 text-white font-medium' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Avenidas (Ene-Abr)
+              {t('eflow.season.high')}
             </button>
           </div>
         </div>
@@ -250,10 +253,10 @@ export const EcologicalFlowPanel: React.FC<EcologicalFlowPanelProps> = ({
                 }}
               />
               <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
-              <Bar dataKey="Tennant_Optimo" fill="#059669" name="Tennant Óptimo (60% MAF)" />
-              <Bar dataKey="Tennant_Minimo" fill="#10b981" name="Tennant Mínimo (30% MAF)" />
-              <Bar dataKey="Q95_Excedencia" fill="#0ea5e9" name="Q95 Excedencia FDC" />
-              <Bar dataKey="Perimetro_Mojado" fill="#f59e0b" name="Perímetro Mojado Crítico" />
+              <Bar dataKey="Tennant_Optimo" fill="#059669" name={t('eflow.series.tennantOptimum')} />
+              <Bar dataKey="Tennant_Minimo" fill="#10b981" name={t('eflow.series.tennantMinimum')} />
+              <Bar dataKey="Q95_Excedencia" fill="#0ea5e9" name={t('eflow.series.q95')} />
+              <Bar dataKey="Perimetro_Mojado" fill="#f59e0b" name={t('eflow.series.wettedCritical')} />
             </BarChart>
           </ResponsiveContainer>
         </div>

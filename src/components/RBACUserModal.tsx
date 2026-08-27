@@ -8,6 +8,7 @@ import React from 'react';
 import { UserProfile, UserRole } from '../types';
 import { INITIAL_USERS } from '../data/mocheBasinData';
 import { Shield, Check, X, User, Key, Lock } from 'lucide-react';
+import { useI18n } from '../providers/I18nProvider';
 
 interface RBACUserModalProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
   currentUser,
   onSelectUser,
 }) => {
+  const { t } = useI18n();
+
   if (!isOpen) return null;
 
   return (
@@ -30,10 +33,12 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
         <div className="flex justify-between items-center pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-blue-400" />
-            <h3 className="text-base font-bold text-slate-100">Control de Acceso Basado en Roles (RBAC)</h3>
+            <h3 className="text-base font-bold text-slate-100">{t('rbac.title')}</h3>
           </div>
           <button
             onClick={onClose}
+            aria-label={t('rbac.close')}
+            title={t('rbac.close')}
             className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -41,7 +46,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
         </div>
 
         <p className="text-xs text-slate-400">
-          Seleccione un perfil institucional para simular la experiencia con los permisos granulares correspondientes:
+          {t('rbac.intro')}
         </p>
 
         {/* Lista de Usuarios y Roles */}
@@ -87,10 +92,10 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
                         : 'bg-slate-800 text-slate-400'
                     }`}
                   >
-                    {user.role.replace('_', ' ')}
+                    {t(`rbac.role.${user.role}`)}
                   </span>
                   {isCurrent && (
-                    <span className="block text-[10px] text-emerald-400 font-bold mt-1">Activo</span>
+                    <span className="block text-[10px] text-emerald-400 font-bold mt-1">{t('rbac.badge.active')}</span>
                   )}
                 </div>
               </div>
@@ -101,7 +106,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
         {/* Matriz de Permisos del Usuario Activo */}
         <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2 text-xs">
           <div className="font-semibold text-slate-300 text-[11px] uppercase tracking-wider">
-            Permisos Activos de {currentUser.name}:
+            {t('rbac.permissions.title')} {currentUser.name}:
           </div>
           <div className="grid grid-cols-2 gap-2 text-[11px]">
             <div className="flex items-center gap-1.5">
@@ -111,7 +116,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
                 <X className="w-3.5 h-3.5 text-red-400" />
               )}
               <span className={currentUser.permissions.canRunSimulations ? 'text-slate-300' : 'text-slate-500'}>
-                Simulaciones GR4J
+                {t('rbac.perm.simulations')}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -121,7 +126,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
                 <X className="w-3.5 h-3.5 text-red-400" />
               )}
               <span className={currentUser.permissions.canRunAssimilation ? 'text-slate-300' : 'text-slate-500'}>
-                Asimilación EnKF
+                {t('rbac.perm.assimilation')}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -131,7 +136,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
                 <X className="w-3.5 h-3.5 text-red-400" />
               )}
               <span className={currentUser.permissions.canTriggerScenarios ? 'text-slate-300' : 'text-slate-500'}>
-                Escenarios What-If
+                {t('rbac.perm.scenarios')}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -141,7 +146,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
                 <X className="w-3.5 h-3.5 text-red-400" />
               )}
               <span className={currentUser.permissions.canGenerateReports ? 'text-slate-300' : 'text-slate-500'}>
-                Generación de Reportes
+                {t('rbac.perm.reports')}
               </span>
             </div>
           </div>
@@ -152,7 +157,7 @@ export const RBACUserModal: React.FC<RBACUserModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold transition-colors"
           >
-            Aceptar y Continuar
+            {t('rbac.confirm')}
           </button>
         </div>
       </div>
