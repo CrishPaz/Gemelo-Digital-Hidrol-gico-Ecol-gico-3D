@@ -1,0 +1,36 @@
+# Finales de línea
+# ----------------------------------------------------------------------------
+# El repositorio ya guardaba LF correctamente, porque este equipo tiene
+# core.autocrlf=true. El problema es que ese comportamiento vive en la
+# configuración de cada máquina, no en el repositorio: alguien que clone con
+# core.autocrlf=false (o desde Linux) obtendría un resultado distinto y podría
+# acabar subiendo CRLF.
+#
+# Declararlo aquí lo vuelve determinista: LF en el repositorio y LF en el árbol
+# de trabajo, sea cual sea la configuración local. Los avisos "LF will be
+# replaced by CRLF" desaparecen porque deja de haber conversión al hacer
+# checkout.
+* text=auto eol=lf
+
+# Binarios: nunca deben pasar por conversión de finales de línea.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.mp4   binary
+*.zip   binary
+
+# El SVG es texto, pero conviene declararlo para que no lo detecte como binario
+# si algún archivo lleva datos incrustados en base64.
+*.svg   text eol=lf
+
+# Archivos generados: se versionan para reproducir la instalación, pero no
+# aportan nada al revisar cambios ni a las estadísticas de lenguaje del repo.
+package-lock.json linguist-generated=true
