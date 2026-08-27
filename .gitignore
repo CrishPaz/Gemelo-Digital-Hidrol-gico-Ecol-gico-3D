@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Caché de geodatos descargados (DEM, hidrografía, clima)
+.cache/

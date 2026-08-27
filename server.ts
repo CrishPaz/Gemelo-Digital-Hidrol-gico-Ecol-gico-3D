@@ -7,10 +7,18 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import {
+  MOCHE_BASIN_BBOX,
+  fetchBasinDEM,
+  fetchHydrography,
+  fetchWeatherForPoints,
+  fetchGoogleElevations,
+  isGoogleMapsConfigured,
+} from './src/server/geodata';
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
 
@@ -171,6 +179,113 @@ ${prompt}
     } catch (error: any) {
       res.status(500).json({ error: error?.message || 'Error generando resolución' });
     }
+  });
+
+  // ----------------------------------------------------
+  // RUTAS DE GEODATOS REALES (DEM, hidrografía OSM, clima)
+  // ----------------------------------------------------
+
+  // Modelo Digital de Elevación real de la cuenca del Moche
+  app.get('/api/geo/dem', async (req, res) => {
+    try {
+      const zoom = Math.min(13, Math.max(9, Number(req.query.zoom) || 12));
+      const gridWidth = Math.min(720, Math.max(64, Number(req.query.grid) || 480));
+      const dem = await fetchBasinDEM(MOCHE_BASIN_BBOX, zoom, gridWidth);
+      res.set('Cache-Control', 'public, max-age=86400');
+      res.json(dem);
+    } catch (error: any) {
+      console.error('[GEO] Error DEM:', error?.message);
+      res.status(502).json({ error: error?.message || 'No se pudo obtener el DEM' });
+    }
+  });
+
+  // Red hidrográfica, cuerpos de agua y localidades reales (OpenStreetMap)
+  app.get('/api/geo/hydrography', async (req, res) => {
+    try {
+      const data = await fetchHydrography(MOCHE_BASIN_BBOX);
+      res.set('Cache-Control', 'public, max-age=86400');
+      res.json(data);
+    } catch (error: any) {
+      console.error('[GEO] Error hidrografía:', error?.message);
+      res.status(502).json({ error: error?.message || 'No se pudo obtener la hidrografía' });
+    }
+  });
+
+  // Clima real por estación (precipitación, temperatura, ET0)
+  app.post('/api/geo/weather', async (req, res) => {
+    try {
+      const points = req.body?.points;
+      if (!Array.isArray(points) || points.length === 0) {
+        return res.status(400).json({ error: 'Se requiere un arreglo "points" con {lat, lon}' });
+      }
+      const pastDays = Math.min(90, Math.max(1, Number(req.body?.pastDays) || 60));
+      const data = await fetchWeatherForPoints(points.slice(0, 25), pastDays);
+      res.json(data);
+    } catch (error: any) {
+      console.error('[GEO] Error clima:', error?.message);
+      res.status(502).json({ error: error?.message || 'No se pudo obtener el clima' });
+    }
+  });
+
+  // Contraste de elevaciones con Google Maps Platform (requiere API key propia)
+  app.post('/api/geo/google-elevation', async (req, res) => {
+    if (!isGoogleMapsConfigured()) {
+      return res.status(503).json({
+        error: 'GOOGLE_MAPS_API_KEY no configurada en el servidor',
+        hint: 'Añade GOOGLE_MAPS_API_KEY a tu archivo .env para habilitar esta fuente.',
+      });
+    }
+    try {
+      const points = req.body?.points;
+      if (!Array.isArray(points) || points.length === 0) {
+        return res.status(400).json({ error: 'Se requiere un arreglo "points" con {lat, lon}' });
+      }
+      res.json({ results: await fetchGoogleElevations(points.slice(0, 100)) });
+    } catch (error: any) {
+      console.error('[GEO] Error Google Elevation:', error?.message);
+      res.status(502).json({ error: error?.message || 'Google Elevation API falló' });
+    }
+  });
+
+  // Estado de las fuentes de datos externas
+  app.get('/api/geo/sources', (req, res) => {
+    res.json({
+      bbox: MOCHE_BASIN_BBOX,
+      sources: [
+        {
+          id: 'dem',
+          name: 'AWS Terrain Tiles (Terrarium)',
+          detail: 'SRTM · Copernicus GLO-30 · NED',
+          kind: 'Modelo Digital de Elevación',
+          requiresKey: false,
+          enabled: true,
+        },
+        {
+          id: 'osm',
+          name: 'OpenStreetMap / Overpass',
+          detail: 'Cauces, cuerpos de agua y localidades',
+          kind: 'Hidrografía vectorial',
+          requiresKey: false,
+          enabled: true,
+        },
+        {
+          id: 'open-meteo',
+          name: 'Open-Meteo',
+          detail: 'Precipitación, temperatura y ET0 (ECMWF/GFS)',
+          kind: 'Hidrometeorología',
+          requiresKey: false,
+          enabled: true,
+        },
+        {
+          id: 'google-maps',
+          name: 'Google Maps Platform',
+          detail: 'Elevation API — contraste de cotas',
+          kind: 'Elevación de contraste',
+          requiresKey: true,
+          enabled: isGoogleMapsConfigured(),
+        },
+      ],
+    });
   });
 
   // ----------------------------------------------------
