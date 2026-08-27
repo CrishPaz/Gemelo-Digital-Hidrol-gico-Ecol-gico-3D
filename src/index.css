@@ -1,1 +1,104 @@
 @import "tailwindcss";
+
+/* La app ocupa exactamente el viewport: sin scroll de página, sin barra horizontal. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: var(--color-slate-950);
+}
+
+/* ---------------------------------------------------------------------------
+   TEMA CLARO
+   ---------------------------------------------------------------------------
+   Tailwind v4 compila `bg-slate-900` a `background-color: var(--color-slate-900)`,
+   así que basta con reasignar las variables para invertir toda la interfaz: no hace
+   falta tocar ni una sola clase en los ~20 componentes, ni duplicarlas con `dark:`.
+
+   La escala de grises se invierte en espejo (950<->50, 900<->100, ...), de modo que
+   lo que era el fondo más oscuro pasa a ser el más claro y el texto principal se
+   oscurece, conservando exactamente las mismas relaciones de contraste.
+--------------------------------------------------------------------------- */
+[data-theme='light'] {
+  --color-slate-950: oklch(98.4% 0.003 247.858); /* era slate-50  */
+  --color-slate-900: oklch(96.8% 0.007 247.896); /* era slate-100 */
+  --color-slate-800: oklch(92.9% 0.013 255.508); /* era slate-200 */
+  --color-slate-700: oklch(86.9% 0.022 252.894); /* era slate-300 */
+  --color-slate-600: oklch(70.4% 0.04 256.788);  /* era slate-400 */
+  --color-slate-500: oklch(55.4% 0.046 257.417); /* eje del espejo */
+  --color-slate-400: oklch(44.6% 0.043 257.281); /* era slate-600 */
+  --color-slate-300: oklch(37.2% 0.044 257.287); /* era slate-700 */
+  --color-slate-200: oklch(27.9% 0.041 260.031); /* era slate-800 */
+  --color-slate-100: oklch(20.8% 0.042 265.755); /* era slate-900 */
+  --color-slate-50: oklch(12.9% 0.042 264.695);  /* era slate-950 */
+
+  /* Los tonos 950 de acento se usan como fondos teñidos sutiles sobre oscuro;
+     en claro tienen que ser sus equivalentes muy pálidos. */
+  --color-blue-950: oklch(97% 0.014 254.604);
+  --color-sky-950: oklch(97.7% 0.013 236.62);
+  --color-emerald-950: oklch(97.9% 0.021 166.113);
+  --color-amber-950: oklch(98.7% 0.022 95.277);
+  --color-red-950: oklch(97.1% 0.013 17.38);
+
+  /* Los bordes profundos acompañan a esos fondos. */
+  --color-sky-800: oklch(90.1% 0.058 230.902);
+  --color-red-900: oklch(88.5% 0.062 18.334);
+
+  /* Texto de acento: los tonos 300/400 son legibles sobre oscuro pero se pierden
+     sobre blanco, así que se llevan a la franja 600/700. */
+  --color-emerald-400: oklch(59.6% 0.145 163.225);
+  --color-emerald-300: oklch(50.8% 0.118 165.612);
+  --color-sky-400: oklch(58.8% 0.158 241.966);
+  --color-sky-300: oklch(50% 0.134 242.749);
+  --color-red-400: oklch(57.7% 0.245 27.325);
+  --color-red-300: oklch(50.5% 0.213 27.518);
+  --color-amber-400: oklch(66.6% 0.179 58.318);
+  --color-amber-300: oklch(55.5% 0.163 48.998);
+  --color-amber-100: oklch(47.3% 0.137 46.201);
+  --color-blue-400: oklch(54.6% 0.245 262.881);
+  --color-blue-300: oklch(48.8% 0.243 264.376);
+  --color-blue-200: oklch(42.4% 0.199 265.638);
+  --color-cyan-400: oklch(60.9% 0.126 221.723);
+}
+
+/* El lienzo 3D mantiene su propia atmósfera (cielo, niebla, iluminación), así que
+   no se invierte: solo se suaviza el marco que lo rodea. */
+[data-theme='light'] .canvas-frame {
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.12), 0 8px 24px rgb(15 23 42 / 0.08);
+}
+
+/* Utilidad usada por las filas de chips/pestañas desplazables (Tailwind v4 no la incluye). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Scrollbar fina y acorde al tema para los paneles con contenido largo. */
+@utility app-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-700) transparent;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-slate-700);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-slate-600);
+  }
+}

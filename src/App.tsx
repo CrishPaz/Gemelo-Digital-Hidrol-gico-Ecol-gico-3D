@@ -4,7 +4,7 @@
  * telemetría IoT, caudales ecológicos, teledetección satelital, simulador "What-If" y reportes.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   MonitoringStation,
   HydroSimulationResult,
@@ -38,8 +38,12 @@ import { HydraulicInfrastructureSCADAPanel } from './components/HydraulicInfrast
 import { HydrogeologySalinityPanel } from './components/HydrogeologySalinityPanel';
 import { HydroCalibrationPanel } from './components/HydroCalibrationPanel';
 import { RBACUserModal } from './components/RBACUserModal';
+import { useBasinGeodata } from './hooks/useBasinGeodata';
+import { useI18n } from './providers/I18nProvider';
 
 export default function App() {
+  const { t } = useI18n();
+
   // Estado de navegación
   const [activeTab, setActiveTab] = useState<string>('3d_twin');
 
@@ -147,8 +151,20 @@ export default function App() {
     setSelectedStation(st);
   };
 
+  // Geodatos reales de la cuenca (DEM SRTM/Copernicus, hidrografía OSM, clima Open-Meteo).
+  // Los puntos se derivan de las coordenadas fijas de las estaciones, no de sus lecturas,
+  // para que la telemetría simulada cada 12 s no vuelva a disparar la descarga.
+  const stationPoints = useMemo(
+    () => MOCHE_BASIN_STATIONS.map(st => ({ lat: st.coordinates.lat, lon: st.coordinates.lng })),
+    []
+  );
+  const geodata = useBasinGeodata(stationPoints);
+
+  // Pestañas que deben encajar exactamente en el viewport, sin desplazamiento
+  const isFullBleedTab = activeTab === '3d_twin';
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="h-screen overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
       {/* Barra de Navegación Superior */}
       <Header
         activeTab={activeTab}
@@ -158,22 +174,29 @@ export default function App() {
         stations={stations}
       />
 
-      {/* Contenido Principal según Pestaña Activa */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* Contenido Principal: ocupa la altura restante del viewport.
+          El Gemelo 3D se ajusta al alto disponible; el resto de módulos,
+          al ser tableros densos, desplazan solo su propio contenedor. */}
+      <main
+        className={`flex-1 min-h-0 w-full ${
+          isFullBleedTab ? 'overflow-hidden' : 'overflow-y-auto app-scroll'
+        }`}
+      >
+        <div
+          className={`w-full max-w-[1800px] mx-auto px-4 sm:px-6 ${
+            isFullBleedTab ? 'h-full py-3 flex flex-col gap-3' : 'py-5 space-y-6'
+          }`}
+        >
         {activeTab === '3d_twin' && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-col flex-1 min-h-0 gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 shrink-0">
               <div>
-                <h1 className="text-lg font-bold text-slate-100">
-                  Gemelo Digital 3D — Cuenca Hidrográfica del Río Moche
-                </h1>
-                <p className="text-xs text-slate-400">
-                  Modelo Digital de Elevación (DEM), red de drenaje fluvial y estaciones IoT en tiempo real
-                </p>
+                <h1 className="text-base font-bold text-slate-100">{t('twin.title')}</h1>
+                <p className="text-xs text-slate-400">{t('twin.subtitle')}</p>
               </div>
               <div className="text-xs text-slate-400 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>12 Nodos IoT Activos</span>
+                <span>{stations.length} {t('twin.nodes')}</span>
               </div>
             </div>
 
@@ -184,6 +207,7 @@ export default function App() {
               onSelectStation={handleSelectStation}
               activeLayer={active3DLayer}
               onLayerChange={setActive3DLayer}
+              geodata={geodata}
             />
           </div>
         )}
@@ -286,6 +310,7 @@ export default function App() {
             auditLogs={auditLogs}
           />
         )}
+        </div>
       </main>
 
       {/* Modal de Gestión de Roles RBAC */}
