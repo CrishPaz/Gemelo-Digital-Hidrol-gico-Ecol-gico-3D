@@ -15,6 +15,15 @@ interface I18nContextValue {
   setLocale: (l: Locale) => void;
   toggleLocale: () => void;
   t: (key: TranslationKey) => string;
+  /**
+   * Traducción de CONTENIDO, no de interfaz.
+   *
+   * Los expedientes oficiales de `reportsData.ts` se redactan en español porque son
+   * documentos institucionales peruanos: ese archivo es la fuente de verdad. En vez
+   * de duplicarlo, el inglés se superpone desde el diccionario y, si falta una
+   * cadena, se devuelve el original en español en lugar de la clave cruda.
+   */
+  td: (key: TranslationKey, fallback: string) => string;
 }
 
 const STORAGE_KEY = 'hydrotwin.locale';
@@ -24,6 +33,7 @@ const I18nContext = createContext<I18nContextValue>({
   setLocale: () => undefined,
   toggleLocale: () => undefined,
   t: (key: TranslationKey) => DICTIONARY.es[key] ?? key,
+  td: (_key: TranslationKey, fallback: string) => fallback,
 });
 
 function readInitialLocale(): Locale {
@@ -67,9 +77,17 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [locale]
   );
 
+  const td = useCallback(
+    (key: TranslationKey, fallback: string) => {
+      const table = DICTIONARY[locale] as Record<string, string>;
+      return table[key] ?? fallback;
+    },
+    [locale]
+  );
+
   const value = useMemo(
-    () => ({ locale, setLocale, toggleLocale, t }),
-    [locale, setLocale, toggleLocale, t]
+    () => ({ locale, setLocale, toggleLocale, t, td }),
+    [locale, setLocale, toggleLocale, t, td]
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

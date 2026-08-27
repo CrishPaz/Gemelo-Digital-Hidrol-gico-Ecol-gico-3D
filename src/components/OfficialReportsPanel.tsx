@@ -33,7 +33,7 @@ interface OfficialReportsPanelProps {
 }
 
 export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ currentUser }) => {
-  const { t } = useI18n();
+  const { t, td } = useI18n();
   const [reports, setReports] = useState<OfficialReport[]>(INITIAL_OFFICIAL_REPORTS);
   const [selectedReportId, setSelectedReportId] = useState<string>(reports[0].id);
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -140,14 +140,14 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
                   </div>
 
                   <h4 className="text-xs font-bold text-slate-200 line-clamp-2 leading-snug">
-                    {r.title}
+                    {td(`report.${r.id}.title`, r.title)}
                   </h4>
 
                   <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
                     <span className="truncate max-w-[170px]">{r.code}</span>
                     <span className="text-emerald-400 font-semibold flex items-center gap-1">
                       <FileCheck className="w-3 h-3" />
-                      {r.status}
+                      {td(`report.${r.id}.status`, r.status)}
                     </span>
                   </div>
                 </div>
@@ -171,11 +171,11 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
                 </span>
                 <span className="text-xs font-mono text-slate-400">|</span>
                 <span className="text-xs font-semibold text-slate-300">
-                  {selectedReport.reportType}
+                  {td(`report.${selectedReport.id}.type`, selectedReport.reportType)}
                 </span>
               </div>
               <h3 className="text-base sm:text-lg font-bold text-slate-100 mt-2 leading-snug">
-                {selectedReport.title}
+                {td(`report.${selectedReport.id}.title`, selectedReport.title)}
               </h3>
               <div className="text-xs font-mono text-blue-400 mt-1 font-semibold">
                 {t('official.code')} {selectedReport.code}
@@ -186,7 +186,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
               <div className="text-[10px] font-mono text-slate-400">{t('official.document.status')}</div>
               <div className="text-xs font-bold text-emerald-400 flex items-center justify-center sm:justify-end gap-1">
                 <ShieldCheck className="w-4 h-4" />
-                {selectedReport.status}
+                {td(`report.${selectedReport.id}.status`, selectedReport.status)}
               </div>
               <div className="text-[10px] text-slate-500 font-mono">{selectedReport.issueDate}</div>
             </div>
@@ -199,7 +199,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
               1. {t('official.section.executiveSummary')}
             </h4>
             <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800/80 text-xs text-slate-300 leading-relaxed">
-              {selectedReport.executiveSummary}
+              {td(`report.${selectedReport.id}.summary`, selectedReport.executiveSummary)}
             </div>
           </div>
 
@@ -210,13 +210,17 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
               2. {t('official.section.metrics')}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {Object.entries(selectedReport.keyMetrics).map(([key, val]) => (
+              {Object.entries(selectedReport.keyMetrics).map(([key, val], mi) => (
                 <div
                   key={key}
                   className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center text-xs"
                 >
-                  <span className="text-slate-400">{key}:</span>
-                  <span className="font-mono font-bold text-slate-100">{val}</span>
+                  <span className="text-slate-400">
+                    {td(`report.${selectedReport.id}.metric.${mi}.label`, key)}:
+                  </span>
+                  <span className="font-mono font-bold text-slate-100">
+                    {td(`report.${selectedReport.id}.metric.${mi}.value`, String(val))}
+                  </span>
                 </div>
               ))}
             </div>
@@ -234,7 +238,7 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
                   <span className="w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                     {i + 1}
                   </span>
-                  <span>{rec}</span>
+                  <span>{td(`report.${selectedReport.id}.rec.${i}`, rec)}</span>
                 </div>
               ))}
             </div>
@@ -246,7 +250,9 @@ export const OfficialReportsPanel: React.FC<OfficialReportsPanelProps> = ({ curr
               <div className="text-slate-400 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5 text-slate-400" />
                 <span>{t('official.signature.issuedBy')}</span>
-                <strong className="text-slate-200">{selectedReport.generatedBy}</strong>
+                <strong className="text-slate-200">
+                  {td(`report.${selectedReport.id}.by`, selectedReport.generatedBy)}
+                </strong>
               </div>
               <div className="text-slate-500 flex items-center gap-1.5 text-[10px]">
                 <Key className="w-3.5 h-3.5 text-emerald-400" />
