@@ -3,6 +3,8 @@
  * Soporte de API Gemini para el Copiloto Inteligente de Cuenca y middleware Vite.
  */
 
+// Carga las variables de .env antes que cualquier otro módulo.
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
