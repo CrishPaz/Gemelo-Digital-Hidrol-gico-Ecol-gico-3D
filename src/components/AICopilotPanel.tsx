@@ -326,12 +326,21 @@ ${t('copilot.welcome.cta')}`,
       const meanWQI = (stations.reduce((acc, s) => acc + s.currentValues.wqi, 0) / stations.length).toFixed(1);
       const alertsCount = stations.filter(s => !s.ecaCompliance.isCompliant).length;
 
+      // Memoria conversacional: el servidor era apatrida y cada turno arrancaba
+      // de cero. Se envian los turnos previos para que el copiloto resuelva
+      // referencias como "y si ademas sube el caudal".
+      const history = messages
+        .filter(m => m.content && m.content.trim())
+        .slice(-12)
+        .map(m => ({ role: m.role, content: m.content }));
+
       const response = await fetch('/api/gemini/assist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: textToSend,
           specialistMode,
+          history,
           context: {
             currentDischarge: meanDischarge,
             meanWQI,
