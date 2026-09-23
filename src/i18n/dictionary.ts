@@ -53,6 +53,27 @@ export const DICTIONARY = {
     'nav.reports': 'Informes',
     'nav.reports.full': 'Informes & Auditoría',
 
+    // --- Estudio CRISP-DM de mineria de datos ---
+    'nav.crispdm': 'Minería IA',
+    'nav.crispdm.full': 'Estudio CRISP-DM de Minería de Datos',
+    'crispdm.fase': 'Fase',
+    'crispdm.figura': 'Figura',
+    'crispdm.tabla': 'Tabla',
+    'crispdm.que': 'Qué muestra',
+    'crispdm.como': 'Cómo leerlo',
+    'crispdm.interpretacion': 'Interpretación',
+    'crispdm.ampliar': 'Clic para ampliar',
+    'crispdm.verFilas': 'Ver las {n} filas restantes',
+    'crispdm.cargando': 'Cargando el estudio...',
+    'crispdm.sinDatos': 'El estudio aún no se ha generado',
+    'crispdm.sinDatosAyuda': 'Ejecuta el motor analítico para producir el informe y publicarlo aquí:',
+    'crispdm.kpi.registros': 'Registros',
+    'crispdm.kpi.estaciones': 'Estaciones',
+    'crispdm.kpi.rmse': 'RMSE prueba',
+    'crispdm.kpi.mejora': 'Mejora sobre línea base',
+    'crispdm.kpi.nse': 'Nash-Sutcliffe',
+    'crispdm.sesgo': 'Corrección del sesgo sistemático: de {base} a {modelo} mm/día. Sobre un año completo equivale a unos {mm} mm de lámina evaporada acumulada, magnitud que sí altera un balance hídrico.',
+
     // --- Encabezado del Gemelo 3D ---
     'twin.title': 'Gemelo Digital 3D — Cuenca Hidrográfica del Río Moche',
     'twin.subtitle':
@@ -884,6 +905,27 @@ export const DICTIONARY = {
     'nav.ai_copilot.full': 'Basin Intelligence Copilot',
     'nav.reports': 'Reports',
     'nav.reports.full': 'Reports & Audit Trail',
+
+    // --- CRISP-DM data mining study ---
+    'nav.crispdm': 'AI Mining',
+    'nav.crispdm.full': 'CRISP-DM Data Mining Study',
+    'crispdm.fase': 'Phase',
+    'crispdm.figura': 'Figure',
+    'crispdm.tabla': 'Table',
+    'crispdm.que': 'What it shows',
+    'crispdm.como': 'How to read it',
+    'crispdm.interpretacion': 'Interpretation',
+    'crispdm.ampliar': 'Click to enlarge',
+    'crispdm.verFilas': 'Show remaining {n} rows',
+    'crispdm.cargando': 'Loading study...',
+    'crispdm.sinDatos': 'The study has not been generated yet',
+    'crispdm.sinDatosAyuda': 'Run the analytics engine to produce the report and publish it here:',
+    'crispdm.kpi.registros': 'Records',
+    'crispdm.kpi.estaciones': 'Stations',
+    'crispdm.kpi.rmse': 'Test RMSE',
+    'crispdm.kpi.mejora': 'Gain over baseline',
+    'crispdm.kpi.nse': 'Nash-Sutcliffe',
+    'crispdm.sesgo': 'Systematic bias corrected from {base} to {modelo} mm/day. Over a full year that amounts to roughly {mm} mm of accumulated evaporated depth, enough to shift a water balance.',
 
     // --- 3D Twin heading ---
     'twin.title': '3D Digital Twin — Moche River Basin',

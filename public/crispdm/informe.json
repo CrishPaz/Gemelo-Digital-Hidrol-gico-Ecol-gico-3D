@@ -1,0 +1,978 @@
+{
+ "titulo": "Estimación de evapotranspiración de referencia en la cuenca del Río Moche",
+ "subtitulo": "Estudio CRISP-DM sobre reanálisis ERA5 para alimentar el modelo GR4J",
+ "fuente": "Open-Meteo Archive API (reanálisis ERA5), sin credenciales",
+ "registros": 109584,
+ "estaciones": 12,
+ "periodo": "2000-01-01 a 2024-12-31",
+ "resumen": {
+  "modelo": "Red neuronal",
+  "rmse": 0.3942,
+  "rmse_base": 0.7375,
+  "mejora_pct": 46.54915254237289,
+  "nse": 0.6978,
+  "sesgo": 0.0412,
+  "sesgo_base": -0.4773
+ },
+ "piezas": [
+  {
+   "tipo": "fase",
+   "numero": 1,
+   "titulo": "Comprensión del negocio",
+   "proposito": "Definir qué problema resuelve el modelo dentro del gemelo digital y con qué criterio se declarará útil.",
+   "texto": "El modelo hidrológico GR4J del gemelo exige evapotranspiración de referencia (ET0) como entrada obligatoria en cada paso de tiempo. Hoy el gemelo la rellena con una constante de 3.5 mm/día cuando el operador no la aporta, porque las estaciones de la cuenca del Moche miden temperatura y lluvia pero rara vez radiacion solar, viento y humedad, que son los sensores caros.\n\n**Objetivo.** Estimar ET0 diaria usando solo variables baratas: temperatura máxima y mínima, precipitacion, altitud y fecha.\n\n**Criterio de éxito.** Superar de forma estadísticamente significativa a la ecuación de Hargreaves-Samani, que es el método que la propia FAO recomienda cuando faltan datos. Competir contra la práctica establecida, y no contra un promedio ingenuo, es lo que da valor al resultado."
+  },
+  {
+   "tipo": "fase",
+   "numero": 2,
+   "titulo": "Comprensión de los datos",
+   "proposito": "Describir el origen, verificar la calidad y explorar la estructura antes de modelar.",
+   "texto": "**Fuente.** Reanálisis ERA5 servido por la API pública de Open-Meteo, sin credenciales. **Cobertura.** 109,584 registros diarios de 12 estaciones del Rio Moche, entre 2000-01-01 y 2024-12-31. Las coordenadas son las mismas que usa el gemelo, con un gradiente de 0 a 4032 metros."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 1,
+   "titulo": "Calidad de los datos",
+   "csv": "tab01_calidad_de_los_datos.csv",
+   "fase": 2,
+   "columnas": [
+    "variable",
+    "nulos",
+    "pct_nulos",
+    "minimo",
+    "maximo",
+    "unicos"
+   ],
+   "filas": [
+    [
+     "et0",
+     "0",
+     "0",
+     "1.02",
+     "6.18",
+     "490"
+    ],
+    [
+     "t_max",
+     "0",
+     "0",
+     "4.4",
+     "32.1",
+     "255"
+    ],
+    [
+     "t_min",
+     "0",
+     "0",
+     "-5.8",
+     "25.2",
+     "304"
+    ],
+    [
+     "t_media",
+     "0",
+     "0",
+     "1.8",
+     "27.1",
+     "250"
+    ],
+    [
+     "precipitacion",
+     "0",
+     "0",
+     "0",
+     "101.1",
+     "458"
+    ],
+    [
+     "radiacion",
+     "0",
+     "0",
+     "5.63",
+     "32.85",
+     "2354"
+    ],
+    [
+     "viento",
+     "0",
+     "0",
+     "3.2",
+     "27.4",
+     "215"
+    ],
+    [
+     "humedad",
+     "0",
+     "0",
+     "30",
+     "99",
+     "70"
+    ],
+    [
+     "elev",
+     "0",
+     "0",
+     "0",
+     "4032",
+     "12"
+    ]
+   ],
+   "que": "Recuento de ausentes, rango observado y número de valores distintos por variable.",
+   "como": "Las columnas de nulos deben ser cero. Los mínimos y máximos sirven para detectar imposibles físicos, como una humedad relativa mayor que cien o una precipitacion negativa.",
+   "interpretacion": "No hay un solo valor ausente, de modo que no se imputa nada y ninguna métrica posterior queda contaminada por relleno artificial. Los rangos son físicamente plausibles: la ET0 va de 1.02 a 6.18 mm/día, propio de una cuenca que abarca desde el nivel del mar hasta la puna. Se descartaron 0 filas sin objetivo y 0 con temperatura máxima inferior a la mínima."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 2,
+   "titulo": "Resumen estadístico de las variables",
+   "csv": "tab02_resumen_estadistico_de_las_variables.csv",
+   "fase": 2,
+   "columnas": [
+    "variable",
+    "count",
+    "mean",
+    "std",
+    "min",
+    "25%",
+    "50%",
+    "75%",
+    "max"
+   ],
+   "filas": [
+    [
+     "et0",
+     "109584",
+     "3.683",
+     "0.68",
+     "1.02",
+     "3.25",
+     "3.66",
+     "4.13",
+     "6.18"
+    ],
+    [
+     "t_max",
+     "109584",
+     "20.399",
+     "4.798",
+     "4.4",
+     "16.3",
+     "21.6",
+     "24.2",
+     "32.1"
+    ],
+    [
+     "t_min",
+     "109584",
+     "12.044",
+     "6.715",
+     "-5.8",
+     "6.1",
+     "14.5",
+     "17.6",
+     "25.2"
+    ],
+    [
+     "t_media",
+     "109584",
+     "15.66",
+     "5.733",
+     "1.8",
+     "10.8",
+     "17.7",
+     "20.4",
+     "27.1"
+    ],
+    [
+     "rango_termico",
+     "109584",
+     "8.355",
+     "3.14",
+     "1",
+     "6",
+     "7.9",
+     "10.4",
+     "23.1"
+    ],
+    [
+     "precipitacion",
+     "109584",
+     "2.823",
+     "5.372",
+     "0",
+     "0",
+     "0.2",
+     "3.1",
+     "101.1"
+    ],
+    [
+     "elev",
+     "109584",
+     "1556.583",
+     "1545.7",
+     "0",
+     "100",
+     "694.5",
+     "3051.25",
+     "4032"
+    ]
+   ],
+   "que": "Tendencia central, dispersion y cuartiles de las variables que intervienen en el estudio.",
+   "como": "Comparar la media con la mediana revela asimetría. La desviación frente a la media da el coeficiente de variación, que indica cuánta señal hay que explicar.",
+   "interpretacion": "La ET0 promedia 3.68 mm/día con desviación 0.68, es decir un coeficiente de variación de 18.5%. Esa variabilidad es justamente lo que se pierde al sustituirla por la constante de 3.5 mm/día que usa hoy el gemelo: la constante acierta en el promedio pero yerra sistematicamente en los extremos. La precipitacion es muy asimétrica (media 2.82 frente a mediana 0.20 mm), lo normal en clima semiárido donde la mayoría de días no llueve."
+  },
+  {
+   "tipo": "figura",
+   "numero": 1,
+   "titulo": "Distribución de ET0 global y por subcuenca",
+   "imagen": "/crispdm/figuras/fig01_distribucion_de_et0_global_y_por_subcuenca.png",
+   "fase": 2,
+   "que": "A la izquierda el histograma de la variable objetivo con la media y la constante que usa hoy el gemelo. A la derecha la misma variable separada por tramo de cuenca.",
+   "como": "En el histograma interesa la forma y la anchura. En las cajas, la línea central es la mediana, la caja abarca el cincuenta por ciento central y los bigotes el resto salvo atípicos.",
+   "interpretacion": "La distribución es simétrica (asimetría 0.00) y se concentra entre 3.25 y 4.13 mm/día. La constante de 3.5 mm/día cae dentro del rango central, lo que explica que el gemelo no produzca disparates, pero queda +0.18 mm/día respecto a la media real. Por subcuenca la mediana varia 0.49 mm/día entre la Media (3.78) y la Alta (3.29), prueba de que una sola constante no puede servir para toda la cuenca."
+  },
+  {
+   "tipo": "figura",
+   "numero": 2,
+   "titulo": "Ciclo anual de ET0",
+   "imagen": "/crispdm/figuras/fig02_ciclo_anual_de_et0.png",
+   "fase": 2,
+   "que": "Media mensual de ET0 en cada tramo de la cuenca. La banda sombreada es una desviación típica.",
+   "como": "Si las curvas suben y bajan con el mes, existe estacionalidad y el modelo debe recibir la fecha como predictor. La separacion vertical entre curvas mide cuanto pesa la posición en la cuenca.",
+   "interpretacion": "Hay un ciclo anual claro, con máximo en noviembre (4.16 mm/día) y mínimo en marzo (3.32), una amplitud de 0.84 mm/día que representa el 23% de la media. Esto justifica codificar el día del año como seno y coseno en la fase de preparación. Las tres curvas mantienen distancia entre si durante todo el año, de modo que la altitud actua como desplazamiento y no solo como ruido."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 3,
+   "titulo": "Correlacion de cada predictor con ET0",
+   "csv": "tab03_correlacion_de_cada_predictor_con_et0.csv",
+   "fase": 2,
+   "columnas": [
+    "predictor",
+    "rho_con_ET0"
+   ],
+   "filas": [
+    [
+     "precipitacion",
+     "-0.5244"
+    ],
+    [
+     "t_max",
+     "0.4926"
+    ],
+    [
+     "t_media",
+     "0.3743"
+    ],
+    [
+     "estacion_sin",
+     "-0.3388"
+    ],
+    [
+     "elev",
+     "-0.2576"
+    ],
+    [
+     "t_min",
+     "0.244"
+    ],
+    [
+     "ra",
+     "0.2392"
+    ],
+    [
+     "estacion_cos",
+     "0.2257"
+    ],
+    [
+     "rango_termico",
+     "0.1737"
+    ],
+    [
+     "lat",
+     "-0.163"
+    ]
+   ],
+   "que": "Coeficiente de Spearman entre cada variable disponible y la variable objetivo.",
+   "como": "Spearman mide asociación monótona, no solo lineal, así que tolera relaciones curvas. Valores cercanos a uno en valor absoluto indican predictores potentes; cercanos a cero, poco útiles por si solos.",
+   "interpretacion": "El predictor mas asociado es 'precipitacion' con rho de -0.524, asociación moderada. Existen 3 pares de predictores con correlacion superior a 0.9 (t_max-t_media, t_min-t_media, ra-estacion_cos), lo que anticipa problemas de colinealidad para los modelos lineales y aconseja incluir métodos basados en arboles, que son inmunes a ella."
+  },
+  {
+   "tipo": "figura",
+   "numero": 3,
+   "titulo": "Matriz de correlacion",
+   "imagen": "/crispdm/figuras/fig03_matriz_de_correlacion.png",
+   "fase": 2,
+   "que": "Correlacion de Spearman entre la variable objetivo y todos los predictores.",
+   "como": "El azul intenso marca asociación positiva y el rojo intenso, negativa. La primera fila y columna muestran la relación con ET0; el resto del cuadro revela redundancia entre predictores.",
+   "interpretacion": "La estructura confirma que la información útil esta repartida y no concentrada en una sola variable: el mejor predictor individual solo alcanza rho -0.524. Esto sugiere que un modelo capaz de combinar varias entradas superara a cualquier formula que dependa de una sola, y es el argumento de partida para probar métodos no lineales."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 4,
+   "titulo": "Caracterización de las estaciones",
+   "csv": "tab04_caracterizacion_de_las_estaciones.csv",
+   "fase": 2,
+   "columnas": [
+    "estacion",
+    "nombre",
+    "subcuenca",
+    "elevacion",
+    "et0_media",
+    "et0_desv",
+    "t_media",
+    "lluvia_anual"
+   ],
+   "filas": [
+    [
+     "E-01",
+     "Quiruvilca Cabecera",
+     "Alta",
+     "4032",
+     "3.14",
+     "0.6",
+     "5.51",
+     "2446.4"
+    ],
+    [
+     "E-02",
+     "Shorey Confluencia",
+     "Alta",
+     "3636",
+     "3.31",
+     "0.63",
+     "7.89",
+     "2544.3"
+    ],
+    [
+     "E-03",
+     "Julcan Agricola Alto",
+     "Alta",
+     "3310",
+     "3.48",
+     "0.66",
+     "9.7",
+     "2114.9"
+    ],
+    [
+     "E-04",
+     "Otuzco Hidrometrica",
+     "Media",
+     "2965",
+     "3.57",
+     "0.67",
+     "11.84",
+     "2436.5"
+    ],
+    [
+     "E-05",
+     "Usquil Valles",
+     "Media",
+     "2712",
+     "3.7",
+     "0.68",
+     "12.69",
+     "1331.8"
+    ],
+    [
+     "E-06",
+     "Simbal Estacion Central",
+     "Media",
+     "424",
+     "3.87",
+     "0.61",
+     "19.48",
+     "170.1"
+    ],
+    [
+     "E-07",
+     "Poroto Toma de Riego",
+     "Media",
+     "721",
+     "4.01",
+     "0.77",
+     "20.55",
+     "549.6"
+    ],
+    [
+     "E-08",
+     "Laredo Agroindustrial",
+     "Baja",
+     "97",
+     "3.81",
+     "0.57",
+     "20.16",
+     "154.1"
+    ],
+    [
+     "E-09",
+     "Quirihuac Puente",
+     "Baja",
+     "668",
+     "3.92",
+     "0.63",
+     "18.78",
+     "171.2"
+    ],
+    [
+     "E-10",
+     "Campina de Moche",
+     "Baja",
+     "13",
+     "3.8",
+     "0.55",
+     "20.68",
+     "151.8"
+    ],
+    [
+     "E-11",
+     "Conache Laguna Control",
+     "Baja",
+     "101",
+     "3.96",
+     "0.62",
+     "20.83",
+     "154.1"
+    ],
+    [
+     "E-12",
+     "Boca de Rio Moche",
+     "Baja",
+     "0",
+     "3.64",
+     "0.52",
+     "19.82",
+     "151.8"
+    ]
+   ],
+   "que": "Elevacion, ET0 media y dispersion, temperatura media y lluvia anual de cada estacion.",
+   "como": "Ordenando mentalmente por elevacion se aprecia como cambian las demas columnas. La desviación de ET0 indica cuánta variabilidad interna tiene cada punto.",
+   "interpretacion": "Las 12 estaciones cubren de 0 a 4032 metros, con ET0 media de 3.14 a 4.01 mm/día. Esta heterogeneidad es deseable: obliga al modelo a generalizar entre ambientes distintos en lugar de memorizar un microclima. También justifica validar dejando estaciones completas fuera, que es lo que se hace en la fase de modelado."
+  },
+  {
+   "tipo": "figura",
+   "numero": 4,
+   "titulo": "Gradiente altitudinal de ET0",
+   "imagen": "/crispdm/figuras/fig04_gradiente_altitudinal_de_et0.png",
+   "fase": 2,
+   "que": "ET0 media de cada estacion frente a su elevacion, con la recta de tendencia ajustada.",
+   "como": "Cada punto es una estacion. La pendiente de la recta cuantifica cuanto cambia la ET0 por cada kilometro de ascenso.",
+   "interpretacion": "La relación con la altitud es debil (rho -0.258) y la tendencia indica -0.14 mm/día por cada mil metros. La ET0 disminuye al ascender, coherente con el descenso termico con la altura. La altitud debe entrar como predictor, y además explica por que una constante única para toda la cuenca es inadecuada."
+  },
+  {
+   "tipo": "figura",
+   "numero": 5,
+   "titulo": "Desempeño de la línea base Hargreaves-Samani",
+   "imagen": "/crispdm/figuras/fig05_desempenio_de_la_linea_base_hargreaves_samani.png",
+   "fase": 2,
+   "que": "A la izquierda, valores estimados por la ecuación frente a los de referencia. A la derecha, la distribución de los errores.",
+   "como": "En el gráfico de dispersion, cuanto mas se peguen los puntos a la diagonal, mejor. En el histograma, un centro desplazado del cero delata sesgo sistematico y una anchura grande, imprecision.",
+   "interpretacion": "La ecuación alcanza RMSE de 0.737 mm/día y correlacion de 0.726, asociación fuerte. El error medio es -0.563 mm/día, es decir que subestima la evapotranspiración de forma sistematica en un 15.3% de la media. Este sesgo es un defecto conocido de Hargreaves fuera de las condiciones para las que se calibró, y marca el objetivo concreto a batir: cualquier modelo propuesto debera reducir el RMSE de 0.737 y, sobre todo, eliminar ese sesgo."
+  },
+  {
+   "tipo": "fase",
+   "numero": 3,
+   "titulo": "Preparación de los datos",
+   "proposito": "Construir las variables derivadas y separar entrenamiento de prueba sin filtrar información del futuro.",
+   "texto": "**Variables derivadas.** Rango termico diario, que actua como sustituto barato de la radiacion porque un cielo despejado calienta mucho de día y enfria mucho de noche. Radiacion extraterrestre por geometría orbital, que no requiere instrumento alguno. Estacionalidad codificada como seno y coseno del día del año, para que el 31 de diciembre y el 1 de enero queden contiguos en lugar de separados por todo el rango.\n\n**Exclusion deliberada.** El modelo no recibe radiacion medida, viento ni humedad, pese a estar disponibles en la fuente. Incluirlas volvería el problema casi trivial, porque la ecuación FAO-56 las usa directamente, y el resultado no serviría a una estacion peruana real que carece de esos sensores. Se renuncia a precision para ganar aplicabilidad.\n\n**Partición.** Entrenamiento 87,660 registros (2000-01-01 a 2019-12-31); prueba 21,924 registros (2020-01-01 a 2024-12-31). El corte es temporal: una partición aleatoria colocaría días contiguos a ambos lados y, al estar autocorrelacionados, devolvería métricas infladas.\n\n**Predictores finales (10).** t_max, t_min, t_media, rango_termico, precipitacion, elev, lat, ra, estacion_sin, estacion_cos"
+  },
+  {
+   "tipo": "fase",
+   "numero": 4,
+   "titulo": "Modelado",
+   "proposito": "Comparar familias de modelos bajo validación cruzada temporal, elegir la mejor y ajustar sus hiperparámetros.",
+   "texto": "Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrenamiento (2000-01-01 a 2019-12-31). En cada partición el modelo aprende del pasado y se evalúa sobre un tramo posterior que nunca ha visto."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 5,
+   "titulo": "Comparación de modelos en validación cruzada temporal",
+   "csv": "tab05_comparacion_de_modelos_en_validacion_cruzada_tem.csv",
+   "fase": 4,
+   "columnas": [
+    "puesto",
+    "modelo",
+    "RMSE_medio",
+    "RMSE_desv",
+    "MAE_medio",
+    "R2_medio",
+    "sesgo_medio",
+    "segundos"
+   ],
+   "filas": [
+    [
+     "1",
+     "Red neuronal",
+     "0.3279",
+     "0.1143",
+     "0.2498",
+     "0.741",
+     "0.0382",
+     "35.1854"
+    ],
+    [
+     "2",
+     "Potenciacion por gradiente",
+     "0.3338",
+     "0.1168",
+     "0.2537",
+     "0.7314",
+     "0.0229",
+     "6.2734"
+    ],
+    [
+     "3",
+     "Bosque aleatorio",
+     "0.3436",
+     "0.1138",
+     "0.2607",
+     "0.7179",
+     "0.0185",
+     "17.6493"
+    ],
+    [
+     "4",
+     "K-vecinos",
+     "0.347",
+     "0.1003",
+     "0.2622",
+     "0.7173",
+     "0.0373",
+     "1.8452"
+    ],
+    [
+     "5",
+     "Arbol de decision",
+     "0.3877",
+     "0.106",
+     "0.2898",
+     "0.6492",
+     "0.0174",
+     "1.368"
+    ],
+    [
+     "6",
+     "Ridge",
+     "0.4018",
+     "0.0943",
+     "0.3142",
+     "0.6279",
+     "0.0378",
+     "0.0968"
+    ],
+    [
+     "7",
+     "Media (control)",
+     "0.6705",
+     "0.029",
+     "0.5273",
+     "-0.0113",
+     "-0.0192",
+     "0.0157"
+    ],
+    [
+     "8",
+     "Hargreaves-Samani",
+     "0.7425",
+     "0.0193",
+     "0.6508",
+     "-0.2468",
+     "-0.5876",
+     "0"
+    ]
+   ],
+   "que": "Error medio de cada alternativa sobre las 5 particiones temporales, con su dispersion entre particiones y el coste de entrenamiento.",
+   "como": "Se ordena por RMSE medio, donde menos es mejor. La desviación indica estabilidad: un modelo con RMSE bajo pero desviación alta acierta en unos tramos y falla en otros. El control de la media y la ecuación de Hargreaves actuan como suelo y como referencia práctica.",
+   "interpretacion": "Gana 'Red neuronal' con RMSE de 0.3279 mm/día, un 55.8% mejor que Hargreaves-Samani (0.7425). El ajuste medio alcanza R2 de 0.741, calificado como bueno según el criterio de Moriasi. El control de la media queda en 0.6705, de modo que todos los modelos aprenden algo real y no están simplemente prediciendo el promedio. Conviene notar que el sesgo del mejor modelo es +0.0382 mm/día frente al -0.5876 de Hargreaves: la corrección del error sistematico es más valiosa que la ganancia en precision, porque un sesgo persistente se acumula al integrar el balance hidrico a lo largo del año."
+  },
+  {
+   "tipo": "figura",
+   "numero": 6,
+   "titulo": "Comparación de modelos",
+   "imagen": "/crispdm/figuras/fig06_comparacion_de_modelos.png",
+   "fase": 4,
+   "que": "A la izquierda el error medio de cada alternativa con su barra de dispersion. A la derecha la evolucion del error de cada modelo a lo largo de las particiones temporales sucesivas.",
+   "como": "En el gráfico de barras, mas corto es mejor. En el de líneas interesa la planitud: una curva estable indica que el modelo aguanta el paso del tiempo, mientras que una ascendente delata degradacion conforme se aleja del periodo de entrenamiento.",
+   "interpretacion": "El orden de merito es nitido y 'Red neuronal' domina en todas las particiones. La dispersion entre particiones del ganador es de 0.1143 mm/día, pequena frente a su error medio, lo que indica un comportamiento estable y no un acierto puntual. 'Hargreaves-Samani' cierra la tabla. Ninguna curva muestra degradacion sostenida hacia la derecha, señal de que la relación entre temperatura y evapotranspiración se mantiene en el periodo estudiado."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 6,
+   "titulo": "Mejores configuraciones de hiperparámetros",
+   "csv": "tab06_mejores_configuraciones_de_hiperparametros.csv",
+   "fase": 4,
+   "columnas": [
+    "learning_rate_init",
+    "hidden_layer_sizes",
+    "alpha",
+    "RMSE_cv",
+    "std_test_score"
+   ],
+   "filas": [
+    [
+     "0.005",
+     "(64,)",
+     "0",
+     "0.3625",
+     "0.1217"
+    ],
+    [
+     "0.0005",
+     "(64,)",
+     "0.01",
+     "0.3626",
+     "0.1204"
+    ],
+    [
+     "0.0005",
+     "(64,)",
+     "0.001",
+     "0.3626",
+     "0.1209"
+    ],
+    [
+     "0.0005",
+     "(32,)",
+     "0.01",
+     "0.3637",
+     "0.1145"
+    ],
+    [
+     "0.0005",
+     "(32,)",
+     "0",
+     "0.3645",
+     "0.1131"
+    ],
+    [
+     "0.0005",
+     "(128, 64)",
+     "0.01",
+     "0.3667",
+     "0.1384"
+    ],
+    [
+     "0.0005",
+     "(64, 32)",
+     "0.001",
+     "0.367",
+     "0.1347"
+    ],
+    [
+     "0.001",
+     "(128, 64, 32)",
+     "0",
+     "0.3675",
+     "0.1385"
+    ]
+   ],
+   "que": "Las ocho combinaciones con menor error de las doce exploradas por busqueda aleatoria sobre 'Red neuronal', evaluadas con la misma validación cruzada temporal.",
+   "como": "Cada fila es una configuración. La columna de error ordena el merito y la desviación indica si la ventaja es consistente entre particiones o producto del azar de una sola.",
+   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 125 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
+  },
+  {
+   "tipo": "fase",
+   "numero": 5,
+   "titulo": "Evaluación",
+   "proposito": "Someter la ventaja observada a contrastes estadísticos y diagnosticar los residuos antes de dar el modelo por válido.",
+   "texto": ""
+  },
+  {
+   "tipo": "tabla",
+   "numero": 7,
+   "titulo": "Contraste global de Friedman",
+   "csv": "tab07_contraste_global_de_friedman.csv",
+   "fase": 5,
+   "columnas": [
+    "modelo",
+    "rango_medio",
+    "RMSE_medio"
+   ],
+   "filas": [
+    [
+     "Red neuronal",
+     "1.2",
+     "0.3279"
+    ],
+    [
+     "Potenciacion por gradiente",
+     "2.2",
+     "0.3338"
+    ],
+    [
+     "Bosque aleatorio",
+     "3.2",
+     "0.3436"
+    ],
+    [
+     "K-vecinos",
+     "3.4",
+     "0.347"
+    ],
+    [
+     "Arbol de decision",
+     "5.4",
+     "0.3877"
+    ],
+    [
+     "Ridge",
+     "5.6",
+     "0.4018"
+    ],
+    [
+     "Media (control)",
+     "7",
+     "0.6705"
+    ],
+    [
+     "Hargreaves-Samani",
+     "8",
+     "0.7425"
+    ]
+   ],
+   "que": "Rango medio de cada modelo a lo largo de las particiones temporales, base del contraste no paramétrico.",
+   "como": "El rango uno corresponde al mejor modelo en cada partición. Un rango medio cercano a uno indica superioridad consistente y no un promedio favorecido por un solo tramo excepcional.",
+   "interpretacion": "Estadístico de Friedman 33.000 con p < 0.001, diferencia altamente significativa. Se rechaza la hipótesis nula de que todos los modelos rinden igual, de modo que las diferencias observadas no se explican por azar y procede comparar por pares. El menor rango medio corresponde a 'Red neuronal' con 1.20 sobre 8 competidores, lo que confirma que su ventaja se repite partición tras partición."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 8,
+   "titulo": "Desempeño en el conjunto de prueba",
+   "csv": "tab08_desempenio_en_el_conjunto_de_prueba.csv",
+   "fase": 5,
+   "columnas": [
+    "metodo",
+    "RMSE",
+    "MAE",
+    "sesgo",
+    "R2",
+    "NSE",
+    "IC95_RMSE_inf",
+    "IC95_RMSE_sup"
+   ],
+   "filas": [
+    [
+     "Red neuronal",
+     "0.3942",
+     "0.2978",
+     "0.0412",
+     "0.6978",
+     "0.6978",
+     "0.3895",
+     "0.3987"
+    ],
+    [
+     "Hargreaves-Samani",
+     "0.7375",
+     "0.6002",
+     "-0.4773",
+     "-0.0579",
+     "-0.0579",
+     "0.7314",
+     "0.7439"
+    ],
+    [
+     "Constante 3.5 (gemelo actual)",
+     "0.7447",
+     "0.5946",
+     "-0.2008",
+     "-0.0784",
+     "-0.0784",
+     "",
+     ""
+    ]
+   ],
+   "que": "Métricas sobre el tramo final, que ningun modelo vio durante el entrenamiento, con intervalos de confianza del RMSE obtenidos por remuestreo bootstrap de 2000 repeticiones.",
+   "como": "El RMSE penaliza los errores grandes y el MAE trata todos por igual; si difieren mucho hay valores atípicos. El sesgo revela error sistematico. El NSE se interpreta con el criterio de Moriasi. Si los intervalos de confianza de dos métodos no se solapan, su diferencia es solida.",
+   "interpretacion": "'Red neuronal' alcanza RMSE de 0.3942 mm/día frente a 0.7375 de Hargreaves y 0.7447 de la constante de 3.5 que usa hoy el gemelo, mejoras del 46.6% y 47.1% respectivamente. Su NSE de 0.698 se califica como bueno. Los intervalos de confianza no se solapan entre el modelo y Hargreaves, lo que respalda que la diferencia no es fruto del azar. El sesgo baja de -0.4773 a +0.0412 mm/día: sobre un año completo eso equivale a corregir unos 189 mm de lamina evaporada acumulada, magnitud que sí altera un balance hidrico."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 9,
+   "titulo": "Contrastes pareados con corrección de Holm",
+   "csv": "tab09_contrastes_pareados_con_correccion_de_holm.csv",
+   "fase": 5,
+   "columnas": [
+    "comparacion",
+    "error_abs_medio_modelo",
+    "error_abs_medio_rival",
+    "estadistico_W",
+    "p_bruto",
+    "d_Cohen",
+    "magnitud",
+    "p_Holm"
+   ],
+   "filas": [
+    [
+     "Red neuronal vs Hargreaves-Samani",
+     "0.2978",
+     "0.6002",
+     "4.508e+07",
+     "0",
+     "-0.6459",
+     "mediano",
+     "0"
+    ],
+    [
+     "Red neuronal vs Constante 3.5",
+     "0.2978",
+     "0.5946",
+     "4.446e+07",
+     "0",
+     "-0.6172",
+     "mediano",
+     "0"
+    ]
+   ],
+   "que": "Contraste de Wilcoxon sobre los errores absolutos día a día frente a cada alternativa, con el tamano del efecto y el valor p corregido por comparaciones multiples.",
+   "como": "Wilcoxon no supone normalidad y compara los errores emparejados del mismo día, lo que elimina la variabilidad meteorologica comun. El valor p corregido es el que debe leerse. La d de Cohen mide la magnitud, que es lo que el valor p no dice.",
+   "interpretacion": "Las dos comparaciones resultan significativas tras la corrección (2 de 2). Frente a Hargreaves-Samani el efecto es mediano (d de Cohen -0.646), y el error absoluto medio baja de 0.6002 a 0.2978 mm/día. El contraste de Diebold-Mariano, que corrige la autocorrelación de los errores diarios, arroja estadístico -38.997 con p < 0.001, diferencia altamente significativa, confirmando el resultado por una via independiente que no supone independencia temporal."
+  },
+  {
+   "tipo": "figura",
+   "numero": 7,
+   "titulo": "Diagnóstico de residuos",
+   "imagen": "/crispdm/figuras/fig07_diagnostico_de_residuos.png",
+   "fase": 5,
+   "que": "Residuos frente al valor predicho, gráfico cuantil-cuantil de normalidad y comparación de la distribución de residuos con la de la línea base.",
+   "como": "En el primer panel deben verse puntos repartidos sin forma alrededor del cero: un embudo indica varianza no constante y una curva, estructura sin capturar. En el segundo, los puntos deben seguir la recta. En el tercero, la curva mas estrecha y mejor centrada en cero corresponde al método superior.",
+   "interpretacion": "El contraste de Shapiro-Wilk sobre una submuestra de 4,500 residuos da p < 0.001, diferencia altamente significativa, de modo que los residuos se apartan de la normalidad, algo esperable con decenas de miles de observaciones, donde el contraste detecta desviaciones minimas e irrelevantes en la práctica. No se aprecia heterocedasticidad relevante (rho +0.046): el error mantiene una amplitud similar en todo el rango, lo que permite usar un intervalo de predicción constante. La comparación de distribuciones muestra que los residuos del modelo son visiblemente más estrechos y están centrados en +0.0412 mm/día, frente a -0.4773 de Hargreaves: la corrección del sesgo es el aporte más relevante para el balance hidrico del gemelo."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 10,
+   "titulo": "Desempeño por estacion",
+   "csv": "tab10_desempenio_por_estacion.csv",
+   "fase": 5,
+   "columnas": [
+    "estacion",
+    "nombre",
+    "subcuenca",
+    "elevacion",
+    "RMSE_modelo",
+    "RMSE_hargreaves",
+    "mejora_pct"
+   ],
+   "filas": [
+    [
+     "E-01",
+     "Quiruvilca Cabecera",
+     "Alta",
+     "4032",
+     "0.365",
+     "0.627",
+     "41.7912"
+    ],
+    [
+     "E-02",
+     "Shorey Confluencia",
+     "Alta",
+     "3636",
+     "0.3775",
+     "0.5502",
+     "31.3869"
+    ],
+    [
+     "E-03",
+     "Julcan Agricola Alto",
+     "Alta",
+     "3310",
+     "0.364",
+     "0.5489",
+     "33.6831"
+    ],
+    [
+     "E-04",
+     "Otuzco Hidrometrica",
+     "Media",
+     "2965",
+     "0.4451",
+     "0.8434",
+     "47.226"
+    ],
+    [
+     "E-05",
+     "Usquil Valles",
+     "Media",
+     "2712",
+     "0.4024",
+     "0.4298",
+     "6.37"
+    ],
+    [
+     "E-07",
+     "Poroto Toma de Riego",
+     "Media",
+     "721",
+     "0.4057",
+     "0.5908",
+     "31.3169"
+    ],
+    [
+     "E-09",
+     "Quirihuac Puente",
+     "Baja",
+     "668",
+     "0.4429",
+     "0.3758",
+     "-17.8352"
+    ],
+    [
+     "E-06",
+     "Simbal Estacion Central",
+     "Media",
+     "424",
+     "0.446",
+     "0.5029",
+     "11.3102"
+    ],
+    [
+     "E-11",
+     "Conache Laguna Control",
+     "Baja",
+     "101",
+     "0.3345",
+     "0.5538",
+     "39.6074"
+    ],
+    [
+     "E-08",
+     "Laredo Agroindustrial",
+     "Baja",
+     "97",
+     "0.3497",
+     "0.5388",
+     "35.0853"
+    ],
+    [
+     "E-10",
+     "Campina de Moche",
+     "Baja",
+     "13",
+     "0.4233",
+     "1.2819",
+     "66.9785"
+    ],
+    [
+     "E-12",
+     "Boca de Rio Moche",
+     "Baja",
+     "0",
+     "0.3511",
+     "1.2849",
+     "72.6765"
+    ]
+   ],
+   "que": "Error del modelo y de la línea base en cada una de las estaciones del conjunto de prueba, ordenadas de mayor a menor altitud.",
+   "como": "La columna de mejora indica el porcentaje de reduccion del error respecto a Hargreaves en esa estacion. Valores positivos en todas las filas demuestran que la ventaja es general y no producto de unos pocos puntos favorables.",
+   "interpretacion": "El modelo mejora a Hargreaves en 11 de las 12 estaciones. La mayor ganancia se da en Boca de Rio Moche (72.7%) y la menor en Quirihuac Puente (-17.8%). El modelo NO mejora en 1 de 12 estaciones (Quirihuac Puente), lo que debe declararse en la memoria en lugar de promediarse: en esos puntos Hargreaves sigue siendo preferible y el gemelo debería conservarlo. La mejora no covaría significativamente con la altitud (rho -0.294, p = 0.3541 >= 0.05, sin evidencia de diferencia), indicio de que el modelo no privilegia un tramo de cuenca."
+  },
+  {
+   "tipo": "fase",
+   "numero": 6,
+   "titulo": "Despliegue",
+   "proposito": "Dejar el modelo utilizable por el gemelo digital y senalar sus límites de validez.",
+   "texto": "**Artefacto.** El modelo entrenado queda en `outputs/modelo_et0.joblib`, junto con la lista de predictores en el orden que espera. Se carga con `joblib.load`.\n\n**Integración con el gemelo.** Hoy `basinTools.ts` alimenta GR4J con ET0 constante de 3.5 mm/día cuando el operador no la aporta. Sustituir esa constante por este modelo mantiene la entrada obligatoria de GR4J pero la hace responder a la temperatura observada, a la altitud de la estacion y a la epoca del año.\n\n**Límites de validez que deben declararse en la memoria.**\n\n1. El objetivo procede del reanálisis ERA5, no de lisimetros. El modelo reproduce la ET0 que calcula FAO-56 con datos de reanálisis, y hereda cualquier sesgo de ERA5 frente a la realidad de campo. Validarlo contra una estacion agrometeorologica del SENAMHI sería el siguiente paso.\n\n2. El rango de aplicación es el de los datos vistos: de 0 a 4032 metros y el clima de la vertiente occidental andina. Extrapolar fuera de ahi no esta respaldado.\n\n3. La prueba abarca 2020-01-01 a 2024-12-31. Un cambio de regimen climático exigiría reentrenar.\n\n**Reproducibilidad.** Fuente pública sin credenciales, semilla fija (42), datos en cache y partición temporal declarada. Ejecutar `python run_pipeline.py` reproduce el estudio entero.\n\n**Resultado.** Error típico de 0.394 mm/día sobre datos nunca vistos."
+  }
+ ]
+}

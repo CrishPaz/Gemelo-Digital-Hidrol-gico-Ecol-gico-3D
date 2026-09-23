@@ -30,6 +30,7 @@ import {
   Sun,
   Moon,
   Languages,
+  Brain,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -69,6 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'scenarios', icon: Sliders },
     { id: 'satellite', icon: Satellite },
     { id: 'ai_copilot', icon: Sparkles },
+    { id: 'crispdm', icon: Brain },
     { id: 'reports', icon: FileText },
   ];
 

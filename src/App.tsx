@@ -37,6 +37,7 @@ import { EarlyWarningSystemPanel } from './components/EarlyWarningSystemPanel';
 import { HydraulicInfrastructureSCADAPanel } from './components/HydraulicInfrastructureSCADAPanel';
 import { HydrogeologySalinityPanel } from './components/HydrogeologySalinityPanel';
 import { HydroCalibrationPanel } from './components/HydroCalibrationPanel';
+import { CrispDmStudyPanel } from './components/CrispDmStudyPanel';
 import { RBACUserModal } from './components/RBACUserModal';
 import { useBasinGeodata } from './hooks/useBasinGeodata';
 import { useI18n } from './providers/I18nProvider';
@@ -300,6 +301,8 @@ export default function App() {
             onNavigateTab={setActiveTab}
           />
         )}
+
+        {activeTab === 'crispdm' && <CrispDmStudyPanel />}
 
         {activeTab === 'reports' && (
           <ReportsAndAuditPanel

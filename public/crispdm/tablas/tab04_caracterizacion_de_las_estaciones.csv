@@ -1,0 +1,13 @@
+estacion,nombre,subcuenca,elevacion,et0_media,et0_desv,t_media,lluvia_anual
+E-01,Quiruvilca Cabecera,Alta,4032.0,3.14,0.6,5.51,2446.4
+E-02,Shorey Confluencia,Alta,3636.0,3.31,0.63,7.89,2544.3
+E-03,Julcan Agricola Alto,Alta,3310.0,3.48,0.66,9.7,2114.9
+E-04,Otuzco Hidrometrica,Media,2965.0,3.57,0.67,11.84,2436.5
+E-05,Usquil Valles,Media,2712.0,3.7,0.68,12.69,1331.8
+E-06,Simbal Estacion Central,Media,424.0,3.87,0.61,19.48,170.1
+E-07,Poroto Toma de Riego,Media,721.0,4.01,0.77,20.55,549.6
+E-08,Laredo Agroindustrial,Baja,97.0,3.81,0.57,20.16,154.1
+E-09,Quirihuac Puente,Baja,668.0,3.92,0.63,18.78,171.2
+E-10,Campina de Moche,Baja,13.0,3.8,0.55,20.68,151.8
+E-11,Conache Laguna Control,Baja,101.0,3.96,0.62,20.83,154.1
+E-12,Boca de Rio Moche,Baja,0.0,3.64,0.52,19.82,151.8
