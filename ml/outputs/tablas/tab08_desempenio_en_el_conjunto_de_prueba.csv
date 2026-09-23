@@ -1,0 +1,4 @@
+metodo,RMSE,MAE,sesgo,R2,NSE,IC95_RMSE_inf,IC95_RMSE_sup
+Red neuronal,0.3942,0.2978,0.0412,0.6978,0.6978,0.3895,0.3987
+Hargreaves-Samani,0.7375,0.6002,-0.4773,-0.0579,-0.0579,0.7314,0.7439
+Constante 3.5 (gemelo actual),0.7447,0.5946,-0.2008,-0.0784,-0.0784,,

@@ -1,0 +1,9 @@
+puesto,modelo,RMSE_medio,RMSE_desv,MAE_medio,R2_medio,sesgo_medio,segundos
+1,Red neuronal,0.3279,0.1143,0.2498,0.741,0.0382,35.1854
+2,Potenciacion por gradiente,0.3338,0.1168,0.2537,0.7314,0.0229,6.2734
+3,Bosque aleatorio,0.3436,0.1138,0.2607,0.7179,0.0185,17.6493
+4,K-vecinos,0.347,0.1003,0.2622,0.7173,0.0373,1.8452
+5,Arbol de decision,0.3877,0.106,0.2898,0.6492,0.0174,1.368
+6,Ridge,0.4018,0.0943,0.3142,0.6279,0.0378,0.0968
+7,Media (control),0.6705,0.029,0.5273,-0.0113,-0.0192,0.0157
+8,Hargreaves-Samani,0.7425,0.0193,0.6508,-0.2468,-0.5876,0.0

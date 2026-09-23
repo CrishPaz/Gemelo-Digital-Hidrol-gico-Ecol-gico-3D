@@ -1,0 +1,10 @@
+# Datos descargados de Open-Meteo. Se regeneran con `python adquisicion.py`,
+# pesan doce megas y no aportan nada a la revision del codigo.
+cache/
+
+# Traza de la ultima ejecucion.
+outputs/consola.log
+
+# Cachés de Python
+__pycache__/
+*.pyc

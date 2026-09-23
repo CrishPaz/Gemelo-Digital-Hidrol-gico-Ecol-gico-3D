@@ -1,0 +1,9 @@
+modelo,rango_medio,RMSE_medio
+Red neuronal,1.2,0.3279
+Potenciacion por gradiente,2.2,0.3338
+Bosque aleatorio,3.2,0.3436
+K-vecinos,3.4,0.347
+Arbol de decision,5.4,0.3877
+Ridge,5.6,0.4018
+Media (control),7.0,0.6705
+Hargreaves-Samani,8.0,0.7425

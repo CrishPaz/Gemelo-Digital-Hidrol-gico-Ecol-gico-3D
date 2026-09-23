@@ -1,0 +1,10 @@
+variable,nulos,pct_nulos,minimo,maximo,unicos
+et0,0,0.0,1.02,6.18,490
+t_max,0,0.0,4.4,32.1,255
+t_min,0,0.0,-5.8,25.2,304
+t_media,0,0.0,1.8,27.1,250
+precipitacion,0,0.0,0.0,101.1,458
+radiacion,0,0.0,5.63,32.85,2354
+viento,0,0.0,3.2,27.4,215
+humedad,0,0.0,30.0,99.0,70
+elev,0,0.0,0.0,4032.0,12
