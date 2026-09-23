@@ -1,0 +1,3 @@
+comparacion,error_abs_medio_modelo,error_abs_medio_rival,estadistico_W,p_bruto,d_Cohen,magnitud,p_Holm
+Red neuronal vs Hargreaves-Samani,0.297849,0.600206,45083071.0,0.0,-0.645903,mediano,0.0
+Red neuronal vs Constante 3.5,0.297849,0.594594,44460359.0,0.0,-0.617209,mediano,0.0

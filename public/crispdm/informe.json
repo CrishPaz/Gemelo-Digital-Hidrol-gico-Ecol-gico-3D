@@ -1367,7 +1367,7 @@
      "0.2498",
      "0.741",
      "0.0382",
-     "29.4205"
+     "23.7531"
     ],
     [
      "2",
@@ -1377,7 +1377,7 @@
      "0.2537",
      "0.7314",
      "0.0229",
-     "7.7746"
+     "4.9653"
     ],
     [
      "3",
@@ -1387,7 +1387,7 @@
      "0.2607",
      "0.7179",
      "0.0185",
-     "29.2268"
+     "23.7871"
     ],
     [
      "4",
@@ -1397,7 +1397,7 @@
      "0.2622",
      "0.7173",
      "0.0373",
-     "2.1606"
+     "1.7335"
     ],
     [
      "5",
@@ -1407,7 +1407,7 @@
      "0.2898",
      "0.6492",
      "0.0174",
-     "1.2431"
+     "1.1527"
     ],
     [
      "6",
@@ -1417,7 +1417,7 @@
      "0.3142",
      "0.6279",
      "0.0378",
-     "0.1029"
+     "0.1047"
     ],
     [
      "7",
@@ -1427,7 +1427,7 @@
      "0.5273",
      "-0.0113",
      "-0.0192",
-     "0.016"
+     "0.0224"
     ],
     [
      "8",
@@ -1527,7 +1527,7 @@
    ],
    "que": "Las ocho combinaciones con menor error de las doce exploradas por busqueda aleatoria sobre 'Red neuronal', evaluadas con la misma validación cruzada temporal.",
    "como": "Cada fila es una configuración. La columna de error ordena el merito y la desviación indica si la ventaja es consistente entre particiones o producto del azar de una sola.",
-   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 136 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
+   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 124 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
   },
   {
    "tipo": "fase",
@@ -1648,8 +1648,132 @@
   {
    "tipo": "tabla",
    "numero": 9,
-   "titulo": "Contrastes pareados con corrección de Holm",
+   "titulo": "U de Theil y descomposicion del error",
    "csv": "tab09_contrastes_pareados_con_correccion_de_holm.csv",
+   "fase": 5,
+   "columnas": [
+    "comparacion",
+    "error_abs_medio_modelo",
+    "error_abs_medio_rival",
+    "estadistico_W",
+    "p_bruto",
+    "d_Cohen",
+    "magnitud",
+    "p_Holm"
+   ],
+   "filas": [
+    [
+     "Red neuronal vs Hargreaves-Samani",
+     "0.2978",
+     "0.6002",
+     "4.508e+07",
+     "0",
+     "-0.6459",
+     "mediano",
+     "0"
+    ],
+    [
+     "Red neuronal vs Constante 3.5",
+     "0.2978",
+     "0.5946",
+     "4.446e+07",
+     "0",
+     "-0.6172",
+     "mediano",
+     "0"
+    ]
+   ],
+   "que": "Coeficiente U1 de desigualdad, razon U2 frente al pronostico ingenuo de persistencia, y reparto del error cuadratico entre sesgo, varianza y covarianza.",
+   "como": "U1 va de cero a uno y es adimensional, así que permite comparar entre variables con unidades distintas. U2 menor que uno significa mejor que repetir el valor de ayer. Las tres últimas columnas suman uno y dicen de donde viene el error: UM y US son defectos corregibles, porque nacen de un desajuste sistematico, mientras que UC es ruido irreducible.",
+   "interpretacion": "'Red neuronal' obtiene U1 de 0.0521, cercano a cero, y U2 de 0.7572 frente a 1.4165 de Hargreaves, es decir que bate a la persistencia y por tanto aporta algo sobre mirar simplemente el dato de ayer, que es la prueba mínima que debe superar cualquier pronostico. La descomposicion es lo más revelador: el modelo concentra el 98% de su error en la componente de covarianza, es decir en ruido irregular, y solo el 1% en sesgo. Hargreaves, en cambio, arrastra un 42% de sesgo, que es error corregible y no aleatorio. Un método cuyo error es sobre todo ruido ha agotado la señal disponible; uno con sesgo alto aun puede mejorarse recalibrando, y por eso la ecuación clasica se queda corta en esta cuenca."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 10,
+   "titulo": "Contraste de Diebold-Mariano a varios horizontes",
+   "csv": "tab10_contraste_de_diebold_mariano_a_varios_horizontes.csv",
+   "fase": 5,
+   "columnas": [
+    "comparacion",
+    "horizonte_h",
+    "estadistico_DM",
+    "p_valor",
+    "favorece"
+   ],
+   "filas": [
+    [
+     "Red neuronal vs Hargreaves-Samani",
+     "1",
+     "-62.4356",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Hargreaves-Samani",
+     "5",
+     "-38.9928",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Hargreaves-Samani",
+     "10",
+     "-29.7629",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Constante 3.5",
+     "1",
+     "-62.7512",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Constante 3.5",
+     "5",
+     "-44.6614",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Constante 3.5",
+     "10",
+     "-36.7861",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Persistencia (ingenuo)",
+     "1",
+     "-29.1474",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Persistencia (ingenuo)",
+     "5",
+     "-26.1341",
+     "0",
+     "Red neuronal"
+    ],
+    [
+     "Red neuronal vs Persistencia (ingenuo)",
+     "10",
+     "-24.0943",
+     "0",
+     "Red neuronal"
+    ]
+   ],
+   "que": "Contraste de igualdad de precision predictiva frente a cada alternativa, repetido con tres horizontes de corrección por autocorrelación.",
+   "como": "El estadístico negativo favorece al modelo; el positivo, al rival. El horizonte h indica cuantos rezagos se usan para corregir la varianza: variarlo comprueba que la conclusión no depende de esa eleccion. Bajo la hipótesis nula ambos métodos predicen igual de bien.",
+   "interpretacion": "De las 9 comparaciones, 9 resultan significativas al 5% y 9 favorecen a 'Red neuronal'. Que el signo y la significacion se mantengan en los tres horizontes es lo importante: descarta que el resultado sea un artefacto de haber elegido un rezago concreto. Este contraste es el adecuado aquí, y no un t de Student pareado, porque los errores diarios están autocorrelacionados y un t ingenuo subestimaria la varianza, inflando la significacion."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 11,
+   "titulo": "Contrastes pareados con corrección de Holm",
+   "csv": "tab11_contrastes_pareados_con_correccion_de_holm.csv",
    "fase": 5,
    "columnas": [
     "comparacion",
@@ -1699,127 +1823,65 @@
   },
   {
    "tipo": "tabla",
-   "numero": 10,
+   "numero": 12,
    "titulo": "Desempeño por estacion",
-   "csv": "tab10_desempenio_por_estacion.csv",
+   "csv": "tab12_atribucion_shap_por_variable.csv",
    "fase": 5,
    "columnas": [
-    "estacion",
-    "nombre",
-    "subcuenca",
-    "elevacion",
-    "RMSE_modelo",
-    "RMSE_hargreaves",
-    "mejora_pct"
+    "variable",
+    "shap_medio_abs",
+    "efecto_medio"
    ],
    "filas": [
     [
-     "E-01",
-     "Quiruvilca Cabecera",
-     "Alta",
-     "4032",
-     "0.365",
-     "0.627",
-     "41.7912"
+     "t_media",
+     "1.8532",
+     "0.1508"
     ],
     [
-     "E-02",
-     "Shorey Confluencia",
-     "Alta",
-     "3636",
-     "0.3775",
-     "0.5502",
-     "31.3869"
+     "elev",
+     "0.764",
+     "-0.0525"
     ],
     [
-     "E-03",
-     "Julcan Agricola Alto",
-     "Alta",
-     "3310",
-     "0.364",
-     "0.5489",
-     "33.6831"
+     "rango_termico",
+     "0.5627",
+     "-0.0125"
     ],
     [
-     "E-04",
-     "Otuzco Hidrometrica",
-     "Media",
-     "2965",
-     "0.4451",
-     "0.8434",
-     "47.226"
+     "t_min",
+     "0.4358",
+     "-0.0381"
     ],
     [
-     "E-05",
-     "Usquil Valles",
-     "Media",
-     "2712",
-     "0.4024",
-     "0.4298",
-     "6.37"
+     "t_max",
+     "0.3317",
+     "-0.0483"
     ],
     [
-     "E-07",
-     "Poroto Toma de Riego",
-     "Media",
-     "721",
-     "0.4057",
-     "0.5908",
-     "31.3169"
+     "precipitacion",
+     "0.2775",
+     "0.0832"
     ],
     [
-     "E-09",
-     "Quirihuac Puente",
-     "Baja",
-     "668",
-     "0.4429",
-     "0.3758",
-     "-17.8352"
+     "estacion_sin",
+     "0.2038",
+     "0.1734"
     ],
     [
-     "E-06",
-     "Simbal Estacion Central",
-     "Media",
-     "424",
-     "0.446",
-     "0.5029",
-     "11.3102"
+     "estacion_cos",
+     "0.1372",
+     "0.0742"
     ],
     [
-     "E-11",
-     "Conache Laguna Control",
-     "Baja",
-     "101",
-     "0.3345",
-     "0.5538",
-     "39.6074"
+     "lat",
+     "0.1256",
+     "0.0144"
     ],
     [
-     "E-08",
-     "Laredo Agroindustrial",
-     "Baja",
-     "97",
-     "0.3497",
-     "0.5388",
-     "35.0853"
-    ],
-    [
-     "E-10",
-     "Campina de Moche",
-     "Baja",
-     "13",
-     "0.4233",
-     "1.2819",
-     "66.9785"
-    ],
-    [
-     "E-12",
-     "Boca de Rio Moche",
-     "Baja",
-     "0",
-     "0.3511",
-     "1.2849",
-     "72.6765"
+     "ra",
+     "0.0801",
+     "0.0413"
     ]
    ],
    "que": "Error del modelo y de la línea base en cada una de las estaciones del conjunto de prueba, ordenadas de mayor a menor altitud.",
@@ -1835,9 +1897,9 @@
   },
   {
    "tipo": "tabla",
-   "numero": 11,
+   "numero": 13,
    "titulo": "Importancia de cada variable por permutacion",
-   "csv": "tab11_importancia_de_cada_variable_por_permutacion.csv",
+   "csv": "tab13_importancia_de_cada_variable_por_permutacion.csv",
    "fase": 6,
    "columnas": [
     "variable",
@@ -1933,9 +1995,9 @@
   },
   {
    "tipo": "tabla",
-   "numero": 12,
+   "numero": 14,
    "titulo": "Atribucion SHAP por variable",
-   "csv": "tab12_atribucion_shap_por_variable.csv",
+   "csv": "tab14_atribucion_shap_por_variable.csv",
    "fase": 6,
    "columnas": [
     "variable",
@@ -1945,53 +2007,53 @@
    "filas": [
     [
      "t_media",
-     "1.8532",
-     "0.1508"
+     "1.8517",
+     "0.1564"
     ],
     [
      "elev",
-     "0.764",
-     "-0.0525"
+     "0.7593",
+     "-0.0586"
     ],
     [
      "rango_termico",
-     "0.5627",
-     "-0.0125"
+     "0.5605",
+     "-0.0093"
     ],
     [
      "t_min",
-     "0.4358",
-     "-0.0381"
+     "0.4404",
+     "-0.0402"
     ],
     [
      "t_max",
-     "0.3317",
-     "-0.0483"
+     "0.3281",
+     "-0.052"
     ],
     [
      "precipitacion",
-     "0.2775",
-     "0.0832"
+     "0.2764",
+     "0.0896"
     ],
     [
      "estacion_sin",
-     "0.2038",
-     "0.1734"
+     "0.209",
+     "0.1775"
     ],
     [
      "estacion_cos",
-     "0.1372",
-     "0.0742"
+     "0.1385",
+     "0.0721"
     ],
     [
      "lat",
-     "0.1256",
-     "0.0144"
+     "0.1222",
+     "0.0094"
     ],
     [
      "ra",
      "0.0801",
-     "0.0413"
+     "0.0412"
     ]
    ],
    "que": "Contribucion media, en valor absoluto, de cada variable a las predicciones individuales, y el sentido medio de esa contribucion.",

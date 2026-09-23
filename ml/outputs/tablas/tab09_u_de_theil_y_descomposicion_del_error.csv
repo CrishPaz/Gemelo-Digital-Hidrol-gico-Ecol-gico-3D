@@ -1,0 +1,5 @@
+metodo,U1_Theil,U2_vs_persistencia,UM_sesgo,US_varianza,UC_covarianza
+Red neuronal,0.0521,0.7572,0.0109,0.0087,0.9804
+Hargreaves-Samani,0.1044,1.4165,0.4188,0.0032,0.5779
+Constante 3.5 (gemelo actual),0.1024,1.43,0.0726,0.9274,0.0
+Persistencia (ingenuo),0.0691,1.0,0.0,0.0,1.0

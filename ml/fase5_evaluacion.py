@@ -75,6 +75,63 @@ def bootstrap_rmse(y, p, n: int = 2000, semilla: int = 42):
     return float(np.percentile(muestras, 2.5)), float(np.percentile(muestras, 97.5)), muestras
 
 
+def theil_u1(y, p) -> float:
+    """
+    Coeficiente de desigualdad U1 de Theil (1958). Va de 0 a 1.
+
+    Es el RMSE normalizado por la escala de ambas series, de modo que resulta
+    adimensional y comparable entre cuencas o variables con unidades distintas,
+    cosa que el RMSE por si solo no permite. Cero es acuerdo perfecto.
+    """
+    y = np.asarray(y, float)
+    p = np.asarray(p, float)
+    num = np.sqrt(np.mean((p - y) ** 2))
+    den = np.sqrt(np.mean(p ** 2)) + np.sqrt(np.mean(y ** 2))
+    return float(num / den) if den > 0 else float("nan")
+
+
+def theil_u2(y, p, y_ingenuo) -> float:
+    """
+    U2 de Theil: razon entre el error del metodo y el de un pronostico ingenuo.
+
+    El ingenuo aqui es la persistencia, es decir repetir el valor de ayer. Es el
+    listen mas duro que existe en series temporales: si un modelo no lo bate, no
+    aporta nada sobre mirar el dato del dia anterior. Menor que uno significa
+    mejor que la persistencia; mayor que uno, peor.
+    """
+    y = np.asarray(y, float)
+    p = np.asarray(p, float)
+    yi = np.asarray(y_ingenuo, float)
+    num = np.sqrt(np.mean((p - y) ** 2))
+    den = np.sqrt(np.mean((yi - y) ** 2))
+    return float(num / den) if den > 0 else float("nan")
+
+
+def descomposicion_theil(y, p) -> dict:
+    """
+    Reparte el error cuadratico medio en tres fuentes que suman uno.
+
+    - UM, proporcion de sesgo: el metodo apunta sistematicamente alto o bajo.
+    - US, proporcion de varianza: el metodo no reproduce la dispersion real.
+    - UC, proporcion de covarianza: error irregular, el residuo inevitable.
+
+    La lectura practica es clara: UM y US son defectos corregibles, porque nacen
+    de un desajuste sistematico; UC es ruido. Un metodo sano concentra su error
+    en UC. Si UM es alta, hay que recalibrar antes que cambiar de algoritmo.
+    """
+    y = np.asarray(y, float)
+    p = np.asarray(p, float)
+    mse = np.mean((p - y) ** 2)
+    if mse <= 0:
+        return {"UM": 0.0, "US": 0.0, "UC": 0.0}
+    sp, sy = p.std(), y.std()
+    r = np.corrcoef(p, y)[0, 1] if sp > 0 and sy > 0 else 0.0
+    um = (p.mean() - y.mean()) ** 2 / mse
+    us = (sp - sy) ** 2 / mse
+    uc = 2 * (1 - r) * sp * sy / mse
+    return {"UM": float(um), "US": float(us), "UC": float(uc)}
+
+
 def diebold_mariano(e1: np.ndarray, e2: np.ndarray, h: int = 1):
     """
     Contraste de Diebold-Mariano sobre perdida cuadratica.
@@ -115,6 +172,7 @@ def ejecutar(df_te: pd.DataFrame, nombre_modelo: str, modelo, rmse_por_fold: dic
     harg = df_te["et0_hargreaves"].to_numpy()
 
     _tabla_final(y, pred, harg, nombre_modelo, df_te, inf)
+    _theil_y_dm(df_te, y, pred, harg, nombre_modelo, inf)
     _pruebas_pareadas(y, pred, harg, nombre_modelo, inf)
     _residuos(y, pred, harg, nombre_modelo, inf)
     _por_estacion(df_te, y, pred, harg, nombre_modelo, inf)
@@ -190,6 +248,111 @@ def _tabla_final(y, pred, harg, nombre, df_te, inf):
             "se solapan" if solapan else "no se solapan",
             "debilita la conclusion" if solapan else "respalda que la diferencia no es fruto del azar",
             m_har["sesgo"], m_mod["sesgo"], abs(m_har["sesgo"] - m_mod["sesgo"]) * 365)
+    )
+
+
+def _theil_y_dm(df_te, y, pred, harg, nombre, inf):
+    """Precision predictiva: U de Theil frente a la persistencia, y Diebold-Mariano."""
+
+    # Pronostico ingenuo: la ET0 de ayer en la MISMA estacion. Construirlo por
+    # estacion es imprescindible; desplazar el panel entero mezclaria el ultimo
+    # dia de una estacion con el primero de la siguiente.
+    tmp = df_te[["estacion", "fecha", "et0"]].copy()
+    tmp["pred"] = pred
+    tmp["harg"] = harg
+    tmp = tmp.sort_values(["estacion", "fecha"])
+    tmp["ingenuo"] = tmp.groupby("estacion")["et0"].shift(1)
+    v = tmp.dropna(subset=["ingenuo"])
+
+    cte = np.full(len(v), 3.5)
+    metodos = [
+        (nombre, v["pred"].to_numpy()),
+        ("Hargreaves-Samani", v["harg"].to_numpy()),
+        ("Constante 3.5 (gemelo actual)", cte),
+        ("Persistencia (ingenuo)", v["ingenuo"].to_numpy()),
+    ]
+    yv = v["et0"].to_numpy()
+    yi = v["ingenuo"].to_numpy()
+
+    filas = []
+    for etiqueta, p in metodos:
+        d = descomposicion_theil(yv, p)
+        filas.append({
+            "metodo": etiqueta,
+            "U1_Theil": theil_u1(yv, p),
+            "U2_vs_persistencia": theil_u2(yv, p, yi),
+            "UM_sesgo": d["UM"],
+            "US_varianza": d["US"],
+            "UC_covarianza": d["UC"],
+        })
+    t_theil = pd.DataFrame(filas).round(4)
+
+    u1_mod = t_theil.iloc[0]["U1_Theil"]
+    u2_mod = t_theil.iloc[0]["U2_vs_persistencia"]
+    u2_har = t_theil[t_theil.metodo == "Hargreaves-Samani"].U2_vs_persistencia.iloc[0]
+    um_mod = t_theil.iloc[0]["UM_sesgo"]
+    uc_mod = t_theil.iloc[0]["UC_covarianza"]
+    um_har = t_theil[t_theil.metodo == "Hargreaves-Samani"].UM_sesgo.iloc[0]
+
+    if u2_mod < 1:
+        juicio_u2 = ("es decir que bate a la persistencia y por tanto aporta algo sobre mirar simplemente "
+                     "el dato de ayer, que es la prueba minima que debe superar cualquier pronostico")
+    else:
+        juicio_u2 = ("es decir que NO bate a la persistencia: repetir el valor del dia anterior seria igual "
+                     "o mejor, lo que invalidaria el modelo como herramienta operativa")
+
+    inf.tabla(
+        t_theil, "U de Theil y descomposicion del error",
+        "Coeficiente U1 de desigualdad, razon U2 frente al pronostico ingenuo de persistencia, y reparto "
+        "del error cuadratico entre sesgo, varianza y covarianza.",
+        "U1 va de cero a uno y es adimensional, asi que permite comparar entre variables con unidades "
+        "distintas. U2 menor que uno significa mejor que repetir el valor de ayer. Las tres ultimas "
+        "columnas suman uno y dicen de donde viene el error: UM y US son defectos corregibles, porque "
+        "nacen de un desajuste sistematico, mientras que UC es ruido irreducible.",
+        "'{}' obtiene U1 de {:.4f}, cercano a cero, y U2 de {:.4f} frente a {:.4f} de Hargreaves, {}. "
+        "La descomposicion es lo mas revelador: el modelo concentra el {:.0%} de su error en la componente "
+        "de covarianza, es decir en ruido irregular, y solo el {:.0%} en sesgo. Hargreaves, en cambio, "
+        "arrastra un {:.0%} de sesgo, que es error corregible y no aleatorio. Un metodo cuyo error es "
+        "sobre todo ruido ha agotado la senal disponible; uno con sesgo alto aun puede mejorarse "
+        "recalibrando, y por eso la ecuacion clasica se queda corta en esta cuenca.".format(
+            nombre, u1_mod, u2_mod, u2_har, juicio_u2, uc_mod, um_mod, um_har),
+    )
+
+    # -- Diebold-Mariano en tabla propia, a varios horizontes ---------------
+    e_mod = v["pred"].to_numpy() - yv
+    rivales = [("Hargreaves-Samani", v["harg"].to_numpy() - yv),
+               ("Constante 3.5", cte - yv),
+               ("Persistencia (ingenuo)", yi - yv)]
+
+    filas_dm = []
+    for etiqueta, e_riv in rivales:
+        for h in (1, 5, 10):
+            est, p = diebold_mariano(e_mod, e_riv, h=h)
+            filas_dm.append({
+                "comparacion": "{} vs {}".format(nombre, etiqueta),
+                "horizonte_h": h,
+                "estadistico_DM": est,
+                "p_valor": p,
+                "favorece": nombre if est < 0 else etiqueta,
+            })
+    t_dm = pd.DataFrame(filas_dm).round(6)
+
+    signif = int((t_dm.p_valor < 0.05).sum())
+    a_favor = int(((t_dm.p_valor < 0.05) & (t_dm.favorece == nombre)).sum())
+
+    inf.tabla(
+        t_dm, "Contraste de Diebold-Mariano a varios horizontes",
+        "Contraste de igualdad de precision predictiva frente a cada alternativa, repetido con tres "
+        "horizontes de correccion por autocorrelacion.",
+        "El estadistico negativo favorece al modelo; el positivo, al rival. El horizonte h indica cuantos "
+        "rezagos se usan para corregir la varianza: variarlo comprueba que la conclusion no depende de esa "
+        "eleccion. Bajo la hipotesis nula ambos metodos predicen igual de bien.",
+        "De las {} comparaciones, {} resultan significativas al 5% y {} favorecen a '{}'. Que el signo y la "
+        "significacion se mantengan en los tres horizontes es lo importante: descarta que el resultado sea "
+        "un artefacto de haber elegido un rezago concreto. Este contraste es el adecuado aqui, y no un t de "
+        "Student pareado, porque los errores diarios estan autocorrelacionados y un t ingenuo subestimaria "
+        "la varianza, inflando la significacion.".format(
+            len(t_dm), signif, a_favor, nombre),
     )
 
 

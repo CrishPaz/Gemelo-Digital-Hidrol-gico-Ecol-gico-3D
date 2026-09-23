@@ -1,0 +1,13 @@
+estacion,nombre,subcuenca,elevacion,RMSE_modelo,RMSE_hargreaves,mejora_pct
+E-01,Quiruvilca Cabecera,Alta,4032.0,0.365,0.627,41.7912
+E-02,Shorey Confluencia,Alta,3636.0,0.3775,0.5502,31.3869
+E-03,Julcan Agricola Alto,Alta,3310.0,0.364,0.5489,33.6831
+E-04,Otuzco Hidrometrica,Media,2965.0,0.4451,0.8434,47.226
+E-05,Usquil Valles,Media,2712.0,0.4024,0.4298,6.37
+E-07,Poroto Toma de Riego,Media,721.0,0.4057,0.5908,31.3169
+E-09,Quirihuac Puente,Baja,668.0,0.4429,0.3758,-17.8352
+E-06,Simbal Estacion Central,Media,424.0,0.446,0.5029,11.3102
+E-11,Conache Laguna Control,Baja,101.0,0.3345,0.5538,39.6074
+E-08,Laredo Agroindustrial,Baja,97.0,0.3497,0.5388,35.0853
+E-10,Campina de Moche,Baja,13.0,0.4233,1.2819,66.9785
+E-12,Boca de Rio Moche,Baja,0.0,0.3511,1.2849,72.6765

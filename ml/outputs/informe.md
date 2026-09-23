@@ -194,13 +194,13 @@ Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrena
 
 | puesto | modelo | RMSE_medio | RMSE_desv | MAE_medio | R2_medio | sesgo_medio | segundos |
 |---|---|---|---|---|---|---|---|
-| 1 | Red neuronal | 0.3279 | 0.1143 | 0.2498 | 0.7410 | 0.0382 | 29.4205 |
-| 2 | Potenciacion por gradiente | 0.3338 | 0.1168 | 0.2537 | 0.7314 | 0.0229 | 7.7746 |
-| 3 | Bosque aleatorio | 0.3436 | 0.1138 | 0.2607 | 0.7179 | 0.0185 | 29.2268 |
-| 4 | K-vecinos | 0.3470 | 0.1003 | 0.2622 | 0.7173 | 0.0373 | 2.1606 |
-| 5 | Arbol de decision | 0.3877 | 0.1060 | 0.2898 | 0.6492 | 0.0174 | 1.2431 |
-| 6 | Ridge | 0.4018 | 0.0943 | 0.3142 | 0.6279 | 0.0378 | 0.1029 |
-| 7 | Media (control) | 0.6705 | 0.0290 | 0.5273 | -0.0113 | -0.0192 | 0.0160 |
+| 1 | Red neuronal | 0.3279 | 0.1143 | 0.2498 | 0.7410 | 0.0382 | 23.7531 |
+| 2 | Potenciacion por gradiente | 0.3338 | 0.1168 | 0.2537 | 0.7314 | 0.0229 | 4.9653 |
+| 3 | Bosque aleatorio | 0.3436 | 0.1138 | 0.2607 | 0.7179 | 0.0185 | 23.7871 |
+| 4 | K-vecinos | 0.3470 | 0.1003 | 0.2622 | 0.7173 | 0.0373 | 1.7335 |
+| 5 | Arbol de decision | 0.3877 | 0.1060 | 0.2898 | 0.6492 | 0.0174 | 1.1527 |
+| 6 | Ridge | 0.4018 | 0.0943 | 0.3142 | 0.6279 | 0.0378 | 0.1047 |
+| 7 | Media (control) | 0.6705 | 0.0290 | 0.5273 | -0.0113 | -0.0192 | 0.0224 |
 | 8 | Hargreaves-Samani | 0.7425 | 0.0193 | 0.6508 | -0.2468 | -0.5876 | 0.0000 |
 
 **Qué muestra.** Error medio de cada alternativa sobre las 5 particiones temporales, con su dispersion entre particiones y el coste de entrenamiento.
@@ -238,7 +238,7 @@ Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrena
 
 **Cómo leerlo.** Cada fila es una configuracion. La columna de error ordena el merito y la desviacion indica si la ventaja es consistente entre particiones o producto del azar de una sola.
 
-**Interpretación.** La mejor configuracion alcanza RMSE de 0.3625 mm/dia frente a 0.3279 de la version por defecto, una ganancia del -10.56%. El ajuste no mejora la configuracion por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparametros. La busqueda tardo 136 segundos. Parametros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05
+**Interpretación.** La mejor configuracion alcanza RMSE de 0.3625 mm/dia frente a 0.3279 de la version por defecto, una ganancia del -10.56%. El ajuste no mejora la configuracion por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparametros. La busqueda tardo 124 segundos. Parametros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05
 
 
 ---
@@ -283,7 +283,44 @@ _Someter la ventaja observada a contrastes estadisticos y diagnosticar los resid
 **Interpretación.** 'Red neuronal' alcanza RMSE de 0.3942 mm/dia frente a 0.7375 de Hargreaves y 0.7447 de la constante de 3.5 que usa hoy el gemelo, mejoras del 46.6% y 47.1% respectivamente. Su NSE de 0.698 se califica como bueno. Los intervalos de confianza no se solapan entre el modelo y Hargreaves, lo que respalda que la diferencia no es fruto del azar. El sesgo baja de -0.4773 a +0.0412 mm/dia: sobre un anio completo eso equivale a corregir unos 189 mm de lamina evaporada acumulada, magnitud que si altera un balance hidrico.
 
 
-### Tabla 9. Contrastes pareados con correccion de Holm
+### Tabla 9. U de Theil y descomposicion del error
+
+| metodo | U1_Theil | U2_vs_persistencia | UM_sesgo | US_varianza | UC_covarianza |
+|---|---|---|---|---|---|
+| Red neuronal | 0.0521 | 0.7572 | 0.0109 | 0.0087 | 0.9804 |
+| Hargreaves-Samani | 0.1044 | 1.4165 | 0.4188 | 0.0032 | 0.5779 |
+| Constante 3.5 (gemelo actual) | 0.1024 | 1.4300 | 0.0726 | 0.9274 | 0.0000 |
+| Persistencia (ingenuo) | 0.0691 | 1.0000 | 0.0000 | 0.0000 | 1.0000 |
+
+**Qué muestra.** Coeficiente U1 de desigualdad, razon U2 frente al pronostico ingenuo de persistencia, y reparto del error cuadratico entre sesgo, varianza y covarianza.
+
+**Cómo leerlo.** U1 va de cero a uno y es adimensional, asi que permite comparar entre variables con unidades distintas. U2 menor que uno significa mejor que repetir el valor de ayer. Las tres ultimas columnas suman uno y dicen de donde viene el error: UM y US son defectos corregibles, porque nacen de un desajuste sistematico, mientras que UC es ruido irreducible.
+
+**Interpretación.** 'Red neuronal' obtiene U1 de 0.0521, cercano a cero, y U2 de 0.7572 frente a 1.4165 de Hargreaves, es decir que bate a la persistencia y por tanto aporta algo sobre mirar simplemente el dato de ayer, que es la prueba minima que debe superar cualquier pronostico. La descomposicion es lo mas revelador: el modelo concentra el 98% de su error en la componente de covarianza, es decir en ruido irregular, y solo el 1% en sesgo. Hargreaves, en cambio, arrastra un 42% de sesgo, que es error corregible y no aleatorio. Un metodo cuyo error es sobre todo ruido ha agotado la senal disponible; uno con sesgo alto aun puede mejorarse recalibrando, y por eso la ecuacion clasica se queda corta en esta cuenca.
+
+
+### Tabla 10. Contraste de Diebold-Mariano a varios horizontes
+
+| comparacion | horizonte_h | estadistico_DM | p_valor | favorece |
+|---|---|---|---|---|
+| Red neuronal vs Hargreaves-Samani | 1 | -62.4356 | 0.0000 | Red neuronal |
+| Red neuronal vs Hargreaves-Samani | 5 | -38.9928 | 0.0000 | Red neuronal |
+| Red neuronal vs Hargreaves-Samani | 10 | -29.7629 | 0.0000 | Red neuronal |
+| Red neuronal vs Constante 3.5 | 1 | -62.7512 | 0.0000 | Red neuronal |
+| Red neuronal vs Constante 3.5 | 5 | -44.6614 | 0.0000 | Red neuronal |
+| Red neuronal vs Constante 3.5 | 10 | -36.7861 | 0.0000 | Red neuronal |
+| Red neuronal vs Persistencia (ingenuo) | 1 | -29.1474 | 0.0000 | Red neuronal |
+| Red neuronal vs Persistencia (ingenuo) | 5 | -26.1341 | 0.0000 | Red neuronal |
+| Red neuronal vs Persistencia (ingenuo) | 10 | -24.0943 | 0.0000 | Red neuronal |
+
+**Qué muestra.** Contraste de igualdad de precision predictiva frente a cada alternativa, repetido con tres horizontes de correccion por autocorrelacion.
+
+**Cómo leerlo.** El estadistico negativo favorece al modelo; el positivo, al rival. El horizonte h indica cuantos rezagos se usan para corregir la varianza: variarlo comprueba que la conclusion no depende de esa eleccion. Bajo la hipotesis nula ambos metodos predicen igual de bien.
+
+**Interpretación.** De las 9 comparaciones, 9 resultan significativas al 5% y 9 favorecen a 'Red neuronal'. Que el signo y la significacion se mantengan en los tres horizontes es lo importante: descarta que el resultado sea un artefacto de haber elegido un rezago concreto. Este contraste es el adecuado aqui, y no un t de Student pareado, porque los errores diarios estan autocorrelacionados y un t ingenuo subestimaria la varianza, inflando la significacion.
+
+
+### Tabla 11. Contrastes pareados con correccion de Holm
 
 | comparacion | error_abs_medio_modelo | error_abs_medio_rival | estadistico_W | p_bruto | d_Cohen | magnitud | p_Holm |
 |---|---|---|---|---|---|---|---|
@@ -308,7 +345,7 @@ _Someter la ventaja observada a contrastes estadisticos y diagnosticar los resid
 **Interpretación.** El contraste de Shapiro-Wilk sobre una submuestra de 4,500 residuos da p < 0.001, diferencia altamente significativa, de modo que los residuos se apartan de la normalidad, algo esperable con decenas de miles de observaciones, donde el contraste detecta desviaciones minimas e irrelevantes en la practica. No se aprecia heterocedasticidad relevante (rho +0.046): el error mantiene una amplitud similar en todo el rango, lo que permite usar un intervalo de prediccion constante. La comparacion de distribuciones muestra que los residuos del modelo son visiblemente mas estrechos y estan centrados en +0.0412 mm/dia, frente a -0.4773 de Hargreaves: la correccion del sesgo es el aporte mas relevante para el balance hidrico del gemelo.
 
 
-### Tabla 10. Desempenio por estacion
+### Tabla 12. Desempenio por estacion
 
 | estacion | nombre | subcuenca | elevacion | RMSE_modelo | RMSE_hargreaves | mejora_pct |
 |---|---|---|---|---|---|---|
@@ -341,7 +378,7 @@ _Abrir la caja negra: determinar que variables usa la red neuronal, con que form
 **Explicabilidad no es interpretacion.** La interpretacion dice que significa un resultado; la explicabilidad, por que el modelo lo produce. El modelo ganador es una red neuronal, es decir una caja negra, y un gemelo digital que gobierna compuertas no puede apoyarse en una cifra cuyo origen nadie sabe explicar. Este apartado sirve para poder afirmar no solo que el modelo acierta, sino que acierta por razones correctas.
 
 
-### Tabla 11. Importancia de cada variable por permutacion
+### Tabla 13. Importancia de cada variable por permutacion
 
 | variable | importancia | desviacion | pct_del_total |
 |---|---|---|---|
@@ -385,20 +422,20 @@ _Abrir la caja negra: determinar que variables usa la red neuronal, con que form
 **Interpretación.** De las 2 relaciones interpretables con signo fisico predecible, 2 coinciden con lo esperado: rango_termico sube (un rango amplio delata cielo despejado, y por tanto mas radiacion); precipitacion baja (un dia lluvioso es nuboso y humedo, lo que frena la evaporacion). Ninguna curva interpretable contradice la fisica del proceso. El modelo no memorizo asociaciones arbitrarias: aprendio el mecanismo, y eso es lo que permite confiar en el fuera del periodo de entrenamiento. Quedan fuera de esta lectura 't_media', 'elev', 't_max', 't_min', marcadas como colineales en el grafico. La dependencia parcial mueve una variable dejando las demas quietas, y eso exige que sean independientes: no existe un dia con la temperatura maxima alta y la media sin cambiar. La curva recorre entonces combinaciones que el clima no produce, de modo que su pendiente es un artefacto del metodo y no una relacion aprendida. Interpretarla como si lo fuera seria un error, y por eso se excluye en lugar de contarla como contradiccion.
 
 
-### Tabla 12. Atribucion SHAP por variable
+### Tabla 14. Atribucion SHAP por variable
 
 | variable | shap_medio_abs | efecto_medio |
 |---|---|---|
-| t_media | 1.8532 | 0.1508 |
-| elev | 0.7640 | -0.0525 |
-| rango_termico | 0.5627 | -0.0125 |
-| t_min | 0.4358 | -0.0381 |
-| t_max | 0.3317 | -0.0483 |
-| precipitacion | 0.2775 | 0.0832 |
-| estacion_sin | 0.2038 | 0.1734 |
-| estacion_cos | 0.1372 | 0.0742 |
-| lat | 0.1256 | 0.0144 |
-| ra | 0.0801 | 0.0413 |
+| t_media | 1.8517 | 0.1564 |
+| elev | 0.7593 | -0.0586 |
+| rango_termico | 0.5605 | -0.0093 |
+| t_min | 0.4404 | -0.0402 |
+| t_max | 0.3281 | -0.0520 |
+| precipitacion | 0.2764 | 0.0896 |
+| estacion_sin | 0.2090 | 0.1775 |
+| estacion_cos | 0.1385 | 0.0721 |
+| lat | 0.1222 | 0.0094 |
+| ra | 0.0801 | 0.0412 |
 
 **Qué muestra.** Contribucion media, en valor absoluto, de cada variable a las predicciones individuales, y el sentido medio de esa contribucion.
 

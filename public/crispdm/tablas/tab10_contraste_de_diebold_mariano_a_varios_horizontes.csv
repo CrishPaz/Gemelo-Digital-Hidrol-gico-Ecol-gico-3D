@@ -1,0 +1,10 @@
+comparacion,horizonte_h,estadistico_DM,p_valor,favorece
+Red neuronal vs Hargreaves-Samani,1,-62.435602,0.0,Red neuronal
+Red neuronal vs Hargreaves-Samani,5,-38.992774,0.0,Red neuronal
+Red neuronal vs Hargreaves-Samani,10,-29.762947,0.0,Red neuronal
+Red neuronal vs Constante 3.5,1,-62.751201,0.0,Red neuronal
+Red neuronal vs Constante 3.5,5,-44.66136,0.0,Red neuronal
+Red neuronal vs Constante 3.5,10,-36.786147,0.0,Red neuronal
+Red neuronal vs Persistencia (ingenuo),1,-29.147369,0.0,Red neuronal
+Red neuronal vs Persistencia (ingenuo),5,-26.134125,0.0,Red neuronal
+Red neuronal vs Persistencia (ingenuo),10,-24.094295,0.0,Red neuronal

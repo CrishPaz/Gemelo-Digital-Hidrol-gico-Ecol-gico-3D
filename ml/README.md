@@ -72,6 +72,7 @@ entrenamiento siempre precede a la validación en el tiempo.
   no cuáles. Holm controla la inflación del error de tipo I al repetir contrastes.
 - **d de Cohen.** Un valor p dice si la diferencia es distinguible del ruido, no
   si es grande. Con decenas de miles de días casi todo sale significativo.
+- **U de Theil.** No es un contraste de hipótesis sino un estadístico de precisión: U1 normaliza el error para que sea adimensional, y U2 lo compara con el pronóstico ingenuo de persistencia, que es el listón mínimo que debe superar cualquier modelo. Su descomposición reparte el error entre sesgo, varianza y covarianza, es decir entre lo corregible y lo irreducible.
 - **Bootstrap.** Intervalos de confianza sin suponer distribución alguna.
 - **Diebold-Mariano.** Específico para precisión predictiva entre series
   temporales, con corrección por autocorrelación de los errores.
