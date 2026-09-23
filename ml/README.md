@@ -45,7 +45,8 @@ establecida, y no contra un promedio ingenuo, es lo que da valor al resultado.
 | 3. Preparación | `preparacion.py` | Variables derivadas, partición temporal |
 | 4. Modelado | `fase4_modelado.py` | 7 modelos, validación cruzada temporal, hiperparámetros |
 | 5. Evaluación | `fase5_evaluacion.py` | Friedman, Wilcoxon con Holm, bootstrap, Diebold-Mariano, residuos |
-| 6. Despliegue | `run_pipeline.py` | Modelo serializado y límites de validez |
+| 6. Explicabilidad | `fase5b_explicabilidad.py` | Permutación, dependencia parcial, SHAP |
+| 7. Despliegue | `run_pipeline.py` | Modelo serializado y límites de validez |
 
 ## Cómo se valida
 
@@ -85,7 +86,7 @@ python run_pipeline.py --rapido   # menos particiones
 python adquisicion.py --forzar    # volver a descargar ignorando la caché
 ```
 
-Requiere `numpy`, `pandas`, `scipy`, `scikit-learn`, `matplotlib` y `joblib`.
+Requiere `numpy`, `pandas`, `scipy`, `scikit-learn`, `matplotlib`, `joblib` y `shap`.
 No usa `seaborn`, `xgboost`, `lightgbm` ni `tabulate`.
 
 ## Salidas

@@ -194,13 +194,13 @@ Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrena
 
 | puesto | modelo | RMSE_medio | RMSE_desv | MAE_medio | R2_medio | sesgo_medio | segundos |
 |---|---|---|---|---|---|---|---|
-| 1 | Red neuronal | 0.3279 | 0.1143 | 0.2498 | 0.7410 | 0.0382 | 35.1854 |
-| 2 | Potenciacion por gradiente | 0.3338 | 0.1168 | 0.2537 | 0.7314 | 0.0229 | 6.2734 |
-| 3 | Bosque aleatorio | 0.3436 | 0.1138 | 0.2607 | 0.7179 | 0.0185 | 17.6493 |
-| 4 | K-vecinos | 0.3470 | 0.1003 | 0.2622 | 0.7173 | 0.0373 | 1.8452 |
-| 5 | Arbol de decision | 0.3877 | 0.1060 | 0.2898 | 0.6492 | 0.0174 | 1.3680 |
-| 6 | Ridge | 0.4018 | 0.0943 | 0.3142 | 0.6279 | 0.0378 | 0.0968 |
-| 7 | Media (control) | 0.6705 | 0.0290 | 0.5273 | -0.0113 | -0.0192 | 0.0157 |
+| 1 | Red neuronal | 0.3279 | 0.1143 | 0.2498 | 0.7410 | 0.0382 | 29.4205 |
+| 2 | Potenciacion por gradiente | 0.3338 | 0.1168 | 0.2537 | 0.7314 | 0.0229 | 7.7746 |
+| 3 | Bosque aleatorio | 0.3436 | 0.1138 | 0.2607 | 0.7179 | 0.0185 | 29.2268 |
+| 4 | K-vecinos | 0.3470 | 0.1003 | 0.2622 | 0.7173 | 0.0373 | 2.1606 |
+| 5 | Arbol de decision | 0.3877 | 0.1060 | 0.2898 | 0.6492 | 0.0174 | 1.2431 |
+| 6 | Ridge | 0.4018 | 0.0943 | 0.3142 | 0.6279 | 0.0378 | 0.1029 |
+| 7 | Media (control) | 0.6705 | 0.0290 | 0.5273 | -0.0113 | -0.0192 | 0.0160 |
 | 8 | Hargreaves-Samani | 0.7425 | 0.0193 | 0.6508 | -0.2468 | -0.5876 | 0.0000 |
 
 **Qué muestra.** Error medio de cada alternativa sobre las 5 particiones temporales, con su dispersion entre particiones y el coste de entrenamiento.
@@ -238,7 +238,7 @@ Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrena
 
 **Cómo leerlo.** Cada fila es una configuracion. La columna de error ordena el merito y la desviacion indica si la ventaja es consistente entre particiones o producto del azar de una sola.
 
-**Interpretación.** La mejor configuracion alcanza RMSE de 0.3625 mm/dia frente a 0.3279 de la version por defecto, una ganancia del -10.56%. El ajuste no mejora la configuracion por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparametros. La busqueda tardo 125 segundos. Parametros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05
+**Interpretación.** La mejor configuracion alcanza RMSE de 0.3625 mm/dia frente a 0.3279 de la version por defecto, una ganancia del -10.56%. El ajuste no mejora la configuracion por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparametros. La busqueda tardo 136 segundos. Parametros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05
 
 
 ---
@@ -334,7 +334,93 @@ _Someter la ventaja observada a contrastes estadisticos y diagnosticar los resid
 
 ---
 
-## Fase 6. Despliegue
+## Fase 6. Explicabilidad del modelo
+
+_Abrir la caja negra: determinar que variables usa la red neuronal, con que forma y si esas relaciones coinciden con la fisica conocida del proceso._
+
+**Explicabilidad no es interpretacion.** La interpretacion dice que significa un resultado; la explicabilidad, por que el modelo lo produce. El modelo ganador es una red neuronal, es decir una caja negra, y un gemelo digital que gobierna compuertas no puede apoyarse en una cifra cuyo origen nadie sabe explicar. Este apartado sirve para poder afirmar no solo que el modelo acierta, sino que acierta por razones correctas.
+
+
+### Tabla 11. Importancia de cada variable por permutacion
+
+| variable | importancia | desviacion | pct_del_total |
+|---|---|---|---|
+| t_media | 2.6027 | 0.0232 | 49.1693 |
+| elev | 0.8610 | 0.0112 | 16.2659 |
+| rango_termico | 0.6027 | 0.0091 | 11.3866 |
+| t_max | 0.3465 | 0.0046 | 6.5452 |
+| t_min | 0.3448 | 0.0051 | 6.5137 |
+| precipitacion | 0.1999 | 0.0030 | 3.7770 |
+| lat | 0.1396 | 0.0027 | 2.6378 |
+| estacion_sin | 0.0998 | 0.0026 | 1.8846 |
+| estacion_cos | 0.0549 | 0.0016 | 1.0363 |
+| ra | 0.0415 | 0.0020 | 0.7836 |
+
+**Qué muestra.** Cuanto empeora el error del modelo al barajar al azar cada variable, dejando el resto intacta. Se repite 15 veces sobre datos de prueba.
+
+**Cómo leerlo.** Un valor alto significa que el modelo depende de esa variable: sin ella, falla. Un valor cercano a cero, o menor que su propia desviacion, indica que la variable no aporta y podria retirarse. La medida es agnostica al algoritmo, asi que permite comparar modelos distintos con la misma vara.
+
+**Interpretación.** El modelo se apoya sobre todo en 't_media', 'elev', 'rango_termico', que juntas explican el 77% de la importancia total. La variable mas critica es 't_media': permutarla degrada el RMSE en 2.6027 mm/dia. Esto es tranquilizador: son justamente las variables que la fisica del proceso senala como determinantes, y no un artefacto estadistico. Ninguna variable resulta prescindible.
+
+
+### Figura 8. Importancia por permutacion
+
+![Importancia por permutacion](figuras/fig08_importancia_por_permutacion.png)
+
+**Qué muestra.** Degradacion del error al permutar cada variable, con su barra de incertidumbre sobre 15 repeticiones.
+
+**Cómo leerlo.** Las barras mas largas corresponden a las variables de las que el modelo mas depende. Si una barra de error cruza el cero, la contribucion de esa variable no se distingue del ruido.
+
+**Interpretación.** El perfil es jerarquico y no plano: el modelo no reparte su atencion por igual, sino que concentra la decision en unas pocas variables. Esa concentracion es deseable, porque un modelo que dependiera por igual de las diez seria mas fragil ante el fallo de un sensor.
+
+
+### Figura 9. Dependencia parcial: forma de las relaciones aprendidas
+
+![Dependencia parcial: forma de las relaciones aprendidas](figuras/fig09_dependencia_parcial_forma_de_las_relaciones_apre.png)
+
+**Qué muestra.** Como cambia la prediccion media del modelo al recorrer cada variable manteniendo las demas en sus valores observados. Las marcadas como colineales no admiten lectura causal.
+
+**Cómo leerlo.** Interesa la FORMA, no la altura. Una curva ascendente indica relacion directa; descendente, inversa; plana, que la variable no mueve la prediccion. La comparacion con la fisica solo es valida en variables poco correlacionadas con el resto.
+
+**Interpretación.** De las 2 relaciones interpretables con signo fisico predecible, 2 coinciden con lo esperado: rango_termico sube (un rango amplio delata cielo despejado, y por tanto mas radiacion); precipitacion baja (un dia lluvioso es nuboso y humedo, lo que frena la evaporacion). Ninguna curva interpretable contradice la fisica del proceso. El modelo no memorizo asociaciones arbitrarias: aprendio el mecanismo, y eso es lo que permite confiar en el fuera del periodo de entrenamiento. Quedan fuera de esta lectura 't_media', 'elev', 't_max', 't_min', marcadas como colineales en el grafico. La dependencia parcial mueve una variable dejando las demas quietas, y eso exige que sean independientes: no existe un dia con la temperatura maxima alta y la media sin cambiar. La curva recorre entonces combinaciones que el clima no produce, de modo que su pendiente es un artefacto del metodo y no una relacion aprendida. Interpretarla como si lo fuera seria un error, y por eso se excluye en lugar de contarla como contradiccion.
+
+
+### Tabla 12. Atribucion SHAP por variable
+
+| variable | shap_medio_abs | efecto_medio |
+|---|---|---|
+| t_media | 1.8532 | 0.1508 |
+| elev | 0.7640 | -0.0525 |
+| rango_termico | 0.5627 | -0.0125 |
+| t_min | 0.4358 | -0.0381 |
+| t_max | 0.3317 | -0.0483 |
+| precipitacion | 0.2775 | 0.0832 |
+| estacion_sin | 0.2038 | 0.1734 |
+| estacion_cos | 0.1372 | 0.0742 |
+| lat | 0.1256 | 0.0144 |
+| ra | 0.0801 | 0.0413 |
+
+**Qué muestra.** Contribucion media, en valor absoluto, de cada variable a las predicciones individuales, y el sentido medio de esa contribucion.
+
+**Cómo leerlo.** El valor absoluto mide cuanto mueve la variable la prediccion, sin importar hacia donde. A diferencia de la permutacion, esto se calcula prediccion a prediccion y no sobre el error global. El efecto medio ronda cero en casi todas las variables por construccion: SHAP mide la desviacion respecto al valor esperado, de modo que un dia calido aporta positivo y uno frio negativo.
+
+**Interpretación.** SHAP situa a 't_media' como principal contribuyente, coincidiendo con lo que indicaba la importancia por permutacion. La coincidencia entre dos metodos de fundamento distinto, uno basado en degradar el error y otro en repartir la prediccion segun teoria de juegos, refuerza que el hallazgo no depende de la tecnica elegida. Ninguna variable empuja siempre en la misma direccion, lo cual es lo esperable: el signo de la contribucion depende de si ese dia el valor esta por encima o por debajo de lo habitual.
+
+
+### Figura 10. Valores SHAP: contribucion a cada prediccion
+
+![Valores SHAP: contribucion a cada prediccion](figuras/fig10_valores_shap_contribucion_a_cada_prediccion.png)
+
+**Qué muestra.** A la izquierda, cuanto mueve cada variable la prediccion en promedio. A la derecha, la dispersion de esa contribucion sobre 120 predicciones individuales.
+
+**Cómo leerlo.** En las cajas, la posicion respecto a la linea roja del cero indica el sentido. Una caja ancha significa que la misma variable unas veces sube la estimacion y otras la baja, segun el resto de condiciones de ese dia.
+
+**Interpretación.** Este es el nivel de explicacion que un operador de cuenca puede exigir ante una cifra concreta: permite responder por que el modelo estimo ese valor ese dia, descomponiendo la prediccion en las aportaciones de cada variable. Es lo que convierte la red neuronal en una herramienta auditable en lugar de un oraculo.
+
+
+---
+
+## Fase 7. Despliegue
 
 _Dejar el modelo utilizable por el gemelo digital y senalar sus limites de validez._
 

@@ -1,0 +1,11 @@
+variable,importancia,desviacion,pct_del_total
+t_media,2.6027,0.0232,49.1693
+elev,0.861,0.0112,16.2659
+rango_termico,0.6027,0.0091,11.3866
+t_max,0.3465,0.0046,6.5452
+t_min,0.3448,0.0051,6.5137
+precipitacion,0.1999,0.003,3.777
+lat,0.1396,0.0027,2.6378
+estacion_sin,0.0998,0.0026,1.8846
+estacion_cos,0.0549,0.0016,1.0363
+ra,0.0415,0.002,0.7836

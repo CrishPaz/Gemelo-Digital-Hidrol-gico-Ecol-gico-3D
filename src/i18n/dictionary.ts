@@ -74,6 +74,27 @@ export const DICTIONARY = {
     'crispdm.kpi.nse': 'Nash-Sutcliffe',
     'crispdm.sesgo': 'Corrección del sesgo sistemático: de {base} a {modelo} mm/día. Sobre un año completo equivale a unos {mm} mm de lámina evaporada acumulada, magnitud que sí altera un balance hídrico.',
 
+    // Ficha del conjunto de datos
+    'crispdm.ds.titulo': 'Conjunto de datos utilizado',
+    'crispdm.ds.esquema': 'Esquema de variables',
+    'crispdm.ds.estaciones': 'Estaciones',
+    'crispdm.ds.muestra': 'Muestra de registros',
+    'crispdm.ds.filas': 'Registros',
+    'crispdm.ds.columnas': 'Columnas',
+    'crispdm.ds.dias': 'Días distintos',
+    'crispdm.ds.anios': 'Años',
+    'crispdm.ds.nulos': 'Valores nulos',
+    'crispdm.ds.altitud': 'Rango altitudinal',
+    'crispdm.ds.acceso': 'Acceso',
+    'crispdm.ds.licencia': 'Licencia',
+    'crispdm.ds.descargar': 'Muestra CSV',
+    'crispdm.ds.columna': 'Columna',
+    'crispdm.ds.papel': 'Papel',
+    'crispdm.ds.unidad': 'Unidad',
+    'crispdm.ds.rango': 'Rango observado',
+    'crispdm.ds.explicacion': 'Qué es y por qué está',
+    'crispdm.ds.nota': 'El papel de cada columna es el núcleo del método: radiación, viento y humedad se descargaron pero están marcadas como excluidas, porque la ecuación FAO-56 las usa directamente y el modelo se volvería trivial. Una estación peruana real no tiene esos sensores, así que se renuncia a precisión para ganar aplicabilidad.',
+
     // --- Encabezado del Gemelo 3D ---
     'twin.title': 'Gemelo Digital 3D — Cuenca Hidrográfica del Río Moche',
     'twin.subtitle':
@@ -926,6 +947,27 @@ export const DICTIONARY = {
     'crispdm.kpi.mejora': 'Gain over baseline',
     'crispdm.kpi.nse': 'Nash-Sutcliffe',
     'crispdm.sesgo': 'Systematic bias corrected from {base} to {modelo} mm/day. Over a full year that amounts to roughly {mm} mm of accumulated evaporated depth, enough to shift a water balance.',
+
+    // Dataset fact sheet
+    'crispdm.ds.titulo': 'Dataset used',
+    'crispdm.ds.esquema': 'Variable schema',
+    'crispdm.ds.estaciones': 'Stations',
+    'crispdm.ds.muestra': 'Sample records',
+    'crispdm.ds.filas': 'Records',
+    'crispdm.ds.columnas': 'Columns',
+    'crispdm.ds.dias': 'Distinct days',
+    'crispdm.ds.anios': 'Years',
+    'crispdm.ds.nulos': 'Null values',
+    'crispdm.ds.altitud': 'Elevation range',
+    'crispdm.ds.acceso': 'Access',
+    'crispdm.ds.licencia': 'Licence',
+    'crispdm.ds.descargar': 'Sample CSV',
+    'crispdm.ds.columna': 'Column',
+    'crispdm.ds.papel': 'Role',
+    'crispdm.ds.unidad': 'Unit',
+    'crispdm.ds.rango': 'Observed range',
+    'crispdm.ds.explicacion': 'What it is and why it is here',
+    'crispdm.ds.nota': 'The role of each column is the core of the method: radiation, wind and humidity were downloaded but are marked excluded, because the FAO-56 equation uses them directly and the model would become trivial. A real Peruvian station lacks those sensors, so accuracy is traded for applicability.',
 
     // --- 3D Twin heading ---
     'twin.title': '3D Digital Twin — Moche River Basin',

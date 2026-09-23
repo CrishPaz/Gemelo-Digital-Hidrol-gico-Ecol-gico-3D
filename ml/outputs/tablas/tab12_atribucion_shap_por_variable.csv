@@ -1,0 +1,11 @@
+variable,shap_medio_abs,efecto_medio
+t_media,1.8532,0.1508
+elev,0.764,-0.0525
+rango_termico,0.5627,-0.0125
+t_min,0.4358,-0.0381
+t_max,0.3317,-0.0483
+precipitacion,0.2775,0.0832
+estacion_sin,0.2038,0.1734
+estacion_cos,0.1372,0.0742
+lat,0.1256,0.0144
+ra,0.0801,0.0413

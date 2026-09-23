@@ -23,6 +23,7 @@ import numpy as np
 import fase2_eda
 import fase4_modelado
 import fase5_evaluacion
+import fase5b_explicabilidad
 from adquisicion import obtener_dataset
 from config import CORTE_TEST, SALIDA
 from informe import Informe
@@ -78,9 +79,12 @@ def main() -> None:
     # -- Fase 5: evaluacion -------------------------------------------------
     pred = fase5_evaluacion.ejecutar(te, nombre, modelo, rmse_folds, inf)
 
-    # -- Fase 6: despliegue -------------------------------------------------
+    # -- Explicabilidad: por que el modelo decide lo que decide -------------
+    fase5b_explicabilidad.ejecutar(te, nombre, modelo, inf)
+
+    # -- Fase 7: despliegue -------------------------------------------------
     inf.fase(
-        6, "Despliegue",
+        7, "Despliegue",
         "Dejar el modelo utilizable por el gemelo digital y senalar sus limites de validez.",
     )
     ruta_modelo = SALIDA / "modelo_et0.joblib"

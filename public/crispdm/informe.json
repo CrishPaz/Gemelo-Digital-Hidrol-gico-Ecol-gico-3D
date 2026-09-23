@@ -1,4 +1,863 @@
 {
+ "dataset": {
+  "fuente": {
+   "nombre": "Open-Meteo Archive API",
+   "modelo": "Reanalisis ERA5 (ECMWF)",
+   "url": "https://archive-api.open-meteo.com/v1/archive",
+   "credenciales": "No requiere. API pública y gratuita para uso no comercial.",
+   "licencia": "Datos ERA5 bajo licencia Copernicus; API bajo CC BY 4.0.",
+   "variables_pedidas": [
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "temperature_2m_mean",
+    "precipitation_sum",
+    "shortwave_radiation_sum",
+    "et0_fao_evapotranspiration",
+    "wind_speed_10m_max",
+    "relative_humidity_2m_mean"
+   ],
+   "consulta_ejemplo": "https://archive-api.open-meteo.com/v1/archive?latitude=-7.9654&longitude=-78.3142&start_date=2000-01-01&end_date=2024-12-31&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,...&timezone=America%2FLima"
+  },
+  "volumen": {
+   "filas": 109584,
+   "columnas": 24,
+   "estaciones": 12,
+   "dias": 9132,
+   "periodo": "2000-01-01 a 2024-12-31",
+   "anios": 25,
+   "nulos_totales": 0,
+   "elev_min": 0,
+   "elev_max": 4032
+  },
+  "papeles": {
+   "indice": 1,
+   "identificador": 3,
+   "predictor": 6,
+   "descartada": 1,
+   "excluida": 3,
+   "OBJETIVO": 1,
+   "derivada": 4,
+   "linea base": 1
+  },
+  "esquema": [
+   {
+    "columna": "fecha",
+    "unidad": "fecha",
+    "papel": "indice",
+    "rango": "9132 valores",
+    "media": null,
+    "nulos": 0,
+    "explicacion": "Día del registro. Define el orden y los cortes de validación."
+   },
+   {
+    "columna": "estacion",
+    "unidad": "codigo",
+    "papel": "identificador",
+    "rango": "12 valores",
+    "media": null,
+    "nulos": 0,
+    "explicacion": "Codigo de la estacion. Agrupa las filas del mismo punto."
+   },
+   {
+    "columna": "nombre",
+    "unidad": "texto",
+    "papel": "identificador",
+    "rango": "12 valores",
+    "media": null,
+    "nulos": 0,
+    "explicacion": "Nombre de la estacion en la red del gemelo."
+   },
+   {
+    "columna": "subcuenca",
+    "unidad": "categoria",
+    "papel": "identificador",
+    "rango": "3 valores",
+    "media": null,
+    "nulos": 0,
+    "explicacion": "Tramo de cuenca: Alta, Media o Baja."
+   },
+   {
+    "columna": "lat",
+    "unidad": "grados",
+    "papel": "predictor",
+    "rango": "-8.17 a -7.84",
+    "media": -8.029,
+    "nulos": 0,
+    "explicacion": "Latitud. Entra en el calculo de radiacion extraterrestre."
+   },
+   {
+    "columna": "lon",
+    "unidad": "grados",
+    "papel": "descartada",
+    "rango": "-79.03 a -78.31",
+    "media": -78.719,
+    "nulos": 0,
+    "explicacion": "Longitud. No aporta señal en una cuenca de este tamano."
+   },
+   {
+    "columna": "elev",
+    "unidad": "m s.n.m.",
+    "papel": "predictor",
+    "rango": "0.00 a 4032.00",
+    "media": 1556.583,
+    "nulos": 0,
+    "explicacion": "Elevacion de la celda del reanálisis. Recoge el gradiente altitudinal."
+   },
+   {
+    "columna": "t_max",
+    "unidad": "grados C",
+    "papel": "predictor",
+    "rango": "4.40 a 32.10",
+    "media": 20.399,
+    "nulos": 0,
+    "explicacion": "Temperatura máxima diaria. Sensor barato y presente en casi toda estacion."
+   },
+   {
+    "columna": "t_min",
+    "unidad": "grados C",
+    "papel": "predictor",
+    "rango": "-5.80 a 25.20",
+    "media": 12.044,
+    "nulos": 0,
+    "explicacion": "Temperatura mínima diaria."
+   },
+   {
+    "columna": "t_media",
+    "unidad": "grados C",
+    "papel": "predictor",
+    "rango": "1.80 a 27.10",
+    "media": 15.66,
+    "nulos": 0,
+    "explicacion": "Temperatura media diaria."
+   },
+   {
+    "columna": "precipitacion",
+    "unidad": "mm",
+    "papel": "predictor",
+    "rango": "0.00 a 101.10",
+    "media": 2.823,
+    "nulos": 0,
+    "explicacion": "Lluvia acumulada. Un día lluvioso suele ser nuboso, y eso frena la evaporacion."
+   },
+   {
+    "columna": "radiacion",
+    "unidad": "MJ/m2",
+    "papel": "excluida",
+    "rango": "5.63 a 32.85",
+    "media": 21.13,
+    "nulos": 0,
+    "explicacion": "Radiacion solar. Se descarga pero NO se usa: exige radiometro, que las estaciones del Moche no tienen."
+   },
+   {
+    "columna": "viento",
+    "unidad": "km/h",
+    "papel": "excluida",
+    "rango": "3.20 a 27.40",
+    "media": 10.238,
+    "nulos": 0,
+    "explicacion": "Velocidad máxima del viento. Excluida por el mismo motivo: exige anemometro."
+   },
+   {
+    "columna": "humedad",
+    "unidad": "%",
+    "papel": "excluida",
+    "rango": "30.00 a 99.00",
+    "media": 79.148,
+    "nulos": 0,
+    "explicacion": "Humedad relativa media. Excluida: exige higrometro calibrado."
+   },
+   {
+    "columna": "et0",
+    "unidad": "mm/dia",
+    "papel": "OBJETIVO",
+    "rango": "1.02 a 6.18",
+    "media": 3.683,
+    "nulos": 0,
+    "explicacion": "Evapotranspiración de referencia FAO-56 Penman-Monteith. Es lo que el modelo debe estimar."
+   },
+   {
+    "columna": "rango_termico",
+    "unidad": "grados C",
+    "papel": "derivada",
+    "rango": "1.00 a 23.10",
+    "media": 8.355,
+    "nulos": 0,
+    "explicacion": "t_max menos t_min. Sustituto barato de la radiacion: un cielo despejado calienta de día y enfria de noche."
+   },
+   {
+    "columna": "ra",
+    "unidad": "MJ/m2",
+    "papel": "derivada",
+    "rango": "29.86 a 39.12",
+    "media": 35.765,
+    "nulos": 0,
+    "explicacion": "Radiacion extraterrestre por geometría orbital. No necesita instrumento alguno."
+   },
+   {
+    "columna": "estacion_sin",
+    "unidad": "-1 a 1",
+    "papel": "derivada",
+    "rango": "-1.00 a 1.00",
+    "media": 0.0,
+    "nulos": 0,
+    "explicacion": "Seno del día del año. Codifica la estacionalidad sin salto entre diciembre y enero."
+   },
+   {
+    "columna": "estacion_cos",
+    "unidad": "-1 a 1",
+    "papel": "derivada",
+    "rango": "-1.00 a 1.00",
+    "media": 0.0,
+    "nulos": 0,
+    "explicacion": "Coseno del día del año, pareja del anterior."
+   },
+   {
+    "columna": "et0_hargreaves",
+    "unidad": "mm/dia",
+    "papel": "linea base",
+    "rango": "1.26 a 5.52",
+    "media": 3.12,
+    "nulos": 0,
+    "explicacion": "ET0 por la ecuación de Hargreaves-Samani. Es el rival a batir, no un predictor."
+   }
+  ],
+  "estaciones": [
+   {
+    "codigo": "E-01",
+    "nombre": "Quiruvilca Cabecera",
+    "subcuenca": "Alta",
+    "lat": -7.9654,
+    "lon": -78.3142,
+    "elev_ficha": 3950,
+    "elev_era5": 4032,
+    "registros": 9132,
+    "et0_media": 3.14
+   },
+   {
+    "codigo": "E-02",
+    "nombre": "Shorey Confluencia",
+    "subcuenca": "Alta",
+    "lat": -7.9891,
+    "lon": -78.4012,
+    "elev_ficha": 3420,
+    "elev_era5": 3636,
+    "registros": 9132,
+    "et0_media": 3.31
+   },
+   {
+    "codigo": "E-03",
+    "nombre": "Julcan Agricola Alto",
+    "subcuenca": "Alta",
+    "lat": -8.0412,
+    "lon": -78.4821,
+    "elev_ficha": 3180,
+    "elev_era5": 3310,
+    "registros": 9132,
+    "et0_media": 3.48
+   },
+   {
+    "codigo": "E-04",
+    "nombre": "Otuzco Hidrometrica",
+    "subcuenca": "Media",
+    "lat": -7.9042,
+    "lon": -78.5833,
+    "elev_ficha": 2450,
+    "elev_era5": 2965,
+    "registros": 9132,
+    "et0_media": 3.57
+   },
+   {
+    "codigo": "E-05",
+    "nombre": "Usquil Valles",
+    "subcuenca": "Media",
+    "lat": -7.8421,
+    "lon": -78.4321,
+    "elev_ficha": 2890,
+    "elev_era5": 2712,
+    "registros": 9132,
+    "et0_media": 3.7
+   },
+   {
+    "codigo": "E-06",
+    "nombre": "Simbal Estacion Central",
+    "subcuenca": "Media",
+    "lat": -8.0125,
+    "lon": -78.8142,
+    "elev_ficha": 620,
+    "elev_era5": 424,
+    "registros": 9132,
+    "et0_media": 3.87
+   },
+   {
+    "codigo": "E-07",
+    "nombre": "Poroto Toma de Riego",
+    "subcuenca": "Media",
+    "lat": -8.0195,
+    "lon": -78.7756,
+    "elev_ficha": 780,
+    "elev_era5": 721,
+    "registros": 9132,
+    "et0_media": 4.01
+   },
+   {
+    "codigo": "E-08",
+    "nombre": "Laredo Agroindustrial",
+    "subcuenca": "Baja",
+    "lat": -8.0892,
+    "lon": -78.9583,
+    "elev_ficha": 120,
+    "elev_era5": 97,
+    "registros": 9132,
+    "et0_media": 3.81
+   },
+   {
+    "codigo": "E-09",
+    "nombre": "Quirihuac Puente",
+    "subcuenca": "Baja",
+    "lat": -8.0581,
+    "lon": -78.8912,
+    "elev_ficha": 280,
+    "elev_era5": 668,
+    "registros": 9132,
+    "et0_media": 3.92
+   },
+   {
+    "codigo": "E-10",
+    "nombre": "Campina de Moche",
+    "subcuenca": "Baja",
+    "lat": -8.1481,
+    "lon": -79.0092,
+    "elev_ficha": 45,
+    "elev_era5": 13,
+    "registros": 9132,
+    "et0_media": 3.8
+   },
+   {
+    "codigo": "E-11",
+    "nombre": "Conache Laguna Control",
+    "subcuenca": "Baja",
+    "lat": -8.1124,
+    "lon": -78.9321,
+    "elev_ficha": 90,
+    "elev_era5": 101,
+    "registros": 9132,
+    "et0_media": 3.96
+   },
+   {
+    "codigo": "E-12",
+    "nombre": "Boca de Rio Moche",
+    "subcuenca": "Baja",
+    "lat": -8.1695,
+    "lon": -79.0342,
+    "elev_ficha": 4,
+    "elev_era5": 0,
+    "registros": 9132,
+    "et0_media": 3.64
+   }
+  ],
+  "muestra": {
+   "columnas": [
+    "fecha",
+    "estacion",
+    "subcuenca",
+    "elev",
+    "t_max",
+    "t_min",
+    "precipitacion",
+    "rango_termico",
+    "ra",
+    "et0_hargreaves",
+    "et0"
+   ],
+   "filas": [
+    [
+     "2000-01-01",
+     "E-01",
+     "Alta",
+     "4032.00",
+     "11.10",
+     "-0.00",
+     "5.60",
+     "11.10",
+     "38.76",
+     "2.76",
+     "3.53"
+    ],
+    [
+     "2000-01-01",
+     "E-02",
+     "Alta",
+     "3636.00",
+     "13.20",
+     "2.30",
+     "5.60",
+     "10.90",
+     "38.77",
+     "3.01",
+     "3.71"
+    ],
+    [
+     "2000-01-01",
+     "E-03",
+     "Alta",
+     "3310.00",
+     "14.60",
+     "4.40",
+     "3.90",
+     "10.20",
+     "38.79",
+     "3.13",
+     "3.79"
+    ],
+    [
+     "2000-01-01",
+     "E-04",
+     "Media",
+     "2965.00",
+     "16.90",
+     "6.40",
+     "3.90",
+     "10.50",
+     "38.74",
+     "3.42",
+     "3.96"
+    ],
+    [
+     "2000-01-01",
+     "E-05",
+     "Media",
+     "2712.00",
+     "18.50",
+     "5.60",
+     "1.00",
+     "12.90",
+     "38.72",
+     "3.85",
+     "4.10"
+    ],
+    [
+     "2000-01-01",
+     "E-06",
+     "Media",
+     "424.00",
+     "22.40",
+     "16.00",
+     "0.00",
+     "6.40",
+     "38.78",
+     "3.36",
+     "4.03"
+    ],
+    [
+     "2000-01-01",
+     "E-07",
+     "Media",
+     "721.00",
+     "25.00",
+     "16.10",
+     "0.00",
+     "8.90",
+     "38.78",
+     "4.09",
+     "4.38"
+    ],
+    [
+     "2000-01-01",
+     "E-08",
+     "Baja",
+     "97.00",
+     "23.60",
+     "17.50",
+     "0.00",
+     "6.10",
+     "38.80",
+     "3.41",
+     "4.06"
+    ],
+    [
+     "2000-01-01",
+     "E-09",
+     "Baja",
+     "668.00",
+     "23.20",
+     "15.90",
+     "0.00",
+     "7.30",
+     "38.79",
+     "3.61",
+     "4.20"
+    ],
+    [
+     "2000-01-01",
+     "E-10",
+     "Baja",
+     "13.00",
+     "24.10",
+     "18.10",
+     "0.00",
+     "6.00",
+     "38.82",
+     "3.43",
+     "4.09"
+    ],
+    [
+     "2000-01-01",
+     "E-11",
+     "Baja",
+     "101.00",
+     "24.50",
+     "18.10",
+     "0.00",
+     "6.40",
+     "38.81",
+     "3.56",
+     "4.20"
+    ],
+    [
+     "2000-01-01",
+     "E-12",
+     "Baja",
+     "0.00",
+     "21.70",
+     "17.50",
+     "0.00",
+     "4.20",
+     "38.83",
+     "2.77",
+     "3.78"
+    ],
+    [
+     "2000-01-02",
+     "E-01",
+     "Alta",
+     "4032.00",
+     "11.90",
+     "0.50",
+     "2.90",
+     "11.40",
+     "38.77",
+     "2.83",
+     "3.20"
+    ],
+    [
+     "2000-01-02",
+     "E-02",
+     "Alta",
+     "3636.00",
+     "13.50",
+     "3.40",
+     "2.90",
+     "10.10",
+     "38.78",
+     "2.94",
+     "3.36"
+    ],
+    [
+     "2000-01-02",
+     "E-03",
+     "Alta",
+     "3310.00",
+     "14.70",
+     "5.50",
+     "0.00",
+     "9.20",
+     "38.80",
+     "3.01",
+     "3.57"
+    ],
+    [
+     "2000-01-02",
+     "E-04",
+     "Media",
+     "2965.00",
+     "16.60",
+     "7.10",
+     "0.00",
+     "9.50",
+     "38.75",
+     "3.27",
+     "3.68"
+    ],
+    [
+     "2000-01-02",
+     "E-05",
+     "Media",
+     "2712.00",
+     "18.60",
+     "6.30",
+     "0.00",
+     "12.30",
+     "38.73",
+     "3.82",
+     "3.77"
+    ],
+    [
+     "2000-01-02",
+     "E-06",
+     "Media",
+     "424.00",
+     "22.40",
+     "15.40",
+     "0.00",
+     "7.00",
+     "38.79",
+     "3.49",
+     "3.87"
+    ],
+    [
+     "2000-01-02",
+     "E-07",
+     "Media",
+     "721.00",
+     "24.50",
+     "15.80",
+     "0.00",
+     "8.70",
+     "38.79",
+     "4.04",
+     "4.11"
+    ],
+    [
+     "2000-01-02",
+     "E-08",
+     "Baja",
+     "97.00",
+     "23.90",
+     "17.40",
+     "0.00",
+     "6.50",
+     "38.81",
+     "3.49",
+     "3.89"
+    ],
+    [
+     "2000-01-02",
+     "E-09",
+     "Baja",
+     "668.00",
+     "23.20",
+     "15.20",
+     "0.00",
+     "8.00",
+     "38.80",
+     "3.74",
+     "4.02"
+    ],
+    [
+     "2000-01-02",
+     "E-10",
+     "Baja",
+     "13.00",
+     "24.50",
+     "17.90",
+     "0.00",
+     "6.60",
+     "38.83",
+     "3.58",
+     "3.92"
+    ],
+    [
+     "2000-01-02",
+     "E-11",
+     "Baja",
+     "101.00",
+     "24.50",
+     "17.50",
+     "0.00",
+     "7.00",
+     "38.82",
+     "3.69",
+     "4.03"
+    ],
+    [
+     "2000-01-02",
+     "E-12",
+     "Baja",
+     "0.00",
+     "21.80",
+     "17.20",
+     "0.00",
+     "4.60",
+     "38.84",
+     "2.88",
+     "3.62"
+    ],
+    [
+     "2000-01-03",
+     "E-01",
+     "Alta",
+     "4032.00",
+     "10.70",
+     "0.40",
+     "1.10",
+     "10.30",
+     "38.78",
+     "2.69",
+     "3.90"
+    ],
+    [
+     "2000-01-03",
+     "E-02",
+     "Alta",
+     "3636.00",
+     "12.60",
+     "3.10",
+     "1.10",
+     "9.50",
+     "38.79",
+     "2.84",
+     "4.07"
+    ],
+    [
+     "2000-01-03",
+     "E-03",
+     "Alta",
+     "3310.00",
+     "14.00",
+     "5.10",
+     "0.00",
+     "8.90",
+     "38.81",
+     "2.93",
+     "4.10"
+    ],
+    [
+     "2000-01-03",
+     "E-04",
+     "Media",
+     "2965.00",
+     "16.30",
+     "6.80",
+     "0.00",
+     "9.50",
+     "38.76",
+     "3.23",
+     "4.24"
+    ],
+    [
+     "2000-01-03",
+     "E-05",
+     "Media",
+     "2712.00",
+     "18.70",
+     "6.30",
+     "0.00",
+     "12.40",
+     "38.74",
+     "3.84",
+     "4.71"
+    ],
+    [
+     "2000-01-03",
+     "E-06",
+     "Media",
+     "424.00",
+     "22.20",
+     "15.90",
+     "0.00",
+     "6.30",
+     "38.80",
+     "3.32",
+     "4.07"
+    ],
+    [
+     "2000-01-03",
+     "E-07",
+     "Media",
+     "721.00",
+     "24.50",
+     "16.60",
+     "0.00",
+     "7.90",
+     "38.80",
+     "3.85",
+     "4.55"
+    ],
+    [
+     "2000-01-03",
+     "E-08",
+     "Baja",
+     "97.00",
+     "23.50",
+     "17.00",
+     "0.00",
+     "6.50",
+     "38.82",
+     "3.49",
+     "4.10"
+    ],
+    [
+     "2000-01-03",
+     "E-09",
+     "Baja",
+     "668.00",
+     "23.00",
+     "15.80",
+     "0.00",
+     "7.20",
+     "38.81",
+     "3.56",
+     "4.22"
+    ],
+    [
+     "2000-01-03",
+     "E-10",
+     "Baja",
+     "13.00",
+     "24.00",
+     "17.60",
+     "0.00",
+     "6.40",
+     "38.84",
+     "3.52",
+     "4.14"
+    ],
+    [
+     "2000-01-03",
+     "E-11",
+     "Baja",
+     "101.00",
+     "24.30",
+     "18.00",
+     "0.00",
+     "6.30",
+     "38.83",
+     "3.51",
+     "4.25"
+    ],
+    [
+     "2000-01-03",
+     "E-12",
+     "Baja",
+     "0.00",
+     "21.40",
+     "17.20",
+     "0.00",
+     "4.20",
+     "38.85",
+     "2.76",
+     "3.82"
+    ]
+   ]
+  },
+  "lecturas": {
+   "esquema": {
+    "que": "Las 20 columnas del conjunto, con su unidad, el rango realmente observado y el papel que desempena cada una en el estudio.",
+    "como": "La columna de papel es la clave. 'Objetivo' es lo que se predice; 'predictor' y 'derivada', lo que el modelo ve; 'excluida', lo que se descarto a propósito. El rango sirve para detectar valores imposibles antes de confiar en el dato.",
+    "interpretacion": "El modelo trabaja con 10 variables de entrada y deja fuera 3 que si estaban disponibles: radiacion, viento, humedad. Esa exclusion es la decision central del estudio, no un descuido. La ecuación FAO-56 usa esas tres directamente, de modo que incluirlas convertiria la predicción en una copia de la formula y el resultado no serviría a una estacion peruana real, que carece de radiometro, anemometro e higrometro. El objetivo, et0, recorre de 1.02 a 6.18 mm/día y es lo que hoy el gemelo sustituye por una constante."
+   },
+   "estaciones": {
+    "que": "Las 12 estaciones que componen el panel, con su posición, la elevacion que les asigna el reanálisis, cuantos registros aporta cada una y su ET0 media.",
+    "como": "Conviene leerla ordenada por elevacion. Si el número de registros fuese desigual, unas estaciones pesarian más que otras en el entrenamiento y el modelo se sesgaria hacia ellas.",
+    "interpretacion": "Las estaciones cubren de 0 m (Boca de Rio Moche) a 4032 m (Quiruvilca Cabecera), casi cuatro kilometros de desnivel en una sola cuenca. Todas aportan el mismo número de registros (9,132), así que ninguna domina el entrenamiento. La ET0 media va de 3.14 mm/día en Quiruvilca Cabecera a 4.01 mm/día en Poroto Toma de Riego, de modo que ninguna constante única puede servir para toda la cuenca. Esta heterogeneidad obliga al modelo a generalizar entre ambientes distintos en vez de memorizar un microclima."
+   },
+   "muestra": {
+    "que": "Filas reales del conjunto, tomadas de las 12 estaciones para que se vea el formato exacto con el que trabaja el modelo.",
+    "como": "Compare filas del mismo día en estaciones distintas: la última columna, et0, es el valor a predecir, y la penultima es lo que estima la ecuación de Hargreaves. La diferencia entre ambas es el error que el modelo debe corregir.",
+    "interpretacion": "En un mismo día la ET0 varia hasta 0.85 mm/día entre estaciones, pese a compartir fecha y estar en la misma cuenca: la altitud y el rango termico explican esa diferencia, y por eso ambos entran como predictores. Se aprecia también que et0_hargreaves queda casi siempre por debajo de et0, que es el sesgo sistematico de la ecuación y el defecto concreto que el modelo viene a corregir."
+   }
+  }
+ },
  "titulo": "Estimación de evapotranspiración de referencia en la cuenca del Río Moche",
  "subtitulo": "Estudio CRISP-DM sobre reanálisis ERA5 para alimentar el modelo GR4J",
  "fuente": "Open-Meteo Archive API (reanálisis ERA5), sin credenciales",
@@ -508,7 +1367,7 @@
      "0.2498",
      "0.741",
      "0.0382",
-     "35.1854"
+     "29.4205"
     ],
     [
      "2",
@@ -518,7 +1377,7 @@
      "0.2537",
      "0.7314",
      "0.0229",
-     "6.2734"
+     "7.7746"
     ],
     [
      "3",
@@ -528,7 +1387,7 @@
      "0.2607",
      "0.7179",
      "0.0185",
-     "17.6493"
+     "29.2268"
     ],
     [
      "4",
@@ -538,7 +1397,7 @@
      "0.2622",
      "0.7173",
      "0.0373",
-     "1.8452"
+     "2.1606"
     ],
     [
      "5",
@@ -548,7 +1407,7 @@
      "0.2898",
      "0.6492",
      "0.0174",
-     "1.368"
+     "1.2431"
     ],
     [
      "6",
@@ -558,7 +1417,7 @@
      "0.3142",
      "0.6279",
      "0.0378",
-     "0.0968"
+     "0.1029"
     ],
     [
      "7",
@@ -568,7 +1427,7 @@
      "0.5273",
      "-0.0113",
      "-0.0192",
-     "0.0157"
+     "0.016"
     ],
     [
      "8",
@@ -668,7 +1527,7 @@
    ],
    "que": "Las ocho combinaciones con menor error de las doce exploradas por busqueda aleatoria sobre 'Red neuronal', evaluadas con la misma validación cruzada temporal.",
    "como": "Cada fila es una configuración. La columna de error ordena el merito y la desviación indica si la ventaja es consistente entre particiones o producto del azar de una sola.",
-   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 125 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
+   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 136 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
   },
   {
    "tipo": "fase",
@@ -970,6 +1829,188 @@
   {
    "tipo": "fase",
    "numero": 6,
+   "titulo": "Explicabilidad del modelo",
+   "proposito": "Abrir la caja negra: determinar que variables usa la red neuronal, con que forma y si esas relaciones coinciden con la física conocida del proceso.",
+   "texto": "**Explicabilidad no es interpretación.** La interpretación dice que significa un resultado; la explicabilidad, por que el modelo lo produce. El modelo ganador es una red neuronal, es decir una caja negra, y un gemelo digital que gobierna compuertas no puede apoyarse en una cifra cuyo origen nadie sabe explicar. Este apartado sirve para poder afirmar no solo que el modelo acierta, sino que acierta por razones correctas."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 11,
+   "titulo": "Importancia de cada variable por permutacion",
+   "csv": "tab11_importancia_de_cada_variable_por_permutacion.csv",
+   "fase": 6,
+   "columnas": [
+    "variable",
+    "importancia",
+    "desviacion",
+    "pct_del_total"
+   ],
+   "filas": [
+    [
+     "t_media",
+     "2.6027",
+     "0.0232",
+     "49.1693"
+    ],
+    [
+     "elev",
+     "0.861",
+     "0.0112",
+     "16.2659"
+    ],
+    [
+     "rango_termico",
+     "0.6027",
+     "0.0091",
+     "11.3866"
+    ],
+    [
+     "t_max",
+     "0.3465",
+     "0.0046",
+     "6.5452"
+    ],
+    [
+     "t_min",
+     "0.3448",
+     "0.0051",
+     "6.5137"
+    ],
+    [
+     "precipitacion",
+     "0.1999",
+     "0.003",
+     "3.777"
+    ],
+    [
+     "lat",
+     "0.1396",
+     "0.0027",
+     "2.6378"
+    ],
+    [
+     "estacion_sin",
+     "0.0998",
+     "0.0026",
+     "1.8846"
+    ],
+    [
+     "estacion_cos",
+     "0.0549",
+     "0.0016",
+     "1.0363"
+    ],
+    [
+     "ra",
+     "0.0415",
+     "0.002",
+     "0.7836"
+    ]
+   ],
+   "que": "Cuanto empeora el error del modelo al barajar al azar cada variable, dejando el resto intacta. Se repite 15 veces sobre datos de prueba.",
+   "como": "Un valor alto significa que el modelo depende de esa variable: sin ella, falla. Un valor cercano a cero, o menor que su propia desviación, indica que la variable no aporta y podría retirarse. La medida es agnostica al algoritmo, así que permite comparar modelos distintos con la misma vara.",
+   "interpretacion": "El modelo se apoya sobre todo en 't_media', 'elev', 'rango_termico', que juntas explican el 77% de la importancia total. La variable mas critica es 't_media': permutarla degrada el RMSE en 2.6027 mm/día. Esto es tranquilizador: son justamente las variables que la física del proceso senala como determinantes, y no un artefacto estadístico. Ninguna variable resulta prescindible."
+  },
+  {
+   "tipo": "figura",
+   "numero": 8,
+   "titulo": "Importancia por permutacion",
+   "imagen": "/crispdm/figuras/fig08_importancia_por_permutacion.png",
+   "fase": 6,
+   "que": "Degradacion del error al permutar cada variable, con su barra de incertidumbre sobre 15 repeticiones.",
+   "como": "Las barras mas largas corresponden a las variables de las que el modelo más depende. Si una barra de error cruza el cero, la contribucion de esa variable no se distingue del ruido.",
+   "interpretacion": "El perfil es jerarquico y no plano: el modelo no reparte su atencion por igual, sino que concentra la decision en unas pocas variables. Esa concentracion es deseable, porque un modelo que dependiera por igual de las diez sería mas fragil ante el fallo de un sensor."
+  },
+  {
+   "tipo": "figura",
+   "numero": 9,
+   "titulo": "Dependencia parcial: forma de las relaciones aprendidas",
+   "imagen": "/crispdm/figuras/fig09_dependencia_parcial_forma_de_las_relaciones_apre.png",
+   "fase": 6,
+   "que": "Como cambia la predicción media del modelo al recorrer cada variable manteniendo las demas en sus valores observados. Las marcadas como colineales no admiten lectura causal.",
+   "como": "Interesa la FORMA, no la altura. Una curva ascendente indica relación directa; descendente, inversa; plana, que la variable no mueve la predicción. La comparación con la física solo es valida en variables poco correlacionadas con el resto.",
+   "interpretacion": "De las 2 relaciones interpretables con signo físico predecible, 2 coinciden con lo esperado: rango_termico sube (un rango amplio delata cielo despejado, y por tanto mas radiacion); precipitacion baja (un día lluvioso es nuboso y humedo, lo que frena la evaporacion). Ninguna curva interpretable contradice la física del proceso. El modelo no memorizo asociaciones arbitrarias: aprendio el mecanismo, y eso es lo que permite confiar en el fuera del periodo de entrenamiento. Quedan fuera de esta lectura 't_media', 'elev', 't_max', 't_min', marcadas como colineales en el gráfico. La dependencia parcial mueve una variable dejando las demas quietas, y eso exige que sean independientes: no existe un día con la temperatura máxima alta y la media sin cambiar. La curva recorre entonces combinaciones que el clima no produce, de modo que su pendiente es un artefacto del método y no una relación aprendida. Interpretarla como si lo fuera sería un error, y por eso se excluye en lugar de contarla como contradiccion."
+  },
+  {
+   "tipo": "tabla",
+   "numero": 12,
+   "titulo": "Atribucion SHAP por variable",
+   "csv": "tab12_atribucion_shap_por_variable.csv",
+   "fase": 6,
+   "columnas": [
+    "variable",
+    "shap_medio_abs",
+    "efecto_medio"
+   ],
+   "filas": [
+    [
+     "t_media",
+     "1.8532",
+     "0.1508"
+    ],
+    [
+     "elev",
+     "0.764",
+     "-0.0525"
+    ],
+    [
+     "rango_termico",
+     "0.5627",
+     "-0.0125"
+    ],
+    [
+     "t_min",
+     "0.4358",
+     "-0.0381"
+    ],
+    [
+     "t_max",
+     "0.3317",
+     "-0.0483"
+    ],
+    [
+     "precipitacion",
+     "0.2775",
+     "0.0832"
+    ],
+    [
+     "estacion_sin",
+     "0.2038",
+     "0.1734"
+    ],
+    [
+     "estacion_cos",
+     "0.1372",
+     "0.0742"
+    ],
+    [
+     "lat",
+     "0.1256",
+     "0.0144"
+    ],
+    [
+     "ra",
+     "0.0801",
+     "0.0413"
+    ]
+   ],
+   "que": "Contribucion media, en valor absoluto, de cada variable a las predicciones individuales, y el sentido medio de esa contribucion.",
+   "como": "El valor absoluto mide cuanto mueve la variable la predicción, sin importar hacia donde. A diferencia de la permutacion, esto se calcula predicción a predicción y no sobre el error global. El efecto medio ronda cero en casi todas las variables por construccion: SHAP mide la desviación respecto al valor esperado, de modo que un día calido aporta positivo y uno frio negativo.",
+   "interpretacion": "SHAP situa a 't_media' como principal contribuyente, coincidiendo con lo que indicaba la importancia por permutacion. La coincidencia entre dos métodos de fundamento distinto, uno basado en degradar el error y otro en repartir la predicción según teoria de juegos, refuerza que el hallazgo no depende de la tecnica elegida. Ninguna variable empuja siempre en la misma direccion, lo cual es lo esperable: el signo de la contribucion depende de si ese día el valor esta por encima o por debajo de lo habitual."
+  },
+  {
+   "tipo": "figura",
+   "numero": 10,
+   "titulo": "Valores SHAP: contribucion a cada predicción",
+   "imagen": "/crispdm/figuras/fig10_valores_shap_contribucion_a_cada_prediccion.png",
+   "fase": 6,
+   "que": "A la izquierda, cuanto mueve cada variable la predicción en promedio. A la derecha, la dispersion de esa contribucion sobre 120 predicciones individuales.",
+   "como": "En las cajas, la posición respecto a la línea roja del cero indica el sentido. Una caja ancha significa que la misma variable unas veces sube la estimacion y otras la baja, según el resto de condiciones de ese día.",
+   "interpretacion": "Este es el nivel de explicación que un operador de cuenca puede exigir ante una cifra concreta: permite responder por que el modelo estimo ese valor ese día, descomponiendo la predicción en las aportaciones de cada variable. Es lo que convierte la red neuronal en una herramienta auditable en lugar de un oraculo."
+  },
+  {
+   "tipo": "fase",
+   "numero": 7,
    "titulo": "Despliegue",
    "proposito": "Dejar el modelo utilizable por el gemelo digital y senalar sus límites de validez.",
    "texto": "**Artefacto.** El modelo entrenado queda en `outputs/modelo_et0.joblib`, junto con la lista de predictores en el orden que espera. Se carga con `joblib.load`.\n\n**Integración con el gemelo.** Hoy `basinTools.ts` alimenta GR4J con ET0 constante de 3.5 mm/día cuando el operador no la aporta. Sustituir esa constante por este modelo mantiene la entrada obligatoria de GR4J pero la hace responder a la temperatura observada, a la altitud de la estacion y a la epoca del año.\n\n**Límites de validez que deben declararse en la memoria.**\n\n1. El objetivo procede del reanálisis ERA5, no de lisimetros. El modelo reproduce la ET0 que calcula FAO-56 con datos de reanálisis, y hereda cualquier sesgo de ERA5 frente a la realidad de campo. Validarlo contra una estacion agrometeorologica del SENAMHI sería el siguiente paso.\n\n2. El rango de aplicación es el de los datos vistos: de 0 a 4032 metros y el clima de la vertiente occidental andina. Extrapolar fuera de ahi no esta respaldado.\n\n3. La prueba abarca 2020-01-01 a 2024-12-31. Un cambio de regimen climático exigiría reentrenar.\n\n**Reproducibilidad.** Fuente pública sin credenciales, semilla fija (42), datos en cache y partición temporal declarada. Ejecutar `python run_pipeline.py` reproduce el estudio entero.\n\n**Resultado.** Error típico de 0.394 mm/día sobre datos nunca vistos."

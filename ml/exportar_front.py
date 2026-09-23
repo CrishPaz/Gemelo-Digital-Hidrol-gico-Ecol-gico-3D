@@ -15,6 +15,7 @@ Uso:
 
 from __future__ import annotations
 
+import contextlib
 import io
 import json
 import re
@@ -161,7 +162,29 @@ def exportar() -> Path:
             "sesgo_base": float(base.sesgo),
         }
 
+    # Ficha del conjunto de datos. Se calcula del panel real, no de constantes,
+    # para que no pueda quedar desfasada respecto a lo que se entrenó.
+    ficha = None
+    try:
+        from adquisicion import obtener_dataset
+        from dataset_front import describir
+        from preparacion import preparar
+
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            panel = preparar(obtener_dataset())
+        ficha = describir(panel)
+
+        # Muestra descargable: mil filas bastan para inspeccionar el formato sin
+        # publicar los doce megas del panel completo en el repositorio.
+        muestra = panel.sample(min(1000, len(panel)), random_state=42).sort_values(["fecha", "estacion"])
+        muestra.to_csv(DESTINO_PUBLICO / "muestra_dataset.csv", index=False, encoding="utf-8")
+        print("  ficha del dataset: {:,} filas descritas".format(ficha["volumen"]["filas"]))
+    except Exception as exc:  # noqa: BLE001
+        print("  AVISO: no se pudo describir el dataset ({})".format(exc))
+
     documento = {
+        "dataset": ficha,
         "titulo": "Estimación de evapotranspiración de referencia en la cuenca del Río Moche",
         "subtitulo": "Estudio CRISP-DM sobre reanálisis ERA5 para alimentar el modelo GR4J",
         "fuente": "Open-Meteo Archive API (reanálisis ERA5), sin credenciales",

@@ -66,7 +66,37 @@ interface PiezaTabla extends Lecturas {
 
 type Pieza = PiezaFase | PiezaFigura | PiezaTabla;
 
+interface Dataset {
+  fuente: {
+    nombre: string;
+    modelo: string;
+    url: string;
+    credenciales: string;
+    licencia: string;
+    variables_pedidas: string[];
+    consulta_ejemplo: string;
+  };
+  volumen: {
+    filas: number; columnas: number; estaciones: number; dias: number;
+    periodo: string; anios: number; nulos_totales: number;
+    elev_min: number; elev_max: number;
+  };
+  papeles: Record<string, number>;
+  esquema: Array<{
+    columna: string; unidad: string; papel: string; rango: string;
+    media: number | null; nulos: number; explicacion: string;
+  }>;
+  estaciones: Array<{
+    codigo: string; nombre: string; subcuenca: string; lat: number; lon: number;
+    elev_ficha: number; elev_era5: number | null; registros: number; et0_media: number | null;
+  }>;
+  muestra: { columnas: string[]; filas: string[][] };
+  /** Los tres bloques de lectura de cada vista, generados de los datos reales. */
+  lecturas: Record<'esquema' | 'estaciones' | 'muestra', Lecturas>;
+}
+
 interface Documento {
+  dataset: Dataset | null;
   titulo: string;
   subtitulo: string;
   fuente: string;
@@ -243,6 +273,217 @@ const TarjetaTabla: React.FC<{ p: PiezaTabla }> = ({ p }) => {
 };
 
 // ---------------------------------------------------------------------------
+// Ficha del conjunto de datos
+// ---------------------------------------------------------------------------
+// El color del papel es informacion, no adorno: separa de un vistazo lo que el
+// modelo ve de lo que se excluyo a proposito, que es el nucleo del metodo.
+const COLOR_PAPEL: Record<string, string> = {
+  OBJETIVO: 'bg-amber-600/25 text-amber-200 ring-amber-500/40',
+  predictor: 'bg-emerald-600/20 text-emerald-200 ring-emerald-500/40',
+  derivada: 'bg-sky-600/20 text-sky-200 ring-sky-500/40',
+  excluida: 'bg-rose-600/20 text-rose-200 ring-rose-500/40',
+  descartada: 'bg-slate-700/40 text-slate-300 ring-slate-600/40',
+  identificador: 'bg-slate-700/40 text-slate-300 ring-slate-600/40',
+  indice: 'bg-slate-700/40 text-slate-300 ring-slate-600/40',
+  'linea base': 'bg-violet-600/20 text-violet-200 ring-violet-500/40',
+};
+
+// El papel viaja sin tildes porque es la clave del mapa de color. La etiqueta
+// visible se acentúa aquí, de modo que cambiar el texto no rompe el estilo.
+const ETIQUETA_PAPEL: Record<string, string> = {
+  OBJETIVO: 'objetivo',
+  predictor: 'predictor',
+  derivada: 'derivada',
+  excluida: 'excluida',
+  descartada: 'descartada',
+  identificador: 'identificador',
+  indice: 'índice',
+  'linea base': 'línea base',
+};
+
+const FichaDataset: React.FC<{ d: Dataset }> = ({ d }) => {
+  const { t } = useI18n();
+  const [vista, setVista] = useState<'esquema' | 'estaciones' | 'muestra'>('esquema');
+
+  const pestanas = [
+    { id: 'esquema' as const, etiqueta: t('crispdm.ds.esquema'), n: d.esquema.length },
+    { id: 'estaciones' as const, etiqueta: t('crispdm.ds.estaciones'), n: d.estaciones.length },
+    { id: 'muestra' as const, etiqueta: t('crispdm.ds.muestra'), n: d.muestra.filas.length },
+  ];
+
+  const cifras = [
+    { e: t('crispdm.ds.filas'), v: d.volumen.filas.toLocaleString('es-PE') },
+    { e: t('crispdm.ds.columnas'), v: String(d.volumen.columnas) },
+    { e: t('crispdm.ds.dias'), v: d.volumen.dias.toLocaleString('es-PE') },
+    { e: t('crispdm.ds.anios'), v: String(d.volumen.anios) },
+    { e: t('crispdm.ds.nulos'), v: String(d.volumen.nulos_totales) },
+    { e: t('crispdm.ds.altitud'), v: `${d.volumen.elev_min}–${d.volumen.elev_max} m` },
+  ];
+
+  return (
+    <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-3.5">
+      <header className="flex items-start gap-2 mb-3">
+        <span className="mt-0.5 shrink-0 rounded-md bg-cyan-600/20 p-1.5 text-cyan-300">
+          <Database className="w-3.5 h-3.5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold text-slate-100">{t('crispdm.ds.titulo')}</h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            {d.fuente.nombre} · {d.fuente.modelo} · {d.volumen.periodo}
+          </p>
+        </div>
+        <a
+          href="/crispdm/muestra_dataset.csv"
+          download
+          className="shrink-0 flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-400 hover:text-slate-100 hover:border-slate-500 transition"
+        >
+          <Download className="w-3 h-3" />
+          {t('crispdm.ds.descargar')}
+        </a>
+      </header>
+
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-3">
+        {cifras.map(c => (
+          <div key={c.e} className="rounded-lg bg-slate-950/50 ring-1 ring-slate-800 px-2.5 py-1.5">
+            <div className="text-[9px] uppercase tracking-wide text-slate-500">{c.e}</div>
+            <div className="text-xs font-bold text-slate-100 tabular-nums">{c.v}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* La procedencia importa para que el estudio sea reproducible por el jurado */}
+      <div className="rounded-lg bg-slate-950/40 ring-1 ring-slate-800 px-3 py-2 mb-3 space-y-1">
+        <p className="text-[11px] text-slate-300">
+          <span className="text-slate-500">{t('crispdm.ds.acceso')}: </span>
+          {d.fuente.credenciales}
+        </p>
+        <p className="text-[11px] text-slate-300">
+          <span className="text-slate-500">{t('crispdm.ds.licencia')}: </span>
+          {d.fuente.licencia}
+        </p>
+        <pre className="mt-1.5 overflow-x-auto rounded bg-slate-950/70 px-2 py-1.5 text-[10px] text-sky-300 leading-relaxed">
+          {d.fuente.consulta_ejemplo}
+        </pre>
+      </div>
+
+      <div className="flex gap-1 mb-2.5 border-b border-slate-800">
+        {pestanas.map(p => (
+          <button
+            key={p.id}
+            type="button"
+            onClick={() => setVista(p.id)}
+            className={`px-2.5 py-1.5 text-[11px] font-medium border-b-2 -mb-px transition ${
+              vista === p.id
+                ? 'border-cyan-400 text-cyan-200'
+                : 'border-transparent text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            {p.etiqueta} <span className="text-slate-600">({p.n})</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto rounded-lg ring-1 ring-slate-800">
+        {vista === 'esquema' && (
+          <table className="w-full text-[11px] border-collapse">
+            <thead>
+              <tr className="bg-slate-800/70 text-slate-300">
+                <th className="px-2.5 py-1.5 text-left font-semibold">{t('crispdm.ds.columna')}</th>
+                <th className="px-2.5 py-1.5 text-left font-semibold">{t('crispdm.ds.papel')}</th>
+                <th className="px-2.5 py-1.5 text-left font-semibold">{t('crispdm.ds.unidad')}</th>
+                <th className="px-2.5 py-1.5 text-right font-semibold">{t('crispdm.ds.rango')}</th>
+                <th className="px-2.5 py-1.5 text-left font-semibold">{t('crispdm.ds.explicacion')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.esquema.map((f, i) => (
+                <tr key={f.columna} className={i % 2 ? 'bg-slate-900/40' : ''}>
+                  <td className="px-2.5 py-1.5 font-mono text-[10px] text-slate-200 whitespace-nowrap">{f.columna}</td>
+                  <td className="px-2.5 py-1.5 whitespace-nowrap">
+                    <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ring-1 ${COLOR_PAPEL[f.papel] ?? COLOR_PAPEL.identificador}`}>
+                      {ETIQUETA_PAPEL[f.papel] ?? f.papel}
+                    </span>
+                  </td>
+                  <td className="px-2.5 py-1.5 text-slate-400 whitespace-nowrap">{f.unidad}</td>
+                  <td className="px-2.5 py-1.5 text-right tabular-nums text-slate-300 whitespace-nowrap">{f.rango}</td>
+                  <td className="px-2.5 py-1.5 text-slate-400">{f.explicacion}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {vista === 'estaciones' && (
+          <table className="w-full text-[11px] border-collapse">
+            <thead>
+              <tr className="bg-slate-800/70 text-slate-300">
+                {['codigo', 'nombre', 'subcuenca', 'lat', 'lon', 'elev_era5', 'registros', 'et0_media'].map(c => (
+                  <th key={c} className="px-2.5 py-1.5 text-left font-semibold whitespace-nowrap">{c}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {d.estaciones.map((e, i) => (
+                <tr key={e.codigo} className={i % 2 ? 'bg-slate-900/40' : ''}>
+                  <td className="px-2.5 py-1.5 font-mono text-[10px] text-slate-200">{e.codigo}</td>
+                  <td className="px-2.5 py-1.5 text-slate-300 whitespace-nowrap">{e.nombre}</td>
+                  <td className="px-2.5 py-1.5 text-slate-400">{e.subcuenca}</td>
+                  <td className="px-2.5 py-1.5 text-right tabular-nums text-slate-300">{e.lat}</td>
+                  <td className="px-2.5 py-1.5 text-right tabular-nums text-slate-300">{e.lon}</td>
+                  <td className="px-2.5 py-1.5 text-right tabular-nums text-slate-200">{e.elev_era5}</td>
+                  <td className="px-2.5 py-1.5 text-right tabular-nums text-slate-400">{e.registros?.toLocaleString('es-PE')}</td>
+                  <td className="px-2.5 py-1.5 text-right tabular-nums text-slate-200">{e.et0_media}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        {vista === 'muestra' && (
+          <table className="w-full text-[11px] border-collapse">
+            <thead>
+              <tr className="bg-slate-800/70 text-slate-300">
+                {d.muestra.columnas.map(c => (
+                  <th key={c} className="px-2.5 py-1.5 text-left font-semibold whitespace-nowrap font-mono text-[10px]">{c}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {d.muestra.filas.map((fila, i) => (
+                <tr key={i} className={i % 2 ? 'bg-slate-900/40' : ''}>
+                  {fila.map((v, j) => (
+                    <td
+                      key={j}
+                      className={`px-2.5 py-1.5 whitespace-nowrap ${
+                        Number.isNaN(Number(v))
+                          ? 'text-slate-300'
+                          : `text-right tabular-nums ${
+                              d.muestra.columnas[j] === 'et0' ? 'text-amber-200 font-semibold' : 'text-slate-200'
+                            }`
+                      }`}
+                    >
+                      {v}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Cada vista del dataset lleva la misma lectura que las piezas del
+          informe: ninguna tabla queda sin explicar. */}
+      {d.lecturas?.[vista] && <BloquesLectura p={d.lecturas[vista]} />}
+
+      <p className="mt-2 text-[10px] text-slate-500 leading-relaxed">
+        {t('crispdm.ds.nota')}
+      </p>
+    </section>
+  );
+};
+
+// ---------------------------------------------------------------------------
 export const CrispDmStudyPanel: React.FC = () => {
   const { t } = useI18n();
   const [doc, setDoc] = useState<Documento | null>(null);
@@ -337,6 +578,10 @@ export const CrispDmStudyPanel: React.FC = () => {
           </div>
         )}
       </header>
+
+      {/* El conjunto de datos va antes que el analisis: primero se ve de donde
+          salen las cifras, y solo despues que se hizo con ellas. */}
+      {doc.dataset && <FichaDataset d={doc.dataset} />}
 
       {/* Fases con sus piezas */}
       {doc.piezas.map((p, i) => {
