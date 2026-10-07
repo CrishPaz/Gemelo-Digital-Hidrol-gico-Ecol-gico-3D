@@ -52,6 +52,10 @@ interface PiezaFigura extends Lecturas {
   titulo: string;
   imagen: string | null;
   fase: number | null;
+  /** Versión de 600 ppp para publicación; la mostrada es ligera. */
+  alta?: string;
+  kb_alta?: number;
+  dpi?: number;
 }
 
 interface PiezaTabla extends Lecturas {
@@ -151,15 +155,29 @@ const TarjetaFigura: React.FC<{ p: PiezaFigura }> = ({ p }) => {
 
   return (
     <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-3.5">
-      <header className="flex items-start gap-2 mb-2.5">
-        <span className="mt-0.5 shrink-0 rounded-md bg-blue-600/20 p-1.5 text-blue-300">
-          <ImageIcon className="w-3.5 h-3.5" />
-        </span>
-        <div className="min-w-0">
+      <header className="flex items-start justify-between gap-2 mb-2.5">
+        <div className="flex items-start gap-2 min-w-0">
+          <span className="mt-0.5 shrink-0 rounded-md bg-blue-600/20 p-1.5 text-blue-300">
+            <ImageIcon className="w-3.5 h-3.5" />
+          </span>
           <h4 className="text-sm font-bold text-slate-100 leading-snug">
             {t('crispdm.figura')} {p.numero}. {p.titulo}
           </h4>
         </div>
+        {/* La vista usa una copia ligera; esto descarga la de calidad de
+            publicación, que es la que pide una revista para figuras de línea. */}
+        {p.alta && (
+          <a
+            href={p.alta}
+            download
+            title={t('crispdm.fig.altaAyuda')}
+            className="shrink-0 flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-400 hover:text-slate-100 hover:border-slate-500 transition"
+          >
+            <Download className="w-3 h-3" />
+            {p.dpi ?? 600} ppp
+            {p.kb_alta ? <span className="text-slate-600">· {p.kb_alta} KB</span> : null}
+          </a>
+        )}
       </header>
 
       {p.imagen && (

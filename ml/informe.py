@@ -22,15 +22,46 @@ import pandas as pd
 from config import FIGURAS, SALIDA, TABLAS
 
 # ---------------------------------------------------------------------------
+# Resolucion
+# ---------------------------------------------------------------------------
+# Cada figura se guarda dos veces. La de 600 ppp es la que exige una revista
+# cientifica para figuras de linea; la ligera existe solo para que el panel del
+# gemelo cargue rapido, porque diez imagenes de mas de un mega harian la pestana
+# inusable y una pantalla no aprovecha esa densidad de todas formas.
+DPI_PUBLICACION = 600
+DPI_WEB = 150
+FIGURAS_WEB = FIGURAS.parent / "figuras_web"
+FIGURAS_WEB.mkdir(parents=True, exist_ok=True)
+
+# ---------------------------------------------------------------------------
 # Estilo comun de las figuras
 # ---------------------------------------------------------------------------
+# Los tamanos y grosores estan pensados para que la figura siga siendo legible
+# impresa al ancho de una columna. A 600 ppp una linea de 0.8 puntos se imprime
+# nitida pero casi invisible, de ahi que se suban los grosores por defecto.
 plt.rcParams.update({
     "figure.dpi": 110,
-    "savefig.dpi": 140,
+    "savefig.dpi": DPI_PUBLICACION,
     "savefig.bbox": "tight",
-    "font.size": 9,
-    "axes.titlesize": 11,
+    "savefig.facecolor": "white",
+    "savefig.pad_inches": 0.08,
+    "font.size": 10,
+    "font.family": "DejaVu Sans",
+    "axes.titlesize": 11.5,
     "axes.titleweight": "bold",
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "legend.fontsize": 8.5,
+    "legend.frameon": True,
+    "legend.framealpha": 0.9,
+    "axes.linewidth": 0.9,
+    "lines.linewidth": 1.8,
+    "lines.markersize": 4.5,
+    "patch.linewidth": 0.6,
+    "grid.linewidth": 0.6,
+    "xtick.major.width": 0.9,
+    "ytick.major.width": 0.9,
     "axes.grid": True,
     "grid.alpha": 0.25,
     "axes.spines.top": False,
@@ -114,14 +145,23 @@ class Informe:
         self._n_fig += 1
         nombre = f"fig{self._n_fig:02d}_{_slug(titulo)}.png"
         ruta = FIGURAS / nombre
-        fig.savefig(ruta)
+        ancho, alto = fig.get_size_inches()
+        fig.savefig(ruta, dpi=DPI_PUBLICACION)
+        fig.savefig(FIGURAS_WEB / nombre, dpi=DPI_WEB)
         plt.close(fig)
+
+        kb = ruta.stat().st_size / 1024
+        px = f"{round(ancho * DPI_PUBLICACION)}x{round(alto * DPI_PUBLICACION)}"
 
         self.piezas.append({
             "tipo": "figura", "numero": self._n_fig, "titulo": titulo, "ruta": nombre,
             "que_muestra": que_muestra, "como_leerlo": como_leerlo, "conclusion": conclusion,
+            # Se registra para poder declarar la resolucion en el articulo sin
+            # tener que inspeccionar los archivos despues.
+            "dpi": DPI_PUBLICACION, "pixeles": px, "pulgadas": f"{ancho:.1f}x{alto:.1f}", "kb": round(kb),
         })
         print(f"  [Figura {self._n_fig}] {titulo}  ->  outputs/figuras/{nombre}")
+        print(f"     {DPI_PUBLICACION} ppp · {px} px · {ancho:.1f}x{alto:.1f} in · {kb:.0f} KB")
         print(f"     Que muestra : {que_muestra}")
         print(f"     Como leerlo : {como_leerlo}")
         print(f"     Conclusion  : {conclusion}\n")

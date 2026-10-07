@@ -1086,6 +1086,9 @@
    "titulo": "Distribución de ET0 global y por subcuenca",
    "imagen": "/crispdm/figuras/fig01_distribucion_de_et0_global_y_por_subcuenca.png",
    "fase": 2,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig01_distribucion_de_et0_global_y_por_subcuenca.png",
+   "kb_alta": 242,
    "que": "A la izquierda el histograma de la variable objetivo con la media y la constante que usa hoy el gemelo. A la derecha la misma variable separada por tramo de cuenca.",
    "como": "En el histograma interesa la forma y la anchura. En las cajas, la línea central es la mediana, la caja abarca el cincuenta por ciento central y los bigotes el resto salvo atípicos.",
    "interpretacion": "La distribución es simétrica (asimetría 0.00) y se concentra entre 3.25 y 4.13 mm/día. La constante de 3.5 mm/día cae dentro del rango central, lo que explica que el gemelo no produzca disparates, pero queda +0.18 mm/día respecto a la media real. Por subcuenca la mediana varia 0.49 mm/día entre la Media (3.78) y la Alta (3.29), prueba de que una sola constante no puede servir para toda la cuenca."
@@ -1096,6 +1099,9 @@
    "titulo": "Ciclo anual de ET0",
    "imagen": "/crispdm/figuras/fig02_ciclo_anual_de_et0.png",
    "fase": 2,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig02_ciclo_anual_de_et0.png",
+   "kb_alta": 580,
    "que": "Media mensual de ET0 en cada tramo de la cuenca. La banda sombreada es una desviación típica.",
    "como": "Si las curvas suben y bajan con el mes, existe estacionalidad y el modelo debe recibir la fecha como predictor. La separacion vertical entre curvas mide cuanto pesa la posición en la cuenca.",
    "interpretacion": "Hay un ciclo anual claro, con máximo en noviembre (4.16 mm/día) y mínimo en marzo (3.32), una amplitud de 0.84 mm/día que representa el 23% de la media. Esto justifica codificar el día del año como seno y coseno en la fase de preparación. Las tres curvas mantienen distancia entre si durante todo el año, de modo que la altitud actua como desplazamiento y no solo como ruido."
@@ -1162,6 +1168,9 @@
    "titulo": "Matriz de correlacion",
    "imagen": "/crispdm/figuras/fig03_matriz_de_correlacion.png",
    "fase": 2,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig03_matriz_de_correlacion.png",
+   "kb_alta": 591,
    "que": "Correlacion de Spearman entre la variable objetivo y todos los predictores.",
    "como": "El azul intenso marca asociación positiva y el rojo intenso, negativa. La primera fila y columna muestran la relación con ET0; el resto del cuadro revela redundancia entre predictores.",
    "interpretacion": "La estructura confirma que la información útil esta repartida y no concentrada en una sola variable: el mejor predictor individual solo alcanza rho -0.524. Esto sugiere que un modelo capaz de combinar varias entradas superara a cualquier formula que dependa de una sola, y es el argumento de partida para probar métodos no lineales."
@@ -1314,6 +1323,9 @@
    "titulo": "Gradiente altitudinal de ET0",
    "imagen": "/crispdm/figuras/fig04_gradiente_altitudinal_de_et0.png",
    "fase": 2,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig04_gradiente_altitudinal_de_et0.png",
+   "kb_alta": 277,
    "que": "ET0 media de cada estacion frente a su elevacion, con la recta de tendencia ajustada.",
    "como": "Cada punto es una estacion. La pendiente de la recta cuantifica cuanto cambia la ET0 por cada kilometro de ascenso.",
    "interpretacion": "La relación con la altitud es debil (rho -0.258) y la tendencia indica -0.14 mm/día por cada mil metros. La ET0 disminuye al ascender, coherente con el descenso termico con la altura. La altitud debe entrar como predictor, y además explica por que una constante única para toda la cuenca es inadecuada."
@@ -1324,6 +1336,9 @@
    "titulo": "Desempeño de la línea base Hargreaves-Samani",
    "imagen": "/crispdm/figuras/fig05_desempenio_de_la_linea_base_hargreaves_samani.png",
    "fase": 2,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig05_desempenio_de_la_linea_base_hargreaves_samani.png",
+   "kb_alta": 1387,
    "que": "A la izquierda, valores estimados por la ecuación frente a los de referencia. A la derecha, la distribución de los errores.",
    "como": "En el gráfico de dispersion, cuanto mas se peguen los puntos a la diagonal, mejor. En el histograma, un centro desplazado del cero delata sesgo sistematico y una anchura grande, imprecision.",
    "interpretacion": "La ecuación alcanza RMSE de 0.737 mm/día y correlacion de 0.726, asociación fuerte. El error medio es -0.563 mm/día, es decir que subestima la evapotranspiración de forma sistematica en un 15.3% de la media. Este sesgo es un defecto conocido de Hargreaves fuera de las condiciones para las que se calibró, y marca el objetivo concreto a batir: cualquier modelo propuesto debera reducir el RMSE de 0.737 y, sobre todo, eliminar ese sesgo."
@@ -1367,7 +1382,7 @@
      "0.2498",
      "0.741",
      "0.0382",
-     "23.7531"
+     "48.0706"
     ],
     [
      "2",
@@ -1377,7 +1392,7 @@
      "0.2537",
      "0.7314",
      "0.0229",
-     "4.9653"
+     "5.9932"
     ],
     [
      "3",
@@ -1387,7 +1402,7 @@
      "0.2607",
      "0.7179",
      "0.0185",
-     "23.7871"
+     "24.1789"
     ],
     [
      "4",
@@ -1397,7 +1412,7 @@
      "0.2622",
      "0.7173",
      "0.0373",
-     "1.7335"
+     "1.5299"
     ],
     [
      "5",
@@ -1407,7 +1422,7 @@
      "0.2898",
      "0.6492",
      "0.0174",
-     "1.1527"
+     "0.9056"
     ],
     [
      "6",
@@ -1417,7 +1432,7 @@
      "0.3142",
      "0.6279",
      "0.0378",
-     "0.1047"
+     "0.0975"
     ],
     [
      "7",
@@ -1427,7 +1442,7 @@
      "0.5273",
      "-0.0113",
      "-0.0192",
-     "0.0224"
+     "0.013"
     ],
     [
      "8",
@@ -1450,6 +1465,9 @@
    "titulo": "Comparación de modelos",
    "imagen": "/crispdm/figuras/fig06_comparacion_de_modelos.png",
    "fase": 4,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig06_comparacion_de_modelos.png",
+   "kb_alta": 562,
    "que": "A la izquierda el error medio de cada alternativa con su barra de dispersion. A la derecha la evolucion del error de cada modelo a lo largo de las particiones temporales sucesivas.",
    "como": "En el gráfico de barras, mas corto es mejor. En el de líneas interesa la planitud: una curva estable indica que el modelo aguanta el paso del tiempo, mientras que una ascendente delata degradacion conforme se aleja del periodo de entrenamiento.",
    "interpretacion": "El orden de merito es nitido y 'Red neuronal' domina en todas las particiones. La dispersion entre particiones del ganador es de 0.1143 mm/día, pequena frente a su error medio, lo que indica un comportamiento estable y no un acierto puntual. 'Hargreaves-Samani' cierra la tabla. Ninguna curva muestra degradacion sostenida hacia la derecha, señal de que la relación entre temperatura y evapotranspiración se mantiene en el periodo estudiado."
@@ -1527,7 +1545,7 @@
    ],
    "que": "Las ocho combinaciones con menor error de las doce exploradas por busqueda aleatoria sobre 'Red neuronal', evaluadas con la misma validación cruzada temporal.",
    "como": "Cada fila es una configuración. La columna de error ordena el merito y la desviación indica si la ventaja es consistente entre particiones o producto del azar de una sola.",
-   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 124 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
+   "interpretacion": "La mejor configuración alcanza RMSE de 0.3625 mm/día frente a 0.3279 de la versión por defecto, una ganancia del -10.56%. El ajuste no mejora la configuración por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparámetros. La busqueda tardó 145 segundos. Parámetros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05"
   },
   {
    "tipo": "fase",
@@ -1817,6 +1835,9 @@
    "titulo": "Diagnóstico de residuos",
    "imagen": "/crispdm/figuras/fig07_diagnostico_de_residuos.png",
    "fase": 5,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig07_diagnostico_de_residuos.png",
+   "kb_alta": 1873,
    "que": "Residuos frente al valor predicho, gráfico cuantil-cuantil de normalidad y comparación de la distribución de residuos con la de la línea base.",
    "como": "En el primer panel deben verse puntos repartidos sin forma alrededor del cero: un embudo indica varianza no constante y una curva, estructura sin capturar. En el segundo, los puntos deben seguir la recta. En el tercero, la curva mas estrecha y mejor centrada en cero corresponde al método superior.",
    "interpretacion": "El contraste de Shapiro-Wilk sobre una submuestra de 4,500 residuos da p < 0.001, diferencia altamente significativa, de modo que los residuos se apartan de la normalidad, algo esperable con decenas de miles de observaciones, donde el contraste detecta desviaciones minimas e irrelevantes en la práctica. No se aprecia heterocedasticidad relevante (rho +0.046): el error mantiene una amplitud similar en todo el rango, lo que permite usar un intervalo de predicción constante. La comparación de distribuciones muestra que los residuos del modelo son visiblemente más estrechos y están centrados en +0.0412 mm/día, frente a -0.4773 de Hargreaves: la corrección del sesgo es el aporte más relevante para el balance hidrico del gemelo."
@@ -1979,6 +2000,9 @@
    "titulo": "Importancia por permutacion",
    "imagen": "/crispdm/figuras/fig08_importancia_por_permutacion.png",
    "fase": 6,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig08_importancia_por_permutacion.png",
+   "kb_alta": 157,
    "que": "Degradacion del error al permutar cada variable, con su barra de incertidumbre sobre 15 repeticiones.",
    "como": "Las barras mas largas corresponden a las variables de las que el modelo más depende. Si una barra de error cruza el cero, la contribucion de esa variable no se distingue del ruido.",
    "interpretacion": "El perfil es jerarquico y no plano: el modelo no reparte su atencion por igual, sino que concentra la decision en unas pocas variables. Esa concentracion es deseable, porque un modelo que dependiera por igual de las diez sería mas fragil ante el fallo de un sensor."
@@ -1989,6 +2013,9 @@
    "titulo": "Dependencia parcial: forma de las relaciones aprendidas",
    "imagen": "/crispdm/figuras/fig09_dependencia_parcial_forma_de_las_relaciones_apre.png",
    "fase": 6,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig09_dependencia_parcial_forma_de_las_relaciones_apre.png",
+   "kb_alta": 589,
    "que": "Como cambia la predicción media del modelo al recorrer cada variable manteniendo las demas en sus valores observados. Las marcadas como colineales no admiten lectura causal.",
    "como": "Interesa la FORMA, no la altura. Una curva ascendente indica relación directa; descendente, inversa; plana, que la variable no mueve la predicción. La comparación con la física solo es valida en variables poco correlacionadas con el resto.",
    "interpretacion": "De las 2 relaciones interpretables con signo físico predecible, 2 coinciden con lo esperado: rango_termico sube (un rango amplio delata cielo despejado, y por tanto mas radiacion); precipitacion baja (un día lluvioso es nuboso y humedo, lo que frena la evaporacion). Ninguna curva interpretable contradice la física del proceso. El modelo no memorizo asociaciones arbitrarias: aprendio el mecanismo, y eso es lo que permite confiar en el fuera del periodo de entrenamiento. Quedan fuera de esta lectura 't_media', 'elev', 't_max', 't_min', marcadas como colineales en el gráfico. La dependencia parcial mueve una variable dejando las demas quietas, y eso exige que sean independientes: no existe un día con la temperatura máxima alta y la media sin cambiar. La curva recorre entonces combinaciones que el clima no produce, de modo que su pendiente es un artefacto del método y no una relación aprendida. Interpretarla como si lo fuera sería un error, y por eso se excluye en lugar de contarla como contradiccion."
@@ -2007,53 +2034,53 @@
    "filas": [
     [
      "t_media",
-     "1.8517",
-     "0.1564"
+     "1.8515",
+     "0.1501"
     ],
     [
      "elev",
-     "0.7593",
-     "-0.0586"
+     "0.7592",
+     "-0.0562"
     ],
     [
      "rango_termico",
-     "0.5605",
-     "-0.0093"
+     "0.5645",
+     "-0.008"
     ],
     [
      "t_min",
-     "0.4404",
-     "-0.0402"
+     "0.439",
+     "-0.0383"
     ],
     [
      "t_max",
-     "0.3281",
-     "-0.052"
+     "0.329",
+     "-0.0458"
     ],
     [
      "precipitacion",
-     "0.2764",
-     "0.0896"
+     "0.2747",
+     "0.0875"
     ],
     [
      "estacion_sin",
-     "0.209",
-     "0.1775"
+     "0.2009",
+     "0.175"
     ],
     [
      "estacion_cos",
-     "0.1385",
-     "0.0721"
+     "0.1369",
+     "0.0722"
     ],
     [
      "lat",
-     "0.1222",
-     "0.0094"
+     "0.1209",
+     "0.0104"
     ],
     [
      "ra",
-     "0.0801",
-     "0.0412"
+     "0.0787",
+     "0.039"
     ]
    ],
    "que": "Contribucion media, en valor absoluto, de cada variable a las predicciones individuales, y el sentido medio de esa contribucion.",
@@ -2066,6 +2093,9 @@
    "titulo": "Valores SHAP: contribucion a cada predicción",
    "imagen": "/crispdm/figuras/fig10_valores_shap_contribucion_a_cada_prediccion.png",
    "fase": 6,
+   "dpi": 600,
+   "alta": "/crispdm/figuras_600ppp/fig10_valores_shap_contribucion_a_cada_prediccion.png",
+   "kb_alta": 333,
    "que": "A la izquierda, cuanto mueve cada variable la predicción en promedio. A la derecha, la dispersion de esa contribucion sobre 120 predicciones individuales.",
    "como": "En las cajas, la posición respecto a la línea roja del cero indica el sentido. Una caja ancha significa que la misma variable unas veces sube la estimacion y otras la baja, según el resto de condiciones de ese día.",
    "interpretacion": "Este es el nivel de explicación que un operador de cuenca puede exigir ante una cifra concreta: permite responder por que el modelo estimo ese valor ese día, descomponiendo la predicción en las aportaciones de cada variable. Es lo que convierte la red neuronal en una herramienta auditable en lugar de un oraculo."

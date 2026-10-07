@@ -194,13 +194,13 @@ Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrena
 
 | puesto | modelo | RMSE_medio | RMSE_desv | MAE_medio | R2_medio | sesgo_medio | segundos |
 |---|---|---|---|---|---|---|---|
-| 1 | Red neuronal | 0.3279 | 0.1143 | 0.2498 | 0.7410 | 0.0382 | 23.7531 |
-| 2 | Potenciacion por gradiente | 0.3338 | 0.1168 | 0.2537 | 0.7314 | 0.0229 | 4.9653 |
-| 3 | Bosque aleatorio | 0.3436 | 0.1138 | 0.2607 | 0.7179 | 0.0185 | 23.7871 |
-| 4 | K-vecinos | 0.3470 | 0.1003 | 0.2622 | 0.7173 | 0.0373 | 1.7335 |
-| 5 | Arbol de decision | 0.3877 | 0.1060 | 0.2898 | 0.6492 | 0.0174 | 1.1527 |
-| 6 | Ridge | 0.4018 | 0.0943 | 0.3142 | 0.6279 | 0.0378 | 0.1047 |
-| 7 | Media (control) | 0.6705 | 0.0290 | 0.5273 | -0.0113 | -0.0192 | 0.0224 |
+| 1 | Red neuronal | 0.3279 | 0.1143 | 0.2498 | 0.7410 | 0.0382 | 48.0706 |
+| 2 | Potenciacion por gradiente | 0.3338 | 0.1168 | 0.2537 | 0.7314 | 0.0229 | 5.9932 |
+| 3 | Bosque aleatorio | 0.3436 | 0.1138 | 0.2607 | 0.7179 | 0.0185 | 24.1789 |
+| 4 | K-vecinos | 0.3470 | 0.1003 | 0.2622 | 0.7173 | 0.0373 | 1.5299 |
+| 5 | Arbol de decision | 0.3877 | 0.1060 | 0.2898 | 0.6492 | 0.0174 | 0.9056 |
+| 6 | Ridge | 0.4018 | 0.0943 | 0.3142 | 0.6279 | 0.0378 | 0.0975 |
+| 7 | Media (control) | 0.6705 | 0.0290 | 0.5273 | -0.0113 | -0.0192 | 0.0130 |
 | 8 | Hargreaves-Samani | 0.7425 | 0.0193 | 0.6508 | -0.2468 | -0.5876 | 0.0000 |
 
 **Qué muestra.** Error medio de cada alternativa sobre las 5 particiones temporales, con su dispersion entre particiones y el coste de entrenamiento.
@@ -238,7 +238,7 @@ Se emplean 5 particiones temporales expansivas sobre 87,660 registros de entrena
 
 **Cómo leerlo.** Cada fila es una configuracion. La columna de error ordena el merito y la desviacion indica si la ventaja es consistente entre particiones o producto del azar de una sola.
 
-**Interpretación.** La mejor configuracion alcanza RMSE de 0.3625 mm/dia frente a 0.3279 de la version por defecto, una ganancia del -10.56%. El ajuste no mejora la configuracion por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparametros. La busqueda tardo 124 segundos. Parametros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05
+**Interpretación.** La mejor configuracion alcanza RMSE de 0.3625 mm/dia frente a 0.3279 de la version por defecto, una ganancia del -10.56%. El ajuste no mejora la configuracion por defecto, indicio de que el rendimiento esta limitado por los predictores y no por los hiperparametros. La busqueda tardo 145 segundos. Parametros elegidos: learning_rate_init=0.005, hidden_layer_sizes=(64,), alpha=1e-05
 
 
 ---
@@ -426,16 +426,16 @@ _Abrir la caja negra: determinar que variables usa la red neuronal, con que form
 
 | variable | shap_medio_abs | efecto_medio |
 |---|---|---|
-| t_media | 1.8517 | 0.1564 |
-| elev | 0.7593 | -0.0586 |
-| rango_termico | 0.5605 | -0.0093 |
-| t_min | 0.4404 | -0.0402 |
-| t_max | 0.3281 | -0.0520 |
-| precipitacion | 0.2764 | 0.0896 |
-| estacion_sin | 0.2090 | 0.1775 |
-| estacion_cos | 0.1385 | 0.0721 |
-| lat | 0.1222 | 0.0094 |
-| ra | 0.0801 | 0.0412 |
+| t_media | 1.8515 | 0.1501 |
+| elev | 0.7592 | -0.0562 |
+| rango_termico | 0.5645 | -0.0080 |
+| t_min | 0.4390 | -0.0383 |
+| t_max | 0.3290 | -0.0458 |
+| precipitacion | 0.2747 | 0.0875 |
+| estacion_sin | 0.2009 | 0.1750 |
+| estacion_cos | 0.1369 | 0.0722 |
+| lat | 0.1209 | 0.0104 |
+| ra | 0.0787 | 0.0390 |
 
 **Qué muestra.** Contribucion media, en valor absoluto, de cada variable a las predicciones individuales, y el sentido medio de esa contribucion.
 

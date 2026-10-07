@@ -26,10 +26,12 @@ import pandas as pd
 
 from acentos import acentuar
 from config import FIGURAS, RAIZ, SALIDA, TABLAS
+from informe import DPI_PUBLICACION, FIGURAS_WEB
 
 DESTINO_PUBLICO = RAIZ.parent / "public" / "crispdm"
 DESTINO_FIGURAS = DESTINO_PUBLICO / "figuras"
 DESTINO_TABLAS = DESTINO_PUBLICO / "tablas"
+DESTINO_ALTA = DESTINO_PUBLICO / "figuras_600ppp"
 
 
 def _csv_a_tabla(ruta: Path) -> dict:
@@ -52,6 +54,7 @@ def exportar() -> Path:
     """Reconstruye el informe desde informe.md y lo deja listo para el navegador."""
     DESTINO_FIGURAS.mkdir(parents=True, exist_ok=True)
     DESTINO_TABLAS.mkdir(parents=True, exist_ok=True)
+    DESTINO_ALTA.mkdir(parents=True, exist_ok=True)
 
     # Las tablas se copian ademas en crudo para que el panel ofrezca descargarlas:
     # quien revise la tesis querra abrirlas en una hoja de calculo.
@@ -121,14 +124,29 @@ def exportar() -> Path:
         if m_fig:
             m_img = re.search(r"!\[[^\]]*\]\(figuras/([^)]+)\)", b)
             archivo = m_img.group(1) if m_img else None
-            if archivo and (FIGURAS / archivo).exists():
-                shutil.copy2(FIGURAS / archivo, DESTINO_FIGURAS / archivo)
+            meta = {}
+            if archivo:
+                # El panel carga la version ligera; la de 600 ppp queda aparte
+                # para descargar. Servir diez imagenes de mas de un mega haria
+                # la pestana inusable, y una pantalla no aprovecha esa densidad.
+                if (FIGURAS_WEB / archivo).exists():
+                    shutil.copy2(FIGURAS_WEB / archivo, DESTINO_FIGURAS / archivo)
+                elif (FIGURAS / archivo).exists():
+                    shutil.copy2(FIGURAS / archivo, DESTINO_FIGURAS / archivo)
+                if (FIGURAS / archivo).exists():
+                    shutil.copy2(FIGURAS / archivo, DESTINO_ALTA / archivo)
+                    meta = {
+                        "alta": "/crispdm/figuras_600ppp/{}".format(archivo),
+                        "kb_alta": round((FIGURAS / archivo).stat().st_size / 1024),
+                    }
             piezas.append({
                 "tipo": "figura",
                 "numero": int(m_fig.group(1)),
                 "titulo": acentuar(m_fig.group(2).strip()),
                 "imagen": "/crispdm/figuras/{}".format(archivo) if archivo else None,
                 "fase": fase_actual["numero"] if fase_actual else None,
+                "dpi": DPI_PUBLICACION,
+                **meta,
                 **lecturas,
             })
         else:

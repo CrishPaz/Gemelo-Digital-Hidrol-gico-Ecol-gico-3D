@@ -8,3 +8,7 @@ outputs/consola.log
 # Cachés de Python
 __pycache__/
 *.pyc
+
+# Copias ligeras de las figuras. Se regeneran con run_pipeline.py y solo
+# existen para que el panel cargue rapido; las de 600 ppp si se versionan.
+outputs/figuras_web/

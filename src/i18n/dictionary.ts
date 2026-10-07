@@ -94,6 +94,7 @@ export const DICTIONARY = {
     'crispdm.ds.rango': 'Rango observado',
     'crispdm.ds.explicacion': 'Qué es y por qué está',
     'crispdm.ds.nota': 'El papel de cada columna es el núcleo del método: radiación, viento y humedad se descargaron pero están marcadas como excluidas, porque la ecuación FAO-56 las usa directamente y el modelo se volvería trivial. Una estación peruana real no tiene esos sensores, así que se renuncia a precisión para ganar aplicabilidad.',
+    'crispdm.fig.altaAyuda': 'Descargar en 600 ppp, calidad de publicación',
 
     // --- Encabezado del Gemelo 3D ---
     'twin.title': 'Gemelo Digital 3D — Cuenca Hidrográfica del Río Moche',
@@ -968,6 +969,7 @@ export const DICTIONARY = {
     'crispdm.ds.rango': 'Observed range',
     'crispdm.ds.explicacion': 'What it is and why it is here',
     'crispdm.ds.nota': 'The role of each column is the core of the method: radiation, wind and humidity were downloaded but are marked excluded, because the FAO-56 equation uses them directly and the model would become trivial. A real Peruvian station lacks those sensors, so accuracy is traded for applicability.',
+    'crispdm.fig.altaAyuda': 'Download at 600 dpi, publication quality',
 
     // --- 3D Twin heading ---
     'twin.title': '3D Digital Twin — Moche River Basin',
