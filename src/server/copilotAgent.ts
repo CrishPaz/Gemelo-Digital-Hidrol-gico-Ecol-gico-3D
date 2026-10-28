@@ -265,7 +265,12 @@ function detectIntents(prompt: string, mode: SpecialistMode): Intent[] {
     .replace(/[̀-ͯ]/g, '');
   const hits = new Set<Intent>();
 
-  const has = (...words: string[]) => words.some(w => p.includes(w));
+  // Las claves cortas, casi todas siglas (dam, ana, eca, ph, fen), se buscan como
+  // palabra completa, admitiendo plural. Por subcadena, "dame" activaba el motor
+  // de drenaje ácido, "seca" la normativa ECA y "semana" la ANA. Las largas
+  // siguen por subcadena para cubrir derivadas como "remediación".
+  const has = (...words: string[]) =>
+    words.some(w => (w.length <= 4 ? new RegExp(`(?<![a-z0-9])${w}(?:e?s)?(?![a-z])`).test(p) : p.includes(w)));
 
   if (has('metal', 'plomo', 'arsenico', 'cadmio', 'dam', 'drenaje acido', 'quiruvilca', 'shorey', 'miner', 'relave', 'efluente', 'remediac', 'neutraliz', 'tmdl', 'lixiviad')) hits.add('metales');
   if (has('inunda', 'crecida', 'desborde', 'avenida', 'niño', 'nino', 'fen', 'presa', 'dam-break', 'huaico', 'tirante', 'manning')) hits.add('crecida');

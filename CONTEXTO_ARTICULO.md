@@ -402,9 +402,10 @@ La mejora no covaría significativamente con la altitud: ρ = −0.294, p = 0.35
 
 5. **El enrutador sin modelo no entiende paráfrasis.** Ejecuta el motor
    correcto en 17 de 17 consultas con vocabulario técnico y en 3 de 15
-   parafraseadas. Además, la búsqueda por subcadenas da falsos positivos:
-   "Dame un resumen" activa el motor de drenaje ácido porque "dame" contiene
-   "dam". Detalle en la sección 13.6.
+   parafraseadas. La búsqueda por subcadenas daba además falsos positivos:
+   "Dame un resumen" activaba el motor de drenaje ácido porque "dame" contiene
+   "dam". Se corrigió el 28 de octubre de 2026 y el acierto no cambió, porque el
+   problema de fondo es el vocabulario. Detalle en la sección 13.6.
 
 ### Limitaciones de validez
 
@@ -495,9 +496,10 @@ node scripts/bench_copiloto.mjs http://localhost:3002 scripts/resultados/bench_c
 python ml/mase_et0.py                          # MASE de la sección 5
 ```
 
-El resultado del 28 de octubre de 2026 está guardado en
-`scripts/resultados/bench_copiloto_2026-10-28.json`, con el detalle de cada
-consulta.
+Hay dos resultados del 28 de octubre de 2026 en `scripts/resultados/`, con el
+detalle de cada consulta: `bench_copiloto_2026-10-28.json`, antes de corregir
+el enrutador, y `bench_copiloto_2026-10-28_correccion.json`, después. Las cifras
+de la sección 13 son las del segundo.
 
 ### Huecos de reproducibilidad pendientes
 
@@ -766,21 +768,21 @@ equipo:
 
 | Medición | n | P50 | P95 | P99 | Máximo | Errores |
 |---|---|---|---|---|---|---|
-| Copiloto, peticiones secuenciales | 320 | 1.44 ms | 3.40 ms | 5.35 ms | 7.71 ms | 0 |
-| Copiloto, 10 clientes simultáneos | 320 | 7.37 ms | 14.54 ms | 21.69 ms | 35.11 ms | 0 |
+| Copiloto, peticiones secuenciales | 320 | 1.79 ms | 3.55 ms | 5.30 ms | 7.81 ms | 0 |
+| Copiloto, 10 clientes simultáneos | 320 | 5.81 ms | 13.34 ms | 15.43 ms | 16.26 ms | 0 |
 
-Con 10 clientes simultáneos las 320 peticiones se atendieron en 0.271 s, unas
-1180 peticiones por segundo.
+Con 10 clientes simultáneos las 320 peticiones se atendieron en 0.222 s, unas
+1443 peticiones por segundo.
 
 | Geodatos, caché caliente | n | P50 | P95 | Máximo | Errores |
 |---|---|---|---|---|---|
-| `/api/geo/dem`, 856 254 bytes | 20 | 45.76 ms | 86.53 ms | 89.15 ms | 0 |
-| `/api/geo/hydrography` | 20 | 11.62 ms | 16.31 ms | 27.76 ms | 0 |
-| `/api/geo/weather`, 2 puntos | 20 | 3.83 ms | 12.38 ms | 946.04 ms | 0 |
+| `/api/geo/dem`, 856 254 bytes | 20 | 44.92 ms | 79.69 ms | 86.86 ms | 0 |
+| `/api/geo/hydrography` | 20 | 10.96 ms | 29.88 ms | 31.72 ms | 0 |
+| `/api/geo/weather`, 2 puntos | 20 | 1.69 ms | 2.60 ms | 2.83 ms | 0 |
 
-El máximo del clima es la primera llamada, que descarga de Open-Meteo; las
-demás salen de la caché. Se comprobó repitiendo con puntos nuevos: la primera
-tardó en torno a 1 s y las siguientes mucho menos.
+En esta corrida el clima salió entero de la caché. Sin caché, la primera
+llamada descarga de Open-Meteo: tardó 946 ms en la corrida anterior y en torno
+a 1 s al repetir con puntos nuevos.
 
 Límites de estas cifras, que el artículo debe declarar:
 
@@ -838,7 +840,7 @@ Gemini, los extrae `extractQuantities`.
 | Dimensión | Lo que hay | Estado |
 |---|---|---|
 | Fidelidad | ET0: RMSE 0.3942, MAE 0.2978, MASE 0.8875 (sección 5). Caudal simulado frente a medido: no hay métrica | ET0 medido; caudal pendiente de datos reales |
-| Latencia y sincronización | Respuesta del copiloto con P95 de 3.40 ms en secuencia y 14.54 ms con 10 clientes. No hay sincronización con un sistema físico que medir | Medido solo en el camino determinista |
+| Latencia y sincronización | Respuesta del copiloto con P95 de 3.55 ms en secuencia y 13.34 ms con 10 clientes. No hay sincronización con un sistema físico que medir | Medido solo en el camino determinista |
 | Corrección de la consulta | 20 de 32 en total: 17 de 17 con vocabulario técnico, 3 de 15 en paráfrasis | Medido solo en el camino determinista |
 | Corrección de la respuesta | Sin medir: hace falta que expertos o un evaluador califiquen cada informe | Pendiente |
 | Coste por consulta | Camino determinista: 0 tokens y 0 USD. Camino Gemini: sin medir | Parcial |
@@ -856,9 +858,9 @@ determinista, de modo que las repeticiones solo sirven para la latencia.
 
 | Subconjunto | Aciertos | Magnitud bien extraída | Casos con motores sobrantes |
 |---|---|---|---|
-| Vocabulario técnico | 17 de 17 | 5 de 5 | 2 |
+| Vocabulario técnico | 17 de 17 | 5 de 5 | 1 (2 antes de la corrección) |
 | Paráfrasis | 3 de 15 | 0 de 2 | 0 |
-| Total | 20 de 32 | 5 de 7 | 2 |
+| Total | 20 de 32 | 5 de 7 | 1 (2 antes de la corrección) |
 
 De los 3 aciertos en paráfrasis, 2 son consultas de estado general, que es la
 respuesta por defecto, y el tercero acierta por la palabra "contamina". Fallos
@@ -870,10 +872,21 @@ concretos, útiles para la discusión:
   de la lista de crecidas.
 - "¿Qué tan confiable es la simulación?": la lista tiene "confianza", no
   "confiable".
-- "Dame un resumen del estado de la cuenca" ejecuta el motor de metales, porque
-  "dame" contiene "dam", la sigla de drenaje ácido de mina.
+- "Dame un resumen del estado de la cuenca" ejecutaba el motor de metales,
+  porque "dame" contiene "dam", la sigla de drenaje ácido de mina. Corregido;
+  ver abajo.
 - "Simula el drenaje ácido de Quiruvilca" lanza además GR4J y el perfil
-  hidráulico, porque "simula" está en la lista de crecidas.
+  hidráulico, porque "simula" está en la lista de crecidas. Sigue así: es una
+  decisión de diseño discutible, no un error de búsqueda.
+
+**Corrección aplicada el 28 de octubre de 2026.** En `detectIntents`, las claves
+de hasta cuatro letras, casi todas siglas (dam, ana, eca, ph, fen), se buscan
+como palabra completa, admitiendo plural; las largas siguen por subcadena para
+cubrir derivadas como "remediación". Se comprobó que "DAM", "ECA", "ANA",
+"pH5.2", "leyes" y "Niño" siguen activando su motor, y que "dame", "semana" y
+"seca" ya no activan metales, la ANA ni los ECA. El acierto no cambió: 17 de 17
+y 3 de 15. La corrección elimina falsos positivos, no enseña paráfrasis al
+enrutador.
 
 **Amenaza a la validez.** Las consultas las redactó el asistente de IA usado en
 el desarrollo, después de leer las listas de palabras del enrutador. Las de
@@ -924,10 +937,12 @@ Base para pegar y adaptar. Usa solo cifras de este documento.
 >
 > En 32 consultas etiquetadas, ese enrutador ejecutó el motor correcto en las 17
 > escritas con vocabulario técnico y solo en 3 de las 15 parafraseadas. La
-> búsqueda por subcadenas produjo además falsos positivos: «dame» activa el
-> motor de drenaje ácido de mina por contener «dam». En un Intel Core i7-1165G7
-> con 19.8 GB de RAM, el camino determinista respondió con una mediana de
-> 1.44 ms y un P99 de 5.35 ms en 320 peticiones secuenciales, y atendió unas
-> 1180 peticiones por segundo con diez clientes simultáneos, sin errores. El
+> búsqueda por subcadenas producía además falsos positivos, como «dame», que
+> activaba el motor de drenaje ácido de mina por contener «dam»; exigir palabra
+> completa a las claves de hasta cuatro letras los redujo de dos casos a uno
+> sin alterar el acierto. En un Intel Core i7-1165G7 con 19.8 GB de RAM, el
+> camino determinista respondió con una mediana de 1.79 ms y un P99 de 5.30 ms
+> en 320 peticiones secuenciales, y atendió unas 1440 peticiones por segundo con
+> diez clientes simultáneos, sin errores. El
 > camino con Gemini no se evaluó en esta versión; su precisión, su latencia y su
 > coste por consulta quedan pendientes.
