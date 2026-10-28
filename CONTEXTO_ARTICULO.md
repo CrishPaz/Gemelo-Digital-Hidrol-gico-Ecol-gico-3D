@@ -6,6 +6,11 @@ analítico. Está pensado para que Claude Code, o cualquier persona, redacte sin
 tener que volver a inspeccionar el código.
 
 **Fecha de corte de los datos:** 7 de octubre de 2026.
+**Última revisión:** 28 de octubre de 2026. Se añadió qué datos de la interfaz
+son reales y cuáles de demostración (sección 7), cómo levantar el gemelo
+(sección 8), las aplicaciones en La Libertad (sección 12) y los parámetros de la
+arquitectura con mediciones propias de latencia, acierto del copiloto y MASE
+(secciones 5 y 13).
 **Autor:** Crishtian Paz, Universidad Nacional de Trujillo, Tesis 2.
 **Repositorio:** `CrishPaz/Gemelo-Digital-Hidrol-gico-Ecol-gico-3D`, rama
 `feat/gemelo-3d-datos-reales`.
@@ -111,7 +116,9 @@ abrir.
   extrae las magnitudes del enunciado y ejecuta los mismos motores.
 
 Esta dualidad importa para el artículo: demuestra que la utilidad del sistema no
-depende de un servicio comercial de terceros.
+depende de un servicio comercial de terceros. Con un matiz medido: sin modelo,
+el sistema solo entiende consultas escritas con vocabulario técnico (sección
+13.6).
 
 ### Evidencia de que el copiloto calcula
 
@@ -126,6 +133,13 @@ Misma pregunta, distinto porcentaje de remediación del efluente minero:
 Antes, la plantilla fija devolvía siempre 0.185 mg/L, escribiera el operador lo
 que escribiera.
 
+**Cuidado al citar esta tabla.** Las concentraciones son salida del modelo, no
+mediciones. El perfil de partida, con 0.185 mg/L de plomo en el km 0, está
+escrito a mano en `src/data/mocheHydroData.ts` sin fuente de monitoreo citada.
+La tabla prueba que el copiloto calcula y responde a lo que se le pide; no
+prueba cuánto plomo lleva el Moche. Para afirmar lo segundo hace falta un
+monitoreo de la ANA o del OEFA como dato de partida.
+
 ---
 
 ## 3. El estudio de minería de datos
@@ -136,6 +150,9 @@ El modelo GR4J exige evapotranspiración de referencia (ET0) como entrada
 obligatoria en cada paso de tiempo. El gemelo la rellenaba con una constante de
 3.5 mm/día. La media real de la cuenca es 3.68 mm/día con desviación 0.68, de
 modo que la constante acierta en el promedio y yerra en los extremos.
+
+El modelo de este estudio todavía no reemplaza esa constante dentro del gemelo;
+ver la limitación 6 de la sección 7.
 
 ### Decisión metodológica central
 
@@ -287,6 +304,25 @@ Dos lecturas que vale la pena desarrollar en el artículo:
    Hargreaves arrastra un 42 % de sesgo, que es error corregible. Un método cuyo
    error es casi todo ruido ha agotado la señal disponible.
 
+### MASE
+
+Calculado el 28 de octubre de 2026 con el modelo guardado en
+`ml/outputs/modelo_et0.joblib`, que reproduce el RMSE de prueba de 0.3942 sobre
+21 924 registros. Escala de Hyndman y Koehler (2006): MAE de la persistencia de
+un día, construida por estación, en el conjunto de entrenamiento, 0.3356 mm/día.
+
+| Método | MAE | MASE |
+|---|---|---|
+| Red neuronal | 0.2978 | 0.8875 |
+| Hargreaves-Samani | 0.6002 | 1.7885 |
+| Constante 3.5 | 0.5946 | 1.7718 |
+| Persistencia del periodo de prueba | 0.3734 | 1.1128 |
+
+Confirma con otra métrica lo que dice la U2: solo la red queda por debajo de 1.
+Hargreaves comete casi el doble de error que repetir el valor de ayer. Que la
+propia persistencia de prueba pase de 1 indica que 2020-2024 varía de un día a
+otro algo más que el periodo de entrenamiento. Script: `ml/mase_et0.py`.
+
 ### Explicabilidad
 
 Tres técnicas complementarias sobre la red neuronal.
@@ -364,6 +400,12 @@ La mejora no covaría significativamente con la altitud: ρ = −0.294, p = 0.35
    colinealidad, de modo que la explicabilidad por dependencia parcial queda
    limitada a un subconjunto.
 
+5. **El enrutador sin modelo no entiende paráfrasis.** Ejecuta el motor
+   correcto en 17 de 17 consultas con vocabulario técnico y en 3 de 15
+   parafraseadas. Además, la búsqueda por subcadenas da falsos positivos:
+   "Dame un resumen" activa el motor de drenaje ácido porque "dame" contiene
+   "dam". Detalle en la sección 13.6.
+
 ### Limitaciones de validez
 
 1. **El objetivo procede de reanálisis, no de lisímetros.** El modelo reproduce
@@ -379,9 +421,36 @@ La mejora no covaría significativamente con la altitud: ρ = −0.294, p = 0.35
 3. **El periodo de prueba abarca 2020 a 2024.** Un cambio de régimen climático
    exigiría reentrenar.
 
-4. **Las estaciones son puntos de reanálisis, no sensores físicos.** El gemelo
-   usa sus coordenadas reales, pero los valores provienen de un modelo
-   atmosférico, no de instrumentos instalados en campo.
+4. **Las estaciones del estudio son puntos de reanálisis, no sensores físicos.**
+   El estudio de ET0 usa sus coordenadas reales, pero los valores provienen de
+   un modelo atmosférico, no de instrumentos instalados en campo.
+
+5. **Buena parte de lo que muestra la interfaz es de demostración.** Revisado en
+   el código el 28 de octubre de 2026:
+
+   | Dato en la interfaz | Origen |
+   |---|---|
+   | Relieve | Real: SRTM y Copernicus GLO-30 |
+   | Cauces y localidades | Real: OpenStreetMap |
+   | Serie de 60 días de lluvia, ET0 y caudal "observado" con la que arrancan GR4J y el filtro de Kalman | Sintética: `Math.random` en `generateInitialSimulation`, `src/App.tsx` |
+   | Lecturas de las 12 estaciones: caudal, WQI, turbidez, oxígeno disuelto | Sintéticas: paseo aleatorio cada 12 s en `src/App.tsx` |
+   | Pozos y cuña salina | Escritos a mano en `src/data/hydrogeologyData.ts` |
+   | Perfil de metales | Escrito a mano en `src/data/mocheHydroData.ts` |
+   | Clima Open-Meteo de las 12 estaciones | Real; se descarga, pero ningún componente ni motor lo usa |
+
+   Consecuencia: los caudales y asimilaciones que se ven en la interfaz
+   demuestran que los motores funcionan, no que reproducen el río Moche. No
+   deben presentarse como resultados. La etiqueta "Nodos IoT Activos"
+   (`src/i18n/dictionary.ts`) sugiere sensores instalados que no existen;
+   conviene cambiarla antes de mostrar el gemelo a un jurado.
+
+6. **El modelo de ET0 no está conectado a GR4J.** Las herramientas del copiloto
+   siguen usando 3.5 mm/día cuando no reciben una serie
+   (`src/server/basinTools.ts`), y la simulación inicial de la interfaz usa 3.5
+   más una oscilación y ruido. El informe del estudio se publica en la pestaña
+   "Minería IA", pero sus predicciones no entran en ningún motor. El artículo no
+   debe afirmar que el gemelo ya usa la ET0 estimada. Conectarla, junto con la
+   lluvia de Open-Meteo que ya se descarga, es el siguiente paso natural.
 
 ---
 
@@ -399,6 +468,43 @@ Fuente pública sin credenciales.
 El informe completo se genera en `ml/outputs/informe.md` y se publica en la
 pestaña "Minería IA" del gemelo: siete fases, diez figuras y catorce tablas,
 cada una con tres bloques de lectura.
+
+### Levantar el gemelo
+
+```bash
+npm install
+npm run dev                   # Express con Vite como middleware
+```
+
+El puerto sale de `PORT` en `.env`; por defecto es 3000. En el equipo del autor
+es 3002, porque 3000 y 3001 los ocupan otros proyectos. `GEMINI_API_KEY` es
+opcional: sin ella, `/api/health` informa `copilotMode: deterministic_engine` y
+el copiloto usa el enrutador determinista de la sección 2.
+
+Comprobación del 16 de octubre de 2026, con el servidor recién levantado:
+`/api/health` respondió `ok` con las nueve herramientas registradas,
+`/api/geo/dem` devolvió 856 254 bytes y `/api/geo/hydrography` 287 130 bytes,
+ambos en menos de 0.4 s, y la vista 3D cargó 70 de 70 teselas, 71 cauces y 58
+localidades.
+
+### Reproducir las mediciones de la sección 13
+
+```bash
+npm run dev                                    # en una terminal
+node scripts/bench_copiloto.mjs http://localhost:3002 scripts/resultados/bench_copiloto.json
+python ml/mase_et0.py                          # MASE de la sección 5
+```
+
+El resultado del 28 de octubre de 2026 está guardado en
+`scripts/resultados/bench_copiloto_2026-10-28.json`, con el detalle de cada
+consulta.
+
+### Huecos de reproducibilidad pendientes
+
+- `ml/` no tiene `requirements.txt`. Las versiones instaladas constan en la
+  sección 13.7, pero ningún archivo las fija.
+- Este documento dice que el estudio tarda unos 3 minutos y `ml/README.md` dice
+  unos 5. Conviene medirlo una vez y dejar la misma cifra en los dos.
 
 ---
 
@@ -507,6 +613,8 @@ correcciones concretas sobre él, hace falta el archivo.
 | Resultados | Sección 5, con las tablas tal cual |
 | Explicabilidad | Sección 5, incluida la advertencia de colinealidad |
 | Discusión | Sección 7; la U de Theil da el argumento más fuerte |
+| Relevancia regional | Sección 12, con fuente para cada hecho externo |
+| Arquitectura y parámetros | Sección 13; el texto de 13.8 sirve de base |
 | Limitaciones | Sección 7, completa y sin suavizar |
 | Conclusiones | Lo que se demostró y lo que no |
 
@@ -535,6 +643,8 @@ El tercero es el más honesto respecto al hallazgo principal.
 - Diebold, F. X., Mariano, R. S. (1995). Comparing predictive accuracy. *Journal
   of Business and Economic Statistics*, 13(3), 253-263.
 - Theil, H. (1958). *Economic Forecasts and Policy*. North-Holland.
+- Hyndman, R. J., Koehler, A. B. (2006). Another look at measures of forecast
+  accuracy. *International Journal of Forecasting*, 22(4), 679-688.
 - Moriasi, D. N. et al. (2007). Model evaluation guidelines for systematic
   quantification of accuracy in watershed simulations. *Transactions of the
   ASABE*, 50(3), 885-900.
@@ -554,3 +664,270 @@ El tercero es el más honesto respecto al hallazgo principal.
 - D.S. N° 040-2014-EM. Reglamento de Protección Ambiental en Actividades
   Mineras.
 - Ley N° 29664, SINAGERD.
+
+---
+
+## 12. Aplicaciones en La Libertad
+
+Material para la introducción o la discusión. Cada fila dice qué motor del
+gemelo responde a qué decisión y en qué estado está hoy. Ninguna aplicación está
+validada en campo; ver la sección 7.
+
+| Problema regional | Motor del gemelo | Quién decide | Estado hoy |
+|---|---|---|---|
+| Drenaje de los pasivos mineros de Quiruvilca | Transporte de metales con escenarios de remediación | OEFA, ANA, Gobierno Regional | Calcula; perfil de partida sin fuente de medición |
+| Calidad del agua para riego en el valle Santa Catalina | WQI y ECA categoría 3 | Junta de Usuarios, ALA Moche-Virú-Chao | Calcula con los parámetros que recibe; las lecturas de la interfaz son sintéticas |
+| Reparto del agua en estiaje | Asignación por prioridad de la Ley 29338 | ALA Moche-Virú-Chao, Junta de Usuarios | Calcula con el caudal que se le indica |
+| Demanda de agua de los cultivos | ET0 del estudio de minería de datos | Regantes, Junta de Usuarios | Evaluado frente a FAO-56 sobre ERA5; no conectado al gemelo |
+| Avenidas de El Niño | GR4J, filtro de Kalman y alertas en formato CAP | COER La Libertad, INDECI | Funciona con caudales sintéticos |
+| Salinización de pozos costeros | Cuña salina de Ghyben-Herzberg | SEDALIB, regantes con pozo | Pozos escritos a mano |
+| Caudal mínimo del río | Umbrales de Tennant | ANA | Calcula; el caudal actual de la interfaz es sintético |
+
+**Hechos externos que necesitan fuente antes de entrar al artículo.** Salieron
+al discutir las aplicaciones, pero no se han verificado con documentos:
+
+- Que la antigua mina de Quiruvilca sigue drenando aguas ácidas con metales
+  hacia el Moche.
+- Que en el Niño Costero de 2017 los huaicos que inundaron Trujillo bajaron por
+  las quebradas San Ildefonso y El León. Si se confirma, es una limitación del
+  sistema de alertas: esas quebradas no están modeladas.
+
+---
+
+## 13. Parámetros de la arquitectura
+
+Responde a la práctica de aula que pide parametrizar n8n, LangFlow y LangChain
+como en un artículo Q1. **El gemelo no usa ninguna de las tres.** Lo correcto en
+el artículo es decirlo y parametrizar lo que cumple esas funciones, no rellenar
+la plantilla con valores de otra arquitectura. Todo lo de esta sección se midió
+o se leyó del código el 28 de octubre de 2026, en el equipo de la sección 13.7.
+
+### 13.1 Correspondencia con la arquitectura de referencia
+
+| Función | Herramienta de la práctica | Lo que usa el gemelo | Archivo |
+|---|---|---|---|
+| Integración y orquestación | n8n | Servidor Express en un solo proceso de Node.js | `server.ts` |
+| Modelado visual del pipeline | LangFlow | No hay; el pipeline está escrito en código | `src/server/copilotAgent.ts` |
+| Razonamiento y agentes | LangChain / LangGraph | Bucle propio de llamada a funciones sobre `@google/genai` | `src/server/copilotAgent.ts` |
+| Recuperación (RAG) | Retriever y vector store | No hay; cada herramienta declara sus normas | `src/server/basinTools.ts` |
+| Herramientas | Tools y `$fromAI` | Registro de 9 herramientas con esquema JSON | `src/server/basinTools.ts` |
+
+Por qué esta arquitectura y no la de la práctica, argumentos para el artículo:
+
+- **Menos piezas que desplegar.** Un jurado reproduce el sistema con
+  `npm install` y `npm run dev`, sin levantar n8n, una base vectorial ni un
+  broker.
+- **El bucle cabe en unas 80 líneas** (`runWithGemini`) y cada vuelta queda en
+  la traza de auditoría `toolRuns`: qué motor se ejecutó, con qué argumentos y
+  qué devolvió.
+- **El mismo registro sirve a un segundo camino sin LLM**, el enrutador
+  determinista de la sección 2.
+- **Sin RAG a propósito.** El corpus normativo es corto: los ECA, la Ley 29338,
+  la metodología de caudal ecológico. Cada herramienta declara qué normas
+  implica su resultado, así que la cita sale de lo que se calculó y no de una
+  búsqueda por similitud que pueda traer un artículo que no aplica.
+
+### 13.2 Capa de integración, en lugar de n8n
+
+| Parámetro de la práctica | Valor en el gemelo |
+|---|---|
+| Modo de ejecución | Instancia única, un proceso Node.js 22.20.0. Sin cola, sin broker, sin workers |
+| Disparo | Petición HTTP que inicia la interfaz: `POST /api/gemini/assist`, `POST /api/geo/weather`, `GET /api/geo/dem`, `GET /api/geo/hydrography` |
+| Webhook desde el sistema físico | No aplica: no hay sensores conectados (sección 7) |
+| Telemetría | Temporizador del navegador cada 12 s que genera lecturas sintéticas |
+| Ingesta del relieve | AWS Terrain Tiles a zoom 12, 8 descargas en paralelo, 30 s de límite por tesela |
+| Ingesta de cauces | Overpass, servidor principal y uno de respaldo, 120 s de límite |
+| Ingesta del clima | Open-Meteo, hasta 25 puntos, de 1 a 90 días pasados (60 por defecto), 45 s de límite |
+| Caché en disco | Relieve 90 días, cauces 30 días, clima 3 horas, en `.cache/geodata` |
+| Tolerancia a fallos | Si la llamada a Gemini falla, el servidor responde por el camino determinista |
+
+Topología del copiloto como grafo dirigido:
+
+```
+Interfaz ──POST /api/gemini/assist──► server.ts
+                                         │
+                              ¿hay GEMINI_API_KEY?
+                         sí ┌────────────┴────────────┐ no (o si Gemini falla)
+                            ▼                         ▼
+               runWithGemini, hasta 4 vueltas    runDeterministic
+               el modelo elige herramientas      detectIntents → extractQuantities
+                            │                    → planTools → encadenamiento
+                            └──────► runTool ◄────────┘
+                                        │  9 motores: GR4J, EnKF, Manning, WQI,
+                                        │  metales, reparto, Tennant, ECA, estado
+                                        ▼
+                     collectCitations · collectActions · buildProtocol
+                                        │
+Interfaz ◄── JSON {reply, toolRuns, citations, executableActions, actionProtocol, mode}
+```
+
+Latencia medida en el camino determinista, servidor y cliente en el mismo
+equipo:
+
+| Medición | n | P50 | P95 | P99 | Máximo | Errores |
+|---|---|---|---|---|---|---|
+| Copiloto, peticiones secuenciales | 320 | 1.44 ms | 3.40 ms | 5.35 ms | 7.71 ms | 0 |
+| Copiloto, 10 clientes simultáneos | 320 | 7.37 ms | 14.54 ms | 21.69 ms | 35.11 ms | 0 |
+
+Con 10 clientes simultáneos las 320 peticiones se atendieron en 0.271 s, unas
+1180 peticiones por segundo.
+
+| Geodatos, caché caliente | n | P50 | P95 | Máximo | Errores |
+|---|---|---|---|---|---|
+| `/api/geo/dem`, 856 254 bytes | 20 | 45.76 ms | 86.53 ms | 89.15 ms | 0 |
+| `/api/geo/hydrography` | 20 | 11.62 ms | 16.31 ms | 27.76 ms | 0 |
+| `/api/geo/weather`, 2 puntos | 20 | 3.83 ms | 12.38 ms | 946.04 ms | 0 |
+
+El máximo del clima es la primera llamada, que descarga de Open-Meteo; las
+demás salen de la caché. Se comprobó repitiendo con puntos nuevos: la primera
+tardó en torno a 1 s y las siguientes mucho menos.
+
+Límites de estas cifras, que el artículo debe declarar:
+
+- Miden el camino determinista. **No incluyen la latencia de Gemini**, que
+  dominará cuando haya clave, porque añade red e inferencia.
+- Cliente y servidor comparten máquina, así que no hay latencia de red.
+- El servidor corría en modo desarrollo (tsx con Vite como middleware), no con
+  la compilación de producción.
+
+### 13.3 Capa de razonamiento, en lugar de LangChain
+
+| Parámetro de la práctica | Valor | Dónde |
+|---|---|---|
+| Framework de agentes | Bucle propio de llamada a funciones; hace el papel del AgentExecutor. No hay grafo cíclico con estado tipo LangGraph | `runWithGemini` |
+| LLM | Google Gemini `gemini-2.0-flash`, vía `@google/genai` 2.19.0. Se cambia con `GEMINI_MODEL`. Modelo comercial; Google no publica su número de parámetros | `copilotAgent.ts`, línea 35 |
+| temperature | 0.35 | línea 180 |
+| max_tokens | 1400 (`maxOutputTokens`) | línea 43 |
+| top_p, top_k | No se fijan; rigen los valores por defecto del proveedor | — |
+| max_iterations | 4. En la cuarta se retiran las herramientas para obligar a redactar | líneas 37 y 187-194 |
+| Memoria | Últimos 6 turnos, cada uno recortado a 700 caracteres | líneas 39-41 |
+| Compactación de salidas | Series reducidas a 8 elementos, textos a 400 caracteres, hasta 3 niveles de anidamiento | `compactForModel` |
+| Elección de herramienta | Modo automático de Gemini; no se fija `toolConfig` | — |
+| Instrucciones de sistema | 5 perfiles de especialista más una regla común que prohíbe dar cifras sin ejecutar un motor | `SPECIALIST_INSTRUCTIONS`, `TOOL_DISCIPLINE` |
+| RAG | No aplica: no hay chunk_size, chunk_overlap, top_k ni score_threshold | — |
+
+El camino sin LLM tiene sus propios parámetros:
+
+| Parámetro | Valor |
+|---|---|
+| Intenciones | 8, detectadas por listas de palabras clave sobre el texto sin tildes |
+| Magnitudes | 5, extraídas con expresiones regulares: mm de lluvia, m³/s, %, días, pH |
+| Valores por defecto | 45 mm de lluvia en 10 días (entre 3 y 60) con hietograma triangular; 6.45 m³/s si la interfaz no envía caudal |
+| Encadenamiento | El pico de GR4J alimenta el perfil hidráulico; el caudal de la red alimenta el reparto y el caudal ecológico |
+
+### 13.4 Herramientas y esquemas de parámetros
+
+Equivalente a `$fromAI` de n8n: con Gemini, el modelo rellena los argumentos a
+partir del esquema JSON de cada herramienta (`toGeminiDeclarations`); sin
+Gemini, los extrae `extractQuantities`.
+
+| Herramienta | Parámetros | Obligatorios |
+|---|---|---|
+| `consultar_estado_cuenca` | subcuenca (texto) | ninguno |
+| `simular_caudal_gr4j` | precipitacion_mm_dia (serie), evapotranspiracion_mm_dia (serie), humedad_inicial (número) | precipitacion_mm_dia |
+| `asimilar_datos_enkf` | precipitacion_mm_dia, caudal_observado_m3s, evapotranspiracion_mm_dia (series) | las dos primeras |
+| `calcular_perfil_hidraulico` | caudal_base_m3s, escala_manning (números) | caudal_base_m3s |
+| `evaluar_calidad_agua_wqi` | do, ph, ec, turbidity, tss, nitrates, total_p, fecal_coliforms, heavy_metals_lead (números), estacion (texto) | ninguno |
+| `simular_transporte_metales` | eficiencia_remediacion_pct, multiplicador_dilucion (números) | ninguno |
+| `optimizar_asignacion_caudal` | caudal_disponible_m3s (número) | caudal_disponible_m3s |
+| `evaluar_caudal_ecologico` | caudal_actual_m3s, caudal_medio_anual_m3s (números), temporada_humeda (booleano) | caudal_actual_m3s |
+| `consultar_estandares_eca` | categoria (texto) | ninguno |
+
+### 13.5 Métricas de validación, por dimensión de la práctica
+
+| Dimensión | Lo que hay | Estado |
+|---|---|---|
+| Fidelidad | ET0: RMSE 0.3942, MAE 0.2978, MASE 0.8875 (sección 5). Caudal simulado frente a medido: no hay métrica | ET0 medido; caudal pendiente de datos reales |
+| Latencia y sincronización | Respuesta del copiloto con P95 de 3.40 ms en secuencia y 14.54 ms con 10 clientes. No hay sincronización con un sistema físico que medir | Medido solo en el camino determinista |
+| Corrección de la consulta | 20 de 32 en total: 17 de 17 con vocabulario técnico, 3 de 15 en paráfrasis | Medido solo en el camino determinista |
+| Corrección de la respuesta | Sin medir: hace falta que expertos o un evaluador califiquen cada informe | Pendiente |
+| Coste por consulta | Camino determinista: 0 tokens y 0 USD. Camino Gemini: sin medir | Parcial |
+| Robustez entre modelos | Un solo proveedor configurado; no se probó otro LLM | Pendiente |
+| Ablación | Plantilla fija frente a herramientas, sección 2. Gemini frente a enrutador: sin medir | Parcial |
+
+### 13.6 Prueba de corrección de la consulta
+
+**Protocolo.** 32 consultas de operador, 4 por cada una de las 8 intenciones;
+17 escritas con vocabulario técnico y 15 que dicen lo mismo con otras palabras.
+Cada consulta lleva etiquetados a mano los motores que deben ejecutarse. Cuenta
+como acierto que se ejecuten todos. `consultar_estado_cuenca` no cuenta, porque
+se ejecuta siempre. Cada consulta se repitió 10 veces; el camino es
+determinista, de modo que las repeticiones solo sirven para la latencia.
+
+| Subconjunto | Aciertos | Magnitud bien extraída | Casos con motores sobrantes |
+|---|---|---|---|
+| Vocabulario técnico | 17 de 17 | 5 de 5 | 2 |
+| Paráfrasis | 3 de 15 | 0 de 2 | 0 |
+| Total | 20 de 32 | 5 de 7 | 2 |
+
+De los 3 aciertos en paráfrasis, 2 son consultas de estado general, que es la
+respuesta por defecto, y el tercero acierta por la palabra "contamina". Fallos
+concretos, útiles para la discusión:
+
+- "Si tratamos el agua que sale de la mina al 95, ¿el Pb cumple?": la lista
+  tiene "miner" pero no "mina", tampoco "Pb", y el 95 sin "%" no se extrae.
+- "¿Se sale el agua del cauce si el caudal sube a 120 m3/s?": ninguna palabra
+  de la lista de crecidas.
+- "¿Qué tan confiable es la simulación?": la lista tiene "confianza", no
+  "confiable".
+- "Dame un resumen del estado de la cuenca" ejecuta el motor de metales, porque
+  "dame" contiene "dam", la sigla de drenaje ácido de mina.
+- "Simula el drenaje ácido de Quiruvilca" lanza además GR4J y el perfil
+  hidráulico, porque "simula" está en la lista de crecidas.
+
+**Amenaza a la validez.** Las consultas las redactó el asistente de IA usado en
+el desarrollo, después de leer las listas de palabras del enrutador. Las de
+vocabulario técnico están sesgadas a favor y las paráfrasis se escribieron para
+buscar fallos. La prueba mide funcionamiento, no generalización. La prueba
+seria es un conjunto escrito por operadores de la ANA o de la Junta de Usuarios
+sin conocer el código.
+
+**Lectura para el artículo.** Es el mejor argumento a favor del camino con LLM,
+pero solo vale cuando se mida ese camino con el mismo conjunto. Hasta entonces
+no conviene afirmar que Gemini lo resolvería.
+
+### 13.7 Entorno de software y hardware
+
+| Componente | Versión o especificación |
+|---|---|
+| Sistema operativo | Windows 11 Home, compilación 26300 |
+| CPU | Intel Core i7-1165G7, 4 núcleos, 8 hilos, 2.80 GHz |
+| RAM | 19.8 GB visibles |
+| GPU | Intel Iris Xe integrada. El LLM no corre en local, así que VRAM no aplica |
+| Node.js y npm | 22.20.0 y 10.9.1 |
+| Express | 4.22.2 |
+| @google/genai | 2.19.0 |
+| Vite, React, Three.js | 6.4.3, 19.2.8, 0.185.1 |
+| TypeScript y tsx | 5.8.3 y 4.23.12 |
+| Python | 3.10.11 |
+| scikit-learn, SHAP, pandas, NumPy | 1.5.2, 0.49.1, 2.2.3, 2.2.6 |
+
+### 13.8 Texto resumido para el artículo
+
+Base para pegar y adaptar. Usa solo cifras de este documento.
+
+> El gemelo no emplea n8n, LangFlow ni LangChain. La integración la resuelve un
+> servidor Express 4.22 en un único proceso de Node.js 22.20, sin cola de
+> mensajes ni workers. La interfaz dispara cada consulta con una petición HTTP, y
+> los geodatos externos (AWS Terrain Tiles, Overpass y Open-Meteo) se descargan
+> bajo demanda y se guardan en disco: 90 días el relieve, 30 la hidrografía y
+> 3 horas el clima. El razonamiento corre en un bucle propio de llamada a
+> funciones sobre gemini-2.0-flash (@google/genai 2.19), con temperatura 0.35,
+> 1400 tokens de salida como máximo y cuatro vueltas, la última sin
+> herramientas para obligar al modelo a redactar. La memoria conserva los seis
+> turnos previos, recortados a 700 caracteres. No hay recuperación aumentada:
+> las nueve herramientas exponen un esquema JSON de parámetros y cada una
+> declara las normas que su resultado implica, de modo que la cita legal procede
+> del cálculo ejecutado y no de una búsqueda por similitud. Si el modelo no está
+> disponible, un enrutador determinista deduce la intención por palabras clave,
+> extrae las magnitudes con expresiones regulares y ejecuta los mismos motores.
+>
+> En 32 consultas etiquetadas, ese enrutador ejecutó el motor correcto en las 17
+> escritas con vocabulario técnico y solo en 3 de las 15 parafraseadas. La
+> búsqueda por subcadenas produjo además falsos positivos: «dame» activa el
+> motor de drenaje ácido de mina por contener «dam». En un Intel Core i7-1165G7
+> con 19.8 GB de RAM, el camino determinista respondió con una mediana de
+> 1.44 ms y un P99 de 5.35 ms en 320 peticiones secuenciales, y atendió unas
+> 1180 peticiones por segundo con diez clientes simultáneos, sin errores. El
+> camino con Gemini no se evaluó en esta versión; su precisión, su latencia y su
+> coste por consulta quedan pendientes.

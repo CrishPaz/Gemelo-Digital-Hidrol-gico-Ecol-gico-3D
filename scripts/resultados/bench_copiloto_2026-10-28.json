@@ -1,0 +1,963 @@
+{
+ "fecha": "2026-10-28T12:56:48.060Z",
+ "base": "http://localhost:3002",
+ "repeticiones_por_caso": 10,
+ "correccion": {
+  "total": {
+   "casos": 32,
+   "aciertos": 20,
+   "con_falsos_positivos": 2,
+   "magnitudes": "5/7"
+  },
+  "directas": {
+   "casos": 17,
+   "aciertos": 17,
+   "con_falsos_positivos": 2,
+   "magnitudes": "5/5"
+  },
+  "parafrasis": {
+   "casos": 15,
+   "aciertos": 3,
+   "con_falsos_positivos": 0,
+   "magnitudes": "0/2"
+  }
+ },
+ "latencia_secuencial_ms": {
+  "n": 320,
+  "media": 1.6920065624999985,
+  "p50": 1.4443999999999733,
+  "p95": 3.4049999999999727,
+  "p99": 5.348299999999995,
+  "min": 0.9111000000000331,
+  "max": 7.706399999999917,
+  "errores": 0
+ },
+ "carga_concurrente": {
+  "clientes": 10,
+  "peticiones": 320,
+  "errores": 0,
+  "duracion_s": 0.27105799999999997,
+  "throughput_rps": 1180.5591423237834,
+  "latencia_ms": {
+   "n": 320,
+   "media": 8.193605625,
+   "p50": 7.365499999999997,
+   "p95": 14.543199999999956,
+   "p99": 21.69119999999998,
+   "min": 1.8380999999999403,
+   "max": 35.105500000000006
+  }
+ },
+ "geodatos_cache_caliente_ms": {
+  "health": {
+   "n": 20,
+   "media": 0.5629999999999938,
+   "p50": 0.5326000000000022,
+   "p95": 0.7179999999999609,
+   "p99": 1.0760000000000218,
+   "min": 0.42070000000001073,
+   "max": 1.0760000000000218,
+   "errores": 0
+  },
+  "dem": {
+   "n": 20,
+   "media": 55.37563000000002,
+   "p50": 45.76000000000022,
+   "p95": 86.52700000000004,
+   "p99": 89.15210000000002,
+   "min": 37.80340000000001,
+   "max": 89.15210000000002,
+   "errores": 0
+  },
+  "hydrography": {
+   "n": 20,
+   "media": 12.586449999999967,
+   "p50": 11.617399999999634,
+   "p95": 16.310199999999895,
+   "p99": 27.764999999999873,
+   "min": 9.453199999999924,
+   "max": 27.764999999999873,
+   "errores": 0
+  },
+  "weather_2_puntos": {
+   "n": 20,
+   "media": 51.779655000000005,
+   "p50": 3.832800000000134,
+   "p95": 12.375300000000152,
+   "p99": 946.038,
+   "min": 2.931500000000142,
+   "max": 946.038,
+   "errores": 0
+  }
+ },
+ "por_caso": [
+  {
+   "id": 1,
+   "intent": "metales",
+   "tipo": "directa",
+   "consulta": "¿Cuánto bajaría el plomo en el río si remediamos el efluente minero al 80%?",
+   "esperado": [
+    "simular_transporte_metales"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_transporte_metales"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": true,
+   "modo": "deterministic_engine",
+   "bytes": 4213,
+   "latencia_ms": {
+    "n": 10,
+    "media": 3.392920000000001,
+    "p50": 2.7334000000000174,
+    "p95": 6.240399999999994,
+    "p99": 6.240399999999994,
+    "min": 1.784400000000005,
+    "max": 6.240399999999994
+   }
+  },
+  {
+   "id": 2,
+   "intent": "metales",
+   "tipo": "directa",
+   "consulta": "Simula el drenaje ácido de Quiruvilca sin tratamiento",
+   "esperado": [
+    "simular_transporte_metales"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico",
+    "simular_transporte_metales"
+   ],
+   "acierto": true,
+   "falsos_positivos": [
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico"
+   ],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 6069,
+   "latencia_ms": {
+    "n": 10,
+    "media": 2.704809999999995,
+    "p50": 2.596299999999985,
+    "p95": 3.8941000000000088,
+    "p99": 3.8941000000000088,
+    "min": 2.2874999999999943,
+    "max": 3.8941000000000088
+   }
+  },
+  {
+   "id": 3,
+   "intent": "metales",
+   "tipo": "parafrasis",
+   "consulta": "Si tratamos el agua que sale de la mina al 95, ¿el Pb cumple en Trujillo?",
+   "esperado": [
+    "simular_transporte_metales"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": false,
+   "modo": "deterministic_engine",
+   "bytes": 2671,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.532299999999995,
+    "p50": 1.2801999999999794,
+    "p95": 2.131399999999985,
+    "p99": 2.131399999999985,
+    "min": 1.1306999999999903,
+    "max": 2.131399999999985
+   }
+  },
+  {
+   "id": 4,
+   "intent": "metales",
+   "tipo": "directa",
+   "consulta": "¿Qué concentración de arsénico llega a la costa?",
+   "esperado": [
+    "simular_transporte_metales"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_transporte_metales"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4276,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.523779999999988,
+    "p50": 1.501199999999983,
+    "p95": 2.1601,
+    "p99": 2.1601,
+    "min": 1.0840000000000032,
+    "max": 2.1601
+   }
+  },
+  {
+   "id": 5,
+   "intent": "crecida",
+   "tipo": "directa",
+   "consulta": "¿Qué pasa si llueven 60 mm en la cuenca alta durante 5 días?",
+   "esperado": [
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4145,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.5958199999999976,
+    "p50": 1.6052000000000248,
+    "p95": 2.086400000000026,
+    "p99": 2.086400000000026,
+    "min": 1.0185999999999922,
+    "max": 2.086400000000026
+   }
+  },
+  {
+   "id": 6,
+   "intent": "crecida",
+   "tipo": "directa",
+   "consulta": "Riesgo de desborde en Trujillo con un Niño fuerte",
+   "esperado": [
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4443,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.6685200000000067,
+    "p50": 1.6825000000000045,
+    "p95": 1.8928000000000225,
+    "p99": 1.8928000000000225,
+    "min": 1.1485000000000127,
+    "max": 1.8928000000000225
+   }
+  },
+  {
+   "id": 7,
+   "intent": "crecida",
+   "tipo": "parafrasis",
+   "consulta": "¿Se sale el agua del cauce si el caudal sube a 120 m3/s?",
+   "esperado": [
+    "calcular_perfil_hidraulico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": false,
+   "modo": "deterministic_engine",
+   "bytes": 2654,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.2341200000000072,
+    "p50": 1.224899999999991,
+    "p95": 1.3881000000000085,
+    "p99": 1.3881000000000085,
+    "min": 1.0606000000000222,
+    "max": 1.3881000000000085
+   }
+  },
+  {
+   "id": 8,
+   "intent": "crecida",
+   "tipo": "parafrasis",
+   "consulta": "Pronóstico de caudal para una tormenta de 80 mm",
+   "esperado": [
+    "simular_caudal_gr4j"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2645,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.400729999999993,
+    "p50": 1.3611999999999966,
+    "p95": 1.8629000000000246,
+    "p99": 1.8629000000000246,
+    "min": 1.1825999999999794,
+    "max": 1.8629000000000246
+   }
+  },
+  {
+   "id": 9,
+   "intent": "asignacion",
+   "tipo": "directa",
+   "consulta": "Reparte 4 m3/s entre los usuarios en estiaje",
+   "esperado": [
+    "optimizar_asignacion_caudal"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "optimizar_asignacion_caudal"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": true,
+   "modo": "deterministic_engine",
+   "bytes": 4431,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.6566800000000115,
+    "p50": 1.6607000000000198,
+    "p95": 1.9401000000000295,
+    "p99": 1.9401000000000295,
+    "min": 1.204999999999984,
+    "max": 1.9401000000000295
+   }
+  },
+  {
+   "id": 10,
+   "intent": "asignacion",
+   "tipo": "directa",
+   "consulta": "¿Cómo distribuyo el agua de riego si solo hay 3.5 m³/s?",
+   "esperado": [
+    "optimizar_asignacion_caudal"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "optimizar_asignacion_caudal"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": true,
+   "modo": "deterministic_engine",
+   "bytes": 4628,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.4033000000000015,
+    "p50": 1.257600000000025,
+    "p95": 1.7607999999999606,
+    "p99": 1.7607999999999606,
+    "min": 1.0036999999999807,
+    "max": 1.7607999999999606
+   }
+  },
+  {
+   "id": 11,
+   "intent": "asignacion",
+   "tipo": "parafrasis",
+   "consulta": "Prioriza el agua para la ciudad y los agricultores este mes seco",
+   "esperado": [
+    "optimizar_asignacion_caudal"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2661,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.3042700000000083,
+    "p50": 1.2764000000000237,
+    "p95": 1.633100000000013,
+    "p99": 1.633100000000013,
+    "min": 0.9608000000000061,
+    "max": 1.633100000000013
+   }
+  },
+  {
+   "id": 12,
+   "intent": "asignacion",
+   "tipo": "parafrasis",
+   "consulta": "Abre o cierra la toma de Menocucho según lo que necesiten los regantes",
+   "esperado": [
+    "optimizar_asignacion_caudal"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2668,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.2882999999999982,
+    "p50": 1.1961000000000013,
+    "p95": 1.8664999999999736,
+    "p99": 1.8664999999999736,
+    "min": 0.9408999999999992,
+    "max": 1.8664999999999736
+   }
+  },
+  {
+   "id": 13,
+   "intent": "eflow",
+   "tipo": "directa",
+   "consulta": "¿Se cumple el caudal ecológico con 2 m3/s?",
+   "esperado": [
+    "evaluar_caudal_ecologico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "evaluar_caudal_ecologico"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": true,
+   "modo": "deterministic_engine",
+   "bytes": 3429,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.3322599999999967,
+    "p50": 1.1829000000000178,
+    "p95": 1.8310000000000173,
+    "p99": 1.8310000000000173,
+    "min": 1.0361999999999512,
+    "max": 1.8310000000000173
+   }
+  },
+  {
+   "id": 14,
+   "intent": "eflow",
+   "tipo": "directa",
+   "consulta": "Evalúa el caudal mínimo para el hábitat de peces",
+   "esperado": [
+    "evaluar_caudal_ecologico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "evaluar_caudal_ecologico"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 3534,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.5846299999999929,
+    "p50": 1.5009000000000015,
+    "p95": 1.956799999999987,
+    "p99": 1.956799999999987,
+    "min": 1.434599999999989,
+    "max": 1.956799999999987
+   }
+  },
+  {
+   "id": 15,
+   "intent": "eflow",
+   "tipo": "parafrasis",
+   "consulta": "¿Cuánta agua hay que dejar en el río para que no se muera?",
+   "esperado": [
+    "evaluar_caudal_ecologico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2658,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.43733000000002,
+    "p50": 1.3955000000000268,
+    "p95": 1.7350000000000136,
+    "p99": 1.7350000000000136,
+    "min": 1.175800000000038,
+    "max": 1.7350000000000136
+   }
+  },
+  {
+   "id": 16,
+   "intent": "eflow",
+   "tipo": "parafrasis",
+   "consulta": "¿Qué volumen debe quedar en el cauce para los peces y las aves?",
+   "esperado": [
+    "evaluar_caudal_ecologico"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2662,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.3368300000000033,
+    "p50": 1.2462999999999624,
+    "p95": 1.5809000000000424,
+    "p99": 1.5809000000000424,
+    "min": 1.0886999999999603,
+    "max": 1.5809000000000424
+   }
+  },
+  {
+   "id": 17,
+   "intent": "calidad",
+   "tipo": "directa",
+   "consulta": "¿Cuál es el WQI en la estación de Simbal?",
+   "esperado": [
+    "evaluar_calidad_agua_wqi"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "evaluar_calidad_agua_wqi",
+    "consultar_estandares_eca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 3612,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.567449999999991,
+    "p50": 1.4694999999999823,
+    "p95": 2.5703999999999496,
+    "p99": 2.5703999999999496,
+    "min": 1.068399999999997,
+    "max": 2.5703999999999496
+   }
+  },
+  {
+   "id": 18,
+   "intent": "calidad",
+   "tipo": "directa",
+   "consulta": "Calidad del agua con pH 5.2",
+   "esperado": [
+    "evaluar_calidad_agua_wqi"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "evaluar_calidad_agua_wqi",
+    "consultar_estandares_eca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": true,
+   "modo": "deterministic_engine",
+   "bytes": 3621,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.4837499999999806,
+    "p50": 1.4180999999999813,
+    "p95": 1.9051999999999794,
+    "p99": 1.9051999999999794,
+    "min": 1.033399999999972,
+    "max": 1.9051999999999794
+   }
+  },
+  {
+   "id": 19,
+   "intent": "calidad",
+   "tipo": "parafrasis",
+   "consulta": "¿El agua del río sirve para regar hortalizas?",
+   "esperado": [
+    "evaluar_calidad_agua_wqi"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2644,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.7620200000000068,
+    "p50": 1.567700000000002,
+    "p95": 3.098100000000045,
+    "p99": 3.098100000000045,
+    "min": 1.3716000000000008,
+    "max": 3.098100000000045
+   }
+  },
+  {
+   "id": 20,
+   "intent": "calidad",
+   "tipo": "parafrasis",
+   "consulta": "¿Está sucia el agua en la parte baja?",
+   "esperado": [
+    "evaluar_calidad_agua_wqi"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2636,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.539049999999986,
+    "p50": 1.5260999999999285,
+    "p95": 1.7447000000000799,
+    "p99": 1.7447000000000799,
+    "min": 1.304399999999987,
+    "max": 1.7447000000000799
+   }
+  },
+  {
+   "id": 21,
+   "intent": "enkf",
+   "tipo": "directa",
+   "consulta": "Ejecuta la asimilación de datos con el filtro de Kalman",
+   "esperado": [
+    "asimilar_datos_enkf"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "asimilar_datos_enkf"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 3384,
+   "latencia_ms": {
+    "n": 10,
+    "media": 4.499569999999994,
+    "p50": 3.8917999999999893,
+    "p95": 7.706399999999917,
+    "p99": 7.706399999999917,
+    "min": 2.7765000000000555,
+    "max": 7.706399999999917
+   }
+  },
+  {
+   "id": 22,
+   "intent": "enkf",
+   "tipo": "directa",
+   "consulta": "Muestra el Nash y el KGE del modelo calibrado",
+   "esperado": [
+    "asimilar_datos_enkf"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "asimilar_datos_enkf"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 3373,
+   "latencia_ms": {
+    "n": 10,
+    "media": 3.240209999999979,
+    "p50": 3.2807999999999993,
+    "p95": 3.941699999999969,
+    "p99": 3.941699999999969,
+    "min": 2.5411000000000286,
+    "max": 3.941699999999969
+   }
+  },
+  {
+   "id": 23,
+   "intent": "enkf",
+   "tipo": "parafrasis",
+   "consulta": "¿Qué tan confiable es la simulación de caudal?",
+   "esperado": [
+    "asimilar_datos_enkf"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_caudal_gr4j",
+    "calcular_perfil_hidraulico"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4442,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.5260600000000069,
+    "p50": 1.4565000000000055,
+    "p95": 1.786100000000033,
+    "p99": 1.786100000000033,
+    "min": 1.3745999999999867,
+    "max": 1.786100000000033
+   }
+  },
+  {
+   "id": 24,
+   "intent": "enkf",
+   "tipo": "parafrasis",
+   "consulta": "¿Cuánto se equivoca el modelo frente a lo medido?",
+   "esperado": [
+    "asimilar_datos_enkf"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2648,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.276279999999997,
+    "p50": 1.3700999999999794,
+    "p95": 1.4857999999999265,
+    "p99": 1.4857999999999265,
+    "min": 1.0381999999999607,
+    "max": 1.4857999999999265
+   }
+  },
+  {
+   "id": 25,
+   "intent": "normativa",
+   "tipo": "directa",
+   "consulta": "¿Qué dice la norma ECA para riego?",
+   "esperado": [
+    "consultar_estandares_eca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "optimizar_asignacion_caudal",
+    "consultar_estandares_eca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4903,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.523860000000002,
+    "p50": 1.378400000000056,
+    "p95": 2.1990999999999303,
+    "p99": 2.1990999999999303,
+    "min": 1.2545000000000073,
+    "max": 2.1990999999999303
+   }
+  },
+  {
+   "id": 26,
+   "intent": "normativa",
+   "tipo": "directa",
+   "consulta": "Prepara un dictamen para la ANA",
+   "esperado": [
+    "consultar_estandares_eca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "consultar_estandares_eca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2996,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.6194300000000112,
+    "p50": 1.525700000000029,
+    "p95": 2.2124000000000024,
+    "p99": 2.2124000000000024,
+    "min": 1.322400000000016,
+    "max": 2.2124000000000024
+   }
+  },
+  {
+   "id": 27,
+   "intent": "normativa",
+   "tipo": "parafrasis",
+   "consulta": "¿Qué límite de plomo permite el reglamento peruano?",
+   "esperado": [
+    "consultar_estandares_eca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_transporte_metales"
+   ],
+   "acierto": false,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4278,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.3404499999999984,
+    "p50": 1.3508999999999105,
+    "p95": 1.631800000000112,
+    "p99": 1.631800000000112,
+    "min": 1.0199999999999818,
+    "max": 1.631800000000112
+   }
+  },
+  {
+   "id": 28,
+   "intent": "normativa",
+   "tipo": "parafrasis",
+   "consulta": "¿Qué multa le cae a la minera si contamina?",
+   "esperado": [
+    "consultar_estandares_eca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_transporte_metales",
+    "evaluar_calidad_agua_wqi",
+    "consultar_estandares_eca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 5064,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.2933900000000107,
+    "p50": 1.2436999999999898,
+    "p95": 1.780399999999986,
+    "p99": 1.780399999999986,
+    "min": 0.9790000000000418,
+    "max": 1.780399999999986
+   }
+  },
+  {
+   "id": 29,
+   "intent": "estado",
+   "tipo": "directa",
+   "consulta": "Dame un resumen del estado de la cuenca",
+   "esperado": [
+    "consultar_estado_cuenca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca",
+    "simular_transporte_metales"
+   ],
+   "acierto": true,
+   "falsos_positivos": [
+    "simular_transporte_metales"
+   ],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 4263,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.1577300000000037,
+    "p50": 1.0110999999999422,
+    "p95": 1.4325999999999794,
+    "p99": 1.4325999999999794,
+    "min": 0.9394999999999527,
+    "max": 1.4325999999999794
+   }
+  },
+  {
+   "id": 30,
+   "intent": "estado",
+   "tipo": "directa",
+   "consulta": "Diagnóstico general",
+   "esperado": [
+    "consultar_estado_cuenca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2617,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.2802699999999845,
+    "p50": 1.114500000000021,
+    "p95": 1.779299999999921,
+    "p99": 1.779299999999921,
+    "min": 0.9111000000000331,
+    "max": 1.779299999999921
+   }
+  },
+  {
+   "id": 31,
+   "intent": "estado",
+   "tipo": "parafrasis",
+   "consulta": "¿Cómo va el río hoy?",
+   "esperado": [
+    "consultar_estado_cuenca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2620,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.2669700000000035,
+    "p50": 1.2249000000000478,
+    "p95": 1.5512999999999693,
+    "p99": 1.5512999999999693,
+    "min": 1.0335000000000036,
+    "max": 1.5512999999999693
+   }
+  },
+  {
+   "id": 32,
+   "intent": "estado",
+   "tipo": "parafrasis",
+   "consulta": "Hola",
+   "esperado": [
+    "consultar_estado_cuenca"
+   ],
+   "ejecutados": [
+    "consultar_estado_cuenca"
+   ],
+   "acierto": true,
+   "falsos_positivos": [],
+   "magnitud_ok": null,
+   "modo": "deterministic_engine",
+   "bytes": 2601,
+   "latencia_ms": {
+    "n": 10,
+    "media": 1.3711199999999848,
+    "p50": 1.2141999999998916,
+    "p95": 2.7001000000000204,
+    "p99": 2.7001000000000204,
+    "min": 1.0698999999999614,
+    "max": 2.7001000000000204
+   }
+  }
+ ]
+}
